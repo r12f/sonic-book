@@ -47,8 +47,9 @@ h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
 .hide-boring .boring { display: none; }
 .hidden { display: none !important; }
 
-h2, h3 { margin-top: 2.5em; }
-h4, h5 { margin-top: 2em; }
+h2, h3 { margin-top: 1.5em; }
+h4, h5 { margin-top: 1.5em; }
+
 
 .header + .header h3,
 .header + .header h4,
@@ -100,6 +101,7 @@ h6:target::before {
 .content p { line-height: 1.45em; }
 .content ol { line-height: 1.45em; }
 .content ul { line-height: 1.45em; }
+.content li { margin: 0.5em 0 0 0; }
 .content a { text-decoration: none; }
 .content a:hover { text-decoration: underline; }
 .content img, .content video { max-width: 100%; }
@@ -117,7 +119,7 @@ table {
     border-collapse: collapse;
 }
 table td {
-    padding: 3px 20px;
+    padding: 8px 20px;
     border: 1px var(--table-border-color) solid;
 }
 table thead {

@@ -140,6 +140,13 @@
                     <h1 class="menu-title">{{ book_title }}</h1>
 
                     <div class="right-buttons">
+                        <button id="lang-toggle" class="icon-button" type="button" title="Change Language" aria-label="Change Language" aria-haspopup="true" aria-expanded="false" aria-controls="lang-list">
+                            <i class="fa fa-flag"></i>
+                        </button>
+                        <ul id="lang-list" class="theme-popup" style="left: auto;" aria-label="Languages" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="cn">中文</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="en">English</button></li>
+                        </ul>
                         {{#if print_enable}}
                         <a href="{{ path_to_root }}print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
@@ -183,6 +190,7 @@
 
                 <div id="content" class="content">
                     <main>
+                        <div class="sidetoc"><nav class="pagetoc"></nav></div>
                         {{{ content }}}
                     </main>
 
@@ -313,5 +321,62 @@
         {{/if}}
 
     </div>
+
+     <script type="text/javascript">
+        var langs = [
+            'cn',
+            'en',
+        ];
+
+        (function langs() {
+            var html = document.querySelector('html');
+            var langToggleButton = document.getElementById('lang-toggle');
+            var langPopup = document.getElementById('lang-list');
+
+            function showLangs() {
+                langPopup.style.display = 'block';
+                langToggleButton.setAttribute('aria-expanded', true);
+            }
+
+            function hideLangs() {
+                langPopup.style.display = 'none';
+                langToggleButton.setAttribute('aria-expanded', false);
+                langToggleButton.focus();
+            }
+
+            langToggleButton.addEventListener('click', function () {
+                if (langPopup.style.display === 'block') {
+                    hideLangs();
+                } else {
+                    showLangs();
+                }
+            });
+
+            langPopup.addEventListener('click', function (e) {
+                var lang = e.target.id || e.target.parentElement.id;
+                window.location.pathname = window.location.pathname
+                    .split('/')
+                    .map((s, idx) => {
+                        return idx == 2 ? lang : s;
+                    })
+                    .join('/');
+            });
+
+            langPopup.addEventListener('focusout', function(e) {
+                // e.relatedTarget is null in Safari and Firefox on macOS (see workaround below)
+                if (!!e.relatedTarget && !langToggleButton.contains(e.relatedTarget) && !langPopup.contains(e.relatedTarget)) {
+                    hideLangs();
+                }
+            });
+
+            // Should not be needed, but it works around an issue on macOS & iOS: https://github.com/rust-lang-nursery/mdBook/issues/628
+            document.addEventListener('click', function(e) {
+                if (langPopup.style.display === 'block' && !langToggleButton.contains(e.target) && !langPopup.contains(e.target)) {
+                    hideLangs();
+                }
+            });
+
+        })();
+        </script>
     </body>
 </html>
