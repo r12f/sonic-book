@@ -1,5 +1,7 @@
 # Getting Started with SONiC
 
+![Build Pipeline](https://img.shields.io/github/actions/workflow/status/r12f/sonic-book/mdbook.yml)
+
 > What is SONiC?
 > 
 > Software for Open Networking in the Cloud (SONiC) is an open source network operating system (NOS) based on Linux that runs on switches from multiple vendors and ASICs. SONiC offers a full suite of network functionality, like BGP and RDMA, that has been production-hardened in the data centers of some of the largest cloud service providers. It offers teams the flexibility to create the network solutions they need while leveraging the collective strength of a large ecosystem and community.
@@ -12,7 +14,7 @@ If you are in this situation, then this book is for you.
 
 "Getting Started with SONiC" / "SONiC入门指南" is a book that intended to help people actually getting started on [SONiC](https://sonicfoundation.dev/). It contains a series of tutorials that will guide you through the process of building a SONiC image, deploying it on a switch or virtually, and using it to do some basic network operations to get hands on, as well as introducing the high level architecture, code base, and typical workflows to help you understand how it works internally and get started on development.
 
-The book is currently in [Chinese（中文）](https://sonic-book.github.io/cn) and planning to get [English version](https://sonic-book.github.io/en) out as well. If you like this books, please give it a star, or join the effort of authoring, bug fixing or translations by submitting PRs.
+The book is currently in [Chinese（中文）](https://r12f.com/sonic-book) and planning to get English version out as well. If you like this books, please give it a star, or join the effort of authoring, bug fixing or translations by submitting PRs.
 
 # License
 
