@@ -39,6 +39,10 @@ _(Source: [SONiC Wiki - Architecture][SONiCArch])_
 
 [@bingwang-ms](https://github.com/bingwang-ms)
 
+# License
+
+本书使用 [署名-非商业性使用-相同方式共享（CC BY-NC-SA）4.0 许可协议](https://creativecommons.org/licenses/by-nc-sa/4.0/)。
+
 # 参考资料
 
 1. [SONiC Wiki - Architecture][SONiCArch]
