@@ -282,9 +282,7 @@ sai_status_t VendorSai::getStatsExt(
 
 ### Syncd主循环
 
-`Syncd`的主循环也是使用的SONiC中标准的[事件分发](./4-3-event-polling-and-error-handling.html)机制：在启动时，`Syncd`会将所有用于事件处理的`Selectable`对象注册到用于获取事件的`Select`对象中，然后在主循环中调用`Select`的`select`方法，等待事件的发生。
-
-其核心代码如下，其中的`m_selectableChannel`就是主要负责处理Redis数据库中的事件的对象：
+`Syncd`的主循环也是使用的SONiC中标准的[事件分发](./4-3-event-polling-and-error-handling.html)机制：在启动时，`Syncd`会将所有用于事件处理的`Selectable`对象注册到用于获取事件的`Select`对象中，然后在主循环中调用`Select`的`select`方法，等待事件的发生。核心代码如下：
 
 ```c
 // File: src/sonic-sairedis/syncd/Syncd.cpp
@@ -332,6 +330,37 @@ void Syncd::run()
 }
 ```
 
+其中，`m_selectableChannel`就是主要负责处理Redis数据库中的事件的对象。它使用[ProducerTable / ConsumerTable](./4-2-2-redis-messaging-layer.md#producertable--consumertable)的方式与Redis数据库进行交互，所以，所有`orchagent`发送过来的操作都会以三元组的形式保存在Redis中的list中，等待`Syncd`的处理。其核心定义如下：
+
+```cpp
+// File: src/sonic-sairedis/meta/RedisSelectableChannel.h
+class RedisSelectableChannel: public SelectableChannel
+{
+    public:
+        RedisSelectableChannel(
+                _In_ std::shared_ptr<swss::DBConnector> dbAsic,
+                _In_ const std::string& asicStateTable,
+                _In_ const std::string& getResponseTable,
+                _In_ const std::string& tempPrefix,
+                _In_ bool modifyRedis);
+
+    public: // SelectableChannel overrides
+        virtual bool empty() override;
+        ...
+
+    public: // Selectable overrides
+        virtual int getFd() override;
+        virtual uint64_t readData() override;
+        ...
+
+    private:
+        std::shared_ptr<swss::DBConnector> m_dbAsic;
+        std::shared_ptr<swss::ConsumerTable> m_asicState;
+        std::shared_ptr<swss::ProducerTable> m_getResponse;
+        ...
+};
+```
+
 另外，在主循环启动时，`Syncd`还会额外启动两个线程：
 
 - 用于接收ASIC上报通知的通知处理线程：`m_processor->startNotificationsProcessingThread();`
@@ -341,7 +370,100 @@ void Syncd::run()
 
 ## ASIC状态更新
 
-ASIC状态更新是Syncd中最重要的工作流之一，当orchagent发现任何变化并开始修改ASIC_DB时，就会触发该工作流，通过SAI来对ASIC进行更新。其主要工作流如下：
+ASIC状态更新是`Syncd`中最重要的工作流之一，当`orchagent`发现任何变化并开始修改ASIC_DB时，就会触发该工作流，通过SAI来对ASIC进行更新。在了解了`Syncd`的主循环之后，理解ASIC状态更新的工作流就很简单了。
+
+首先，`orchagent`通过Redis发送过来的操作会被`RedisSelectableChannel`对象接收，然后在主循环中被处理。当`Syncd`处理到`m_selectableChannel`时，就会调用`processEvent`方法来处理该操作。这几步的核心代码我们上面介绍主循环时已经介绍过了，这里就不再赘述。
+
+然后，`processEvent`会根据其中的操作类型，调用对应的SAI的API来对ASIC进行更新。其逻辑是一个巨大的switch-case语句，如下：
+
+```cpp
+// File: src/sonic-sairedis/syncd/Syncd.cpp
+void Syncd::processEvent(_In_ sairedis::SelectableChannel& consumer)
+{
+    // Loop all operations in the queue
+    std::lock_guard<std::mutex> lock(m_mutex);
+    do {
+        swss::KeyOpFieldsValuesTuple kco;
+        consumer.pop(kco, isInitViewMode());
+        processSingleEvent(kco);
+    } while (!consumer.empty());
+}
+
+sai_status_t Syncd::processSingleEvent(_In_ const swss::KeyOpFieldsValuesTuple &kco)
+{
+    auto& op = kfvOp(kco);
+    ...
+
+    if (op == REDIS_ASIC_STATE_COMMAND_CREATE)
+        return processQuadEvent(SAI_COMMON_API_CREATE, kco);
+
+    if (op == REDIS_ASIC_STATE_COMMAND_REMOVE)
+        return processQuadEvent(SAI_COMMON_API_REMOVE, kco);
+    
+    ...
+}
+
+sai_status_t Syncd::processQuadEvent(
+        _In_ sai_common_api_t api,
+        _In_ const swss::KeyOpFieldsValuesTuple &kco)
+{
+    // Parse operation
+    const std::string& key = kfvKey(kco);
+    const std::string& strObjectId = key.substr(key.find(":") + 1);
+
+    sai_object_meta_key_t metaKey;
+    sai_deserialize_object_meta_key(key, metaKey);
+
+    auto& values = kfvFieldsValues(kco);
+    SaiAttributeList list(metaKey.objecttype, values, false);
+    sai_attribute_t *attr_list = list.get_attr_list();
+    uint32_t attr_count = list.get_attr_count();
+    ...
+
+    auto info = sai_metadata_get_object_type_info(metaKey.objecttype);
+
+    // Process the operation
+    sai_status_t status;
+    if (info->isnonobjectid) {
+        status = processEntry(metaKey, api, attr_count, attr_list);
+    } else {
+        status = processOid(metaKey.objecttype, strObjectId, api, attr_count, attr_list);
+    }
+
+    // Send response
+    if (api == SAI_COMMON_API_GET) {
+        sai_object_id_t switchVid = VidManager::switchIdQuery(metaKey.objectkey.key.object_id);
+        sendGetResponse(metaKey.objecttype, strObjectId, switchVid, status, attr_count, attr_list);
+        ...
+    } else {
+        sendApiResponse(api, status);
+    }
+
+    syncUpdateRedisQuadEvent(status, api, kco);
+    return status;
+}
+
+sai_status_t Syncd::processEntry(_In_ sai_object_meta_key_t metaKey, _In_ sai_common_api_t api,
+                                 _In_ uint32_t attr_count, _In_ sai_attribute_t *attr_list)
+{
+    ...
+
+    switch (api)
+    {
+        case SAI_COMMON_API_CREATE:
+            return m_vendorSai->create(metaKey, SAI_NULL_OBJECT_ID, attr_count, attr_list);
+
+        case SAI_COMMON_API_REMOVE:
+            return m_vendorSai->remove(metaKey);
+        ...
+
+        default:
+            SWSS_LOG_THROW("api %s not supported", sai_serialize_common_api(api).c_str());
+    }
+}
+```
+
+最后总结成时序图如下：
 
 ```mermaid
 sequenceDiagram
