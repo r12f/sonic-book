@@ -13,7 +13,7 @@ sequenceDiagram
     participant M as main
     participant SDM as syncd_main
     participant SD as Syncd
-    participant SAI as VendorSAI
+    participant SAI as VendorSai
 
     M->>+SDM: 调用syncd_main函数
 
@@ -105,20 +105,93 @@ Syncd::Syncd(
 }
 ```
 
-### SAI的封装和初始化
+### SAI初始化
 
 `Syncd`初始化的最后也是最重要的一步，就是对SAI进行初始化。[在核心组件的SAI介绍中，我们简单的展示了SAI的实现，以及它是如何为SONiC提供不同平台的支持](./2-4-sai-intro.html)，这里我们就来看一下SAI的初始化过程。
+
+#### SAI实现的初始化
 
 初始化SAI的主要函数有两个：
 
 - `sai_api_initialize`：初始化SAI
 - `sai_api_query`：传入SAI的API的类型，获取对应的接口列表
 
-虽然大部分厂商的SAI实现是闭源的，但是mellanox却开源了自己的SAI实现，所以这里我们可以借助其更加深入的理解SAI是如何工作的，比如，上面两个函数的核心代码如下：
+虽然大部分厂商的SAI实现是闭源的，但是mellanox却开源了自己的SAI实现，所以这里我们可以借助其更加深入的理解SAI是如何工作的。
 
-TODO 
+比如，`sai_api_initialize`函数其实就是简单的设置设置两个全局变量，然后返回`SAI_STATUS_SUCCESS`：
 
-`Syncd`使用`VendorSAI`来对SAI的所有API进行封装，方便上层调用。其初始化过程也非常直接，基本就是对上面两个函数的直接调用和错误处理，如下：
+```cpp
+// File: platform/mellanox/mlnx-sai/SAI-Implementation/mlnx_sai/src/mlnx_sai_interfacequery.c
+sai_status_t sai_api_initialize(_In_ uint64_t flags, _In_ const sai_service_method_table_t* services)
+{
+    if (g_initialized) {
+        return SAI_STATUS_FAILURE;
+    }
+    // Validate parameters here (code emitted)
+
+    memcpy(&g_mlnx_services, services, sizeof(g_mlnx_services));
+    g_initialized = true;
+    return SAI_STATUS_SUCCESS;
+}
+```
+
+初始化完成后，我们就可以使用`sai_api_query`函数，通过传入API的类型来查询对应的接口列表，而每一个接口列表其实都是一个全局变量：
+
+```cpp
+// File: platform/mellanox/mlnx-sai/SAI-Implementation/mlnx_sai/src/mlnx_sai_interfacequery.c
+sai_status_t sai_api_query(_In_ sai_api_t sai_api_id, _Out_ void** api_method_table)
+{
+    if (!g_initialized) {
+        return SAI_STATUS_UNINITIALIZED;
+    }
+    ...
+
+    return sai_api_query_eth(sai_api_id, api_method_table);
+}
+
+// File: platform/mellanox/mlnx-sai/SAI-Implementation/mlnx_sai/src/mlnx_sai_interfacequery_eth.c
+sai_status_t sai_api_query_eth(_In_ sai_api_t sai_api_id, _Out_ void** api_method_table)
+{
+    switch (sai_api_id) {
+    case SAI_API_BRIDGE:
+        *(const sai_bridge_api_t**)api_method_table = &mlnx_bridge_api;
+        return SAI_STATUS_SUCCESS;
+    case SAI_API_SWITCH:
+        *(const sai_switch_api_t**)api_method_table = &mlnx_switch_api;
+        return SAI_STATUS_SUCCESS;
+    ...
+    default:
+        if (sai_api_id >= (sai_api_t)SAI_API_EXTENSIONS_RANGE_END) {
+            return SAI_STATUS_INVALID_PARAMETER;
+        } else {
+            return SAI_STATUS_NOT_IMPLEMENTED;
+        }
+    }
+}
+
+// File: platform/mellanox/mlnx-sai/SAI-Implementation/mlnx_sai/src/mlnx_sai_bridge.c
+const sai_bridge_api_t mlnx_bridge_api = {
+    mlnx_create_bridge,
+    mlnx_remove_bridge,
+    mlnx_set_bridge_attribute,
+    mlnx_get_bridge_attribute,
+    ...
+};
+
+
+// File: platform/mellanox/mlnx-sai/SAI-Implementation/mlnx_sai/src/mlnx_sai_switch.c
+const sai_switch_api_t mlnx_switch_api = {
+    mlnx_create_switch,
+    mlnx_remove_switch,
+    mlnx_set_switch_attribute,
+    mlnx_get_switch_attribute,
+    ...
+};
+```
+
+#### SAI的封装：VendorSai
+
+`Syncd`使用`VendorSai`来对SAI的所有API进行封装，方便上层调用。其初始化过程也非常直接，基本就是对上面两个函数的直接调用和错误处理，如下：
 
 ```cpp
 // File: src/sonic-sairedis/syncd/VendorSai.cpp
