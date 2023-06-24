@@ -36,12 +36,6 @@ sequenceDiagram
 
 然后我们再从代码的角度来更加仔细的看一下这个流程。
 
-```admonish note
-为了方便阅读和理解，所有的代码都只是列出了最核心的代码来展现流程，并不是完整的代码，如果需要查看完整代码，请参考[仓库中的原始代码](https://github.com/sonic-net/sonic-sairedis/blob/master/syncd)。
-
-另外，每个代码块的开头都给出了相关文件的路径，其使用的是仓库均为SONiC的主仓库：sonic-buildimage。
-```
-
 ### syncd_main函数
 
 `syncd_main`函数本身非常简单，主要逻辑就是创建Syncd对象，然后调用其`run`方法：
@@ -463,10 +457,22 @@ sai_status_t Syncd::processEntry(_In_ sai_object_meta_key_t metaKey, _In_ sai_co
 }
 ```
 
-最后总结成时序图如下：
+最后，所有这些步骤都发生在主线程一个线程中，顺序执行，总结成时序图如下：
 
 ```mermaid
 sequenceDiagram
+    participant SD as Syncd
+    participant RSC as RedisSelectableChannel
+    participant SAI as VendorSai
+
+    SD->>RSC: 收到epoll通知，通知获取所有到来的消息
+
+    loop 所有到来的消息
+        SD->>RSC: 读取一个到来的消息
+        SD->>SD: 解析消息，获取操作类型和操作对象
+        SD->>SAI: 调用对应的SAI API，更新ASIC
+        SD->>RSC: 发送调用结果给Redis
+    end
 ```
 
 ## ASIC状态变更上报
