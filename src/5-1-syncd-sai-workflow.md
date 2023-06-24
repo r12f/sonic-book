@@ -464,14 +464,21 @@ sequenceDiagram
     participant SD as Syncd
     participant RSC as RedisSelectableChannel
     participant SAI as VendorSai
+    participant R as Redis
 
-    SD->>RSC: 收到epoll通知，通知获取所有到来的消息
+    loop 主线程循环
+        SD->>RSC: 收到epoll通知，通知获取所有到来的消息
+        RSC->>R: 通过ConsumerTable获取所有到来的消息
 
-    loop 所有到来的消息
-        SD->>RSC: 读取一个到来的消息
-        SD->>SD: 解析消息，获取操作类型和操作对象
-        SD->>SAI: 调用对应的SAI API，更新ASIC
-        SD->>RSC: 发送调用结果给Redis
+        critical 给Syncd加锁
+            loop 所有收到的消息
+                SD->>RSC: 获取一个消息
+                SD->>SD: 解析消息，获取操作类型和操作对象
+                SD->>SAI: 调用对应的SAI API，更新ASIC
+                SD->>RSC: 发送调用结果给Redis
+                RSC->>R: 将调用结果写入Redis
+            end
+        end
     end
 ```
 
