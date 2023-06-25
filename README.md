@@ -2,6 +2,8 @@
 
 ![Build Pipeline](https://img.shields.io/github/actions/workflow/status/r12f/sonic-book/mdbook.yml)
 
+Version: [Chinese](https://r12f.com/sonic-book)
+
 > What is SONiC?
 > 
 > Software for Open Networking in the Cloud (SONiC) is an open source network operating system (NOS) based on Linux that runs on switches from multiple vendors and ASICs. SONiC offers a full suite of network functionality, like BGP and RDMA, that has been production-hardened in the data centers of some of the largest cloud service providers. It offers teams the flexibility to create the network solutions they need while leveraging the collective strength of a large ecosystem and community.
