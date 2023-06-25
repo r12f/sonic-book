@@ -26,7 +26,7 @@ build:
 
 serve:
     @just _log-head "Starting mdbook server..."
-    mdbook serve
+    mdbook serve -n 0.0.0.0
 
 #
 # Utility tasks

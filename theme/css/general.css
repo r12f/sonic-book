@@ -203,3 +203,10 @@ kbd {
 .result-no-output {
     font-style: italic;
 }
+
+hr {
+    background-image: repeating-linear-gradient(-45deg, #ddd, #ddd 4px, transparent 4px, transparent 8px);
+    border: 0;
+    height: 3px;
+    margin: 40px 0;
+}
