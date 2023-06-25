@@ -10,12 +10,12 @@
 
 ```mermaid
 sequenceDiagram
-    participant M as main
+    autonumber
     participant SDM as syncd_main
     participant SD as Syncd
     participant SAI as VendorSai
-
-    M->>+SDM: 调用syncd_main函数
+    participant NP as NotificationProcessor
+    participant MIS as MdioIpcServer
 
     SDM->>+SD: 调用构造函数
     SD->>SD: 加载和解析命令行参数和配置文件
@@ -26,12 +26,13 @@ sequenceDiagram
     SD->>-SAI: 初始化SAI
 
     SDM->>+SD: 启动主线程循环
-    SD->>SD: 启动SAI上报处理线程
-    SD->>SD: 启动MDIO IPC服务器线程
+    SD->>NP: 启动SAI上报处理线程
+    NP->>NP: 开始通知处理循环
+    SD->>MIS: 启动MDIO IPC服务器线程
+    MIS->>MIS: 开始MDIO IPC服务器事件循环
     SD->>SD: 初始化并启动事件分发机制，开始主循环
 
     SD->>-SDM: 退出主循环返回
-    SDM->>-M: 退出syncd_main函数返回
 ```
 
 然后我们再从代码的角度来更加仔细的看一下这个流程。
@@ -461,6 +462,7 @@ sai_status_t Syncd::processEntry(_In_ sai_object_meta_key_t metaKey, _In_ sai_co
 
 ```mermaid
 sequenceDiagram
+    autonumber
     participant SD as Syncd
     participant RSC as RedisSelectableChannel
     participant SAI as VendorSai
