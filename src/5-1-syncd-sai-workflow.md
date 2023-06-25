@@ -772,7 +772,7 @@ void NotificationProcessor::process_on_fdb_event( _In_ uint32_t count, _In_ sai_
 }
 ```
 
-具体发送事件的逻辑就非常直接了，最终就是通过`swss::NotificationProducer`来发送通知到ASIC_DB中：
+具体发送事件的逻辑就非常直接了，最终就是通过[NotificationProducer](./4-2-2-redis-messaging-layer.html#notificationproducer--notificationconsumer)来发送通知到ASIC_DB中：
 
 ```cpp
 // File: src/sonic-sairedis/syncd/NotificationProcessor.cpp
