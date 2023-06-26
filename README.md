@@ -18,6 +18,12 @@ If you are in this situation, then this book is for you.
 
 The book is currently in [Chinese（中文）](https://r12f.com/sonic-book) and planning to get English version out as well. If you like this books, please give it a star, or join the effort of authoring, bug fixing or translations by submitting PRs.
 
+# Acknowledgement
+
+Huge thanks to the following friends for their help and contribution, without you there would be no this book!
+
+[@bingwang-ms](https://github.com/bingwang-ms)
+
 # License
 
 This book is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
