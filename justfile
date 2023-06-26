@@ -15,7 +15,7 @@ default: serve
 
 init:
     cargo install mdbook
-    cargo install mdbook-i18n
+    cargo install mdbook-i18n-helpers
     cargo install mdbook-admonish
     cargo install mdbook-pagetoc
     cargo install mdbook-mermaid
@@ -23,10 +23,22 @@ init:
 build:
     @just _log-head "Building book..."
     mdbook build
+    $env:MDBOOK_BOOK__LANGUAGE="en"; mdbook build -d book/en; $env:MDBOOK_BOOK__LANGUAGE=$null
 
 serve:
     @just _log-head "Starting mdbook server..."
     mdbook serve -n 0.0.0.0
+
+init-po:
+    $env:MDBOOK_OUTPUT='{"xgettext": {"pot-file": "messages.pot"}}'; mdbook build -d po; $env:MDBOOK_OUTPUT=$null
+
+update-po PO='en':
+    @just _log-head "Updating po files for language {{PO}} ..."
+    msgmerge --update po/{{PO}}.po po/messages.pot
+
+serve-po PO='en':
+    @just _log-head "Starting mdbook server with translated {{PO}} book ..."
+    $env:MDBOOK_BOOK__LANGUAGE="{{PO}}"; mdbook serve -d book/{{PO}} -n 0.0.0.0; $env:MDBOOK_BOOK__LANGUAGE=$null
 
 #
 # Utility tasks
