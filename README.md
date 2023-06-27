@@ -18,12 +18,29 @@ If you are in this situation, then this book is for you.
 
 The book is currently in [Chinese（中文）](https://r12f.com/sonic-book) and planning to get English version out as well. If you like this books, please give it a star, or join the effort of authoring, bug fixing or translations by submitting PRs.
 
-# Acknowledgement
+## How to build
+
+### Prerequisites
+
+1. Install `just` by following the [installation guide](https://github.com/casey/just#installation). We use `just` instead of `make`, because it is easier to manage and use.
+2. Run `just init` for installing mdbook and related pluins. This is one time initialization.
+
+### Build
+
+Simply run `just build` to build the book. The output will be in `book` folder.
+
+### Serve
+
+Run `just serve` to serve the book locally. You can then visit `http://localhost:3000` to view the book.
+
+If we need to serve the book with specific translation, we can run `just po-serve <lang>`. For example, `just po-serve en` will serve the book in English.
+
+## Acknowledgement
 
 Huge thanks to the following friends for their help and contribution, without you there would be no this book!
 
 [@bingwang-ms](https://github.com/bingwang-ms)
 
-# License
+## License
 
 This book is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
