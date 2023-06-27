@@ -21,22 +21,27 @@ init:
     cargo install mdbook-mermaid
 
 build:
-    @just _log-head "Building book..."
+    @just _log-head "Building book ..."
     mdbook build
-    $env:MDBOOK_BOOK__LANGUAGE="en"; mdbook build -d book/en; $env:MDBOOK_BOOK__LANGUAGE=$null
+    just po-build en
 
 serve:
-    @just _log-head "Starting mdbook server..."
+    @just _log-head "Starting mdbook server ..."
     mdbook serve -n 0.0.0.0
 
-init-po:
+po-extract:
+    @just _log-head "Extracting messages.pot file from source  ..."
     $env:MDBOOK_OUTPUT='{"xgettext": {"pot-file": "messages.pot"}}'; mdbook build -d po; $env:MDBOOK_OUTPUT=$null
 
-update-po PO='en':
+po-update PO='en':
     @just _log-head "Updating po files for language {{PO}} ..."
     msgmerge --update po/{{PO}}.po po/messages.pot
 
-serve-po PO='en':
+po-build PO='en':
+    @just _log-head "Building book for language {{PO}} ..."
+    $env:MDBOOK_BOOK__LANGUAGE="{{PO}}"; mdbook build -d book/{{PO}}; $env:MDBOOK_BOOK__LANGUAGE=$null
+
+po-serve PO='en':
     @just _log-head "Starting mdbook server with translated {{PO}} book ..."
     $env:MDBOOK_BOOK__LANGUAGE="{{PO}}"; mdbook serve -d book/{{PO}} -n 0.0.0.0; $env:MDBOOK_BOOK__LANGUAGE=$null
 
