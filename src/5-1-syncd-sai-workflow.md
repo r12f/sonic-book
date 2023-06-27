@@ -31,11 +31,17 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
+    box purple 主线程
     participant SDM as syncd_main
     participant SD as Syncd
     participant SAI as VendorSai
+    end
+    box darkblue 通知处理线程
     participant NP as NotificationProcessor
+    end
+    box darkgreen MDIO IPC服务器线程
     participant MIS as MdioIpcServer
+    end
 
     SDM->>+SD: 启动主线程循环
     SD->>NP: 启动SAI上报处理线程
@@ -546,13 +552,17 @@ sai_status_t Syncd::processEntry(_In_ sai_object_meta_key_t metaKey, _In_ sai_co
 
 ```mermaid
 sequenceDiagram
+    box purple SAI实现事件处理线程
     participant SAI as SAI Impl
+    end
+    box darkblue 通知处理线程
     participant NP as NotificationProcessor
     participant SD as Syncd
     participant RNP as RedisNotificationProducer
     participant R as Redis
+    end
 
-    loop SAI实现事件处理线程
+    loop SAI实现事件处理消息循环
         SAI->>SAI: 通过ASIC SDK获取事件
         SAI->>SAI: 解析事件，并转换成SAI通知对象
         SAI->>NP: 将通知对象序列化，<br/>并发送给通知处理线程的队列中
