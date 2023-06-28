@@ -104,7 +104,7 @@ h6:target::before {
 .content li { margin: 0.5em 0 0 0; }
 .content a { text-decoration: none; }
 .content a:hover { text-decoration: underline; }
-.content img, .content video { max-width: 100%; }
+.content img, .content video { max-width: 100%; display: block; text-align: center; margin: auto; }
 .content .header:link,
 .content .header:visited {
     color: var(--fg);
@@ -209,4 +209,10 @@ hr {
     border: 0;
     height: 3px;
     margin: 40px 0;
+}
+
+.mermaid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

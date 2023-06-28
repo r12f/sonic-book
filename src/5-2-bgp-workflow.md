@@ -31,9 +31,7 @@ FRR主要由两个大部分组成，第一个部分是各个协议的实现，�
 
 ## BGP命令实现
 
-我们都知道SONiC中可以使用`show`命令来查看各个功能的状态，也可以使用`config`来进行更新配置。由于BGP是使用FRR来实现的，和BGP相关的命令也自然而然的转发给了FRR。
-
-其中`show`命令会将请求转发给FRR的`vtysh`，核心代码如下：
+由于BGP是使用FRR来实现的，所以自然而然的，`show`命令会将直接请求转发给FRR的`vtysh`，核心代码如下：
 
 ```python
 # file: src/sonic-utilities/show/bgp_frr_v4.py
@@ -117,15 +115,40 @@ def remove_neighbor(neighbor_ip_or_hostname):
     ...
 ```
 
-## BGP变更下发
+## BGP路由变更下发
 
+路由变更几乎是SONiC中最重要的工作流，它的整个流程从`bgpd`进程开始，到最终通过SAI到达ASIC芯片，中间参与的进程较多，流程也较为复杂，但是弄清楚之后，我们就可以很好的理解SONiC的设计思想，并且举一反三的理解其他配置下发的工作流了。所以这一节，我们就一起来深入的分析一下它的整体流程。
 
-
+首先，其整体工作流程如下：
 
 ```mermaid
 sequenceDiagram
     autonumber
+    participant kernel
+    box purple bgp容器
+    participant bgpd
+    participant zebra
+    participant fpmsyncd
+    end
+    box darkblue swss容器
+    participant orchagent
+    end
+    box darkgreen syncd容器
+    participant syncd
+    end
 ```
+
+而为了方便我们从代码层面上来理解，以下，我们把这个流程根据五个最主要的参与者分成五个部分来介绍。
+
+### bgp容器处理路由变更
+
+### zebra更新路由表
+
+### fpmsyncd更新Redis中的路由配置
+
+### orchagent处理路由配置变化
+
+### syncd更新ASIC
 
 # 参考资料
 
