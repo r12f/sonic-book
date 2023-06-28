@@ -119,36 +119,48 @@ def remove_neighbor(neighbor_ip_or_hostname):
 
 路由变更几乎是SONiC中最重要的工作流，它的整个流程从`bgpd`进程开始，到最终通过SAI到达ASIC芯片，中间参与的进程较多，流程也较为复杂，但是弄清楚之后，我们就可以很好的理解SONiC的设计思想，并且举一反三的理解其他配置下发的工作流了。所以这一节，我们就一起来深入的分析一下它的整体流程。
 
-首先，其整体工作流程如下：
+为了方便我们理解和从代码层面来展示，我们把这个流程分成两个大块来介绍，分别是FRR是如何处理路由变化的，和SONiC的路由变更工作流以及它是如何与FRR进行整合的。
+
+### FRR处理路由变更
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant kernel
+    participant N as 邻居节点
     box purple bgp容器
-    participant bgpd
-    participant zebra
-    participant fpmsyncd
+    participant B as bgpd
+    participant Z as zebra
+    end
+    participant K as Kernel
+```
+
+
+#### bgp容器处理路由变更
+
+#### zebra更新路由表
+
+### SONiC路由变更工作流
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant K as Kernel
+    box purple bgp容器
+    participant FPM as fpmsyncd
     end
     box darkblue swss容器
-    participant orchagent
+    participant OA as orchagent
     end
     box darkgreen syncd容器
-    participant syncd
+    participant SD as syncd
     end
 ```
 
-而为了方便我们从代码层面上来理解，以下，我们把这个流程根据五个最主要的参与者分成五个部分来介绍。
+#### fpmsyncd更新Redis中的路由配置
 
-### bgp容器处理路由变更
+#### orchagent处理路由配置变化
 
-### zebra更新路由表
-
-### fpmsyncd更新Redis中的路由配置
-
-### orchagent处理路由配置变化
-
-### syncd更新ASIC
+#### syncd更新ASIC
 
 # 参考资料
 
