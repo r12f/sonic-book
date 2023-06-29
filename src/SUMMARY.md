@@ -6,7 +6,7 @@
   - [常用命令](./1-3-command-cheatsheet.md)
 - [核心组件](./2-components.md)
   - [Redis数据库](./2-1-database.md)
-  - [服务与控制流](./2-2-services-intro.md)
+  - [服务与工作流](./2-2-services-intro.md)
   - [核心容器](./2-3-key-containers.md)
   - [SAI](./2-4-sai-intro.md)
 - [开发上手指南](./3-dev-guide.md)

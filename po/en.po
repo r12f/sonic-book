@@ -36,8 +36,8 @@ msgid "Redis数据库"
 msgstr "Redis database"
 
 #: src/SUMMARY.md:9
-msgid "服务与控制流"
-msgstr "Services"
+msgid "服务与工作流"
+msgstr "Services and workflows"
 
 #: src/SUMMARY.md:10
 msgid "核心容器"
@@ -289,7 +289,7 @@ msgstr ""
 #: src/4-1-1-exec.md:36 src/4-1-2-netlink.md:70 src/4-2-1-redis-wrappers.md:33
 #: src/4-2-2-redis-messaging-layer.md:318 src/4-2-3-orch-layer.md:34
 #: src/4-3-event-polling-and-error-handling.md:119
-#: src/5-1-syncd-sai-workflow.md:803 src/5-2-bgp-workflow.md:7
+#: src/5-1-syncd-sai-workflow.md:813 src/5-2-bgp-workflow.md:181
 msgid "# 参考资料"
 msgstr "# 参考资料"
 
@@ -4437,7 +4437,6 @@ msgstr "这一章，我们就主要来看看这些通信机制的实现吧！"
 
 #: src/4-communications.md:14 src/4-2-1-redis-wrappers.md:35
 #: src/4-2-3-orch-layer.md:36 src/4-3-event-polling-and-error-handling.md:121
-#: src/5-2-bgp-workflow.md:9
 msgid ""
 "1. [SONiC Architecture][SONiCArch]\n"
 "2. [Github repo: sonic-swss][SONiCSWSS]\n"
@@ -6102,8 +6101,8 @@ msgid "# 工作流"
 msgstr "# 工作流"
 
 #: src/5-workflows.md:3
-msgid "这一章，我们来看一下SONiC中一些比较有代表性的工作流。"
-msgstr "这一章，我们来看一下SONiC中一些比较有代表性的工作流。"
+msgid "这一章，我们会从代码的层面上来深入的分析一下SONiC中一些比较有代表性的工作流。"
+msgstr "这一章，我们会从代码的层面上来深入的分析一下SONiC中一些比较有代表性的工作流。"
 
 #: src/5-workflows.md:5
 msgid ""
@@ -6206,15 +6205,22 @@ msgid "第二个部分是启动主循环，并且处理初始化事件："
 msgstr "第二个部分是启动主循环，并且处理初始化事件："
 
 #: src/5-1-syncd-sai-workflow.md:31
+#, fuzzy
 msgid ""
 "```mermaid\n"
 "sequenceDiagram\n"
 "    autonumber\n"
+"    box purple 主线程\n"
 "    participant SDM as syncd_main\n"
 "    participant SD as Syncd\n"
 "    participant SAI as VendorSai\n"
+"    end\n"
+"    box darkblue 通知处理线程\n"
 "    participant NP as NotificationProcessor\n"
+"    end\n"
+"    box darkgreen MDIO IPC服务器线程\n"
 "    participant MIS as MdioIpcServer\n"
+"    end\n"
 "\n"
 "    SDM->>+SD: 启动主线程循环\n"
 "    SD->>NP: 启动SAI上报处理线程\n"
@@ -6261,15 +6267,15 @@ msgstr ""
 "    SD->>-SDM: 退出主循环返回\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:58
+#: src/5-1-syncd-sai-workflow.md:64
 msgid "然后我们再从代码的角度来更加仔细的看一下这个流程。"
 msgstr "然后我们再从代码的角度来更加仔细的看一下这个流程。"
 
-#: src/5-1-syncd-sai-workflow.md:60
+#: src/5-1-syncd-sai-workflow.md:66
 msgid "### syncd_main函数"
 msgstr "### syncd_main函数"
 
-#: src/5-1-syncd-sai-workflow.md:62
+#: src/5-1-syncd-sai-workflow.md:68
 msgid ""
 "`syncd_main`函数本身非常简单，主要逻辑就是创建Syncd对象，然后调用其`run`方"
 "法："
@@ -6277,7 +6283,7 @@ msgstr ""
 "`syncd_main`函数本身非常简单，主要逻辑就是创建Syncd对象，然后调用其`run`方"
 "法："
 
-#: src/5-1-syncd-sai-workflow.md:64
+#: src/5-1-syncd-sai-workflow.md:70
 msgid ""
 "```cpp\n"
 "// File: src/sonic-sairedis/syncd/syncd_main.cpp\n"
@@ -6302,29 +6308,29 @@ msgstr ""
 "    return EXIT_SUCCESS;\n"
 "}\n"
 "```"
-
-#: src/5-1-syncd-sai-workflow.md:75
-msgid ""
-"其中，`Syncd`对象的构造函数负责初始化`Syncd`中的各个功能，而`run`方法则负责启"
-"动Syncd的主循环。"
-msgstr ""
-"其中，`Syncd`对象的构造函数负责初始化`Syncd`中的各个功能，而`run`方法则负责启"
-"动Syncd的主循环。"
-
-#: src/5-1-syncd-sai-workflow.md:77
-msgid "### Syncd构造函数"
-msgstr "### Syncd构造函数"
-
-#: src/5-1-syncd-sai-workflow.md:79
-msgid ""
-"`Syncd`对象的构造函数负责创建或初始化`Syncd`中的各个功能，比如用于连接数据库"
-"的对象，统计管理，和ASIC通知的处理逻辑等等，其主要代码如下："
-msgstr ""
-"`Syncd`对象的构造函数负责创建或初始化`Syncd`中的各个功能，比如用于连接数据库"
-"的对象，统计管理，和ASIC通知的处理逻辑等等，其主要代码如下："
 
 #: src/5-1-syncd-sai-workflow.md:81
 msgid ""
+"其中，`Syncd`对象的构造函数负责初始化`Syncd`中的各个功能，而`run`方法则负责启"
+"动Syncd的主循环。"
+msgstr ""
+"其中，`Syncd`对象的构造函数负责初始化`Syncd`中的各个功能，而`run`方法则负责启"
+"动Syncd的主循环。"
+
+#: src/5-1-syncd-sai-workflow.md:83
+msgid "### Syncd构造函数"
+msgstr "### Syncd构造函数"
+
+#: src/5-1-syncd-sai-workflow.md:85
+msgid ""
+"`Syncd`对象的构造函数负责创建或初始化`Syncd`中的各个功能，比如用于连接数据库"
+"的对象，统计管理，和ASIC通知的处理逻辑等等，其主要代码如下："
+msgstr ""
+"`Syncd`对象的构造函数负责创建或初始化`Syncd`中的各个功能，比如用于连接数据库"
+"的对象，统计管理，和ASIC通知的处理逻辑等等，其主要代码如下："
+
+#: src/5-1-syncd-sai-workflow.md:87
+msgid ""
 "```cpp\n"
 "// File: src/sonic-sairedis/syncd/Syncd.cpp\n"
 "Syncd::Syncd(\n"
@@ -6429,11 +6435,11 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:123
+#: src/5-1-syncd-sai-workflow.md:129
 msgid "### SAI的初始化与VendorSai"
 msgstr "### SAI的初始化与VendorSai"
 
-#: src/5-1-syncd-sai-workflow.md:125
+#: src/5-1-syncd-sai-workflow.md:131
 msgid ""
 "`Syncd`初始化的最后也是最重要的一步，就是对SAI进行初始化。[在核心组件的SAI介"
 "绍中，我们简单的展示了SAI的初始化，实现，以及它是如何为SONiC提供不同平台的支"
@@ -6445,7 +6451,7 @@ msgstr ""
 "持](./2-4-sai-intro.html)，所以这里我们主要来看看`Syncd`是如何对SAI进行封装和"
 "调用的。"
 
-#: src/5-1-syncd-sai-workflow.md:127
+#: src/5-1-syncd-sai-workflow.md:133
 msgid ""
 "`Syncd`使用`VendorSai`来对SAI的所有API进行封装，方便上层调用。其初始化过程也"
 "非常直接，基本就是对上面两个函数的直接调用和错误处理，如下："
@@ -6453,7 +6459,7 @@ msgstr ""
 "`Syncd`使用`VendorSai`来对SAI的所有API进行封装，方便上层调用。其初始化过程也"
 "非常直接，基本就是对上面两个函数的直接调用和错误处理，如下："
 
-#: src/5-1-syncd-sai-workflow.md:129
+#: src/5-1-syncd-sai-workflow.md:135
 msgid ""
 "```cpp\n"
 "// File: src/sonic-sairedis/syncd/VendorSai.cpp\n"
@@ -6513,7 +6519,7 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:155
+#: src/5-1-syncd-sai-workflow.md:161
 msgid ""
 "当获取好所有的SAI API之后，我们就可以通过`VendorSai`对象来调用SAI的API了。当"
 "前调用SAI的API方式主要有两种。"
@@ -6521,7 +6527,7 @@ msgstr ""
 "当获取好所有的SAI API之后，我们就可以通过`VendorSai`对象来调用SAI的API了。当"
 "前调用SAI的API方式主要有两种。"
 
-#: src/5-1-syncd-sai-workflow.md:157
+#: src/5-1-syncd-sai-workflow.md:163
 msgid ""
 "第一种是通过`sai_object_type_into_t`来调用，它类似于为所有的SAI Object实现了"
 "一个虚表，如下："
@@ -6529,7 +6535,7 @@ msgstr ""
 "第一种是通过`sai_object_type_into_t`来调用，它类似于为所有的SAI Object实现了"
 "一个虚表，如下："
 
-#: src/5-1-syncd-sai-workflow.md:159
+#: src/5-1-syncd-sai-workflow.md:165
 msgid ""
 "```cpp\n"
 "// File: src/sonic-sairedis/syncd/VendorSai.cpp\n"
@@ -6563,7 +6569,7 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:174
+#: src/5-1-syncd-sai-workflow.md:180
 msgid ""
 "另外一种是通过保存在`VendorSai`对象中的`m_apis`来调用，这种方式更加直接，但是"
 "调用前需要先根据SAI Object的类型来调用不同的API。"
@@ -6571,7 +6577,7 @@ msgstr ""
 "另外一种是通过保存在`VendorSai`对象中的`m_apis`来调用，这种方式更加直接，但是"
 "调用前需要先根据SAI Object的类型来调用不同的API。"
 
-#: src/5-1-syncd-sai-workflow.md:176
+#: src/5-1-syncd-sai-workflow.md:182
 msgid ""
 "```cpp\n"
 "sai_status_t VendorSai::getStatsExt(\n"
@@ -6651,15 +6657,15 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:214
+#: src/5-1-syncd-sai-workflow.md:220
 msgid "可以明显看出，第一种调用方式代码要精炼和直观许多。"
 msgstr "可以明显看出，第一种调用方式代码要精炼和直观许多。"
 
-#: src/5-1-syncd-sai-workflow.md:216
+#: src/5-1-syncd-sai-workflow.md:222
 msgid "### Syncd主循环"
 msgstr "### Syncd主循环"
 
-#: src/5-1-syncd-sai-workflow.md:218
+#: src/5-1-syncd-sai-workflow.md:224
 msgid ""
 "`Syncd`的主循环也是使用的SONiC中标准的[事件分发](./4-3-event-polling-and-"
 "error-handling.html)机制：在启动时，`Syncd`会将所有用于事件处理的`Selectable`"
@@ -6671,7 +6677,7 @@ msgstr ""
 "对象注册到用于获取事件的`Select`对象中，然后在主循环中调用`Select`的`select`"
 "方法，等待事件的发生。核心代码如下："
 
-#: src/5-1-syncd-sai-workflow.md:220
+#: src/5-1-syncd-sai-workflow.md:226
 msgid ""
 "```c\n"
 "// File: src/sonic-sairedis/syncd/Syncd.cpp\n"
@@ -6769,7 +6775,7 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:266
+#: src/5-1-syncd-sai-workflow.md:272
 msgid ""
 "其中，`m_selectableChannel`就是主要负责处理Redis数据库中的事件的对象。它使用"
 "[ProducerTable / ConsumerTable](./4-2-2-redis-messaging-layer."
@@ -6783,7 +6789,7 @@ msgstr ""
 "`orchagent`发送过来的操作都会以三元组的形式保存在Redis中的list中，等待`Syncd`"
 "的处理。其核心定义如下："
 
-#: src/5-1-syncd-sai-workflow.md:268
+#: src/5-1-syncd-sai-workflow.md:274
 msgid ""
 "```cpp\n"
 "// File: src/sonic-sairedis/meta/RedisSelectableChannel.h\n"
@@ -6843,11 +6849,11 @@ msgstr ""
 "};\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:297
+#: src/5-1-syncd-sai-workflow.md:303
 msgid "另外，在主循环启动时，`Syncd`还会额外启动两个线程："
 msgstr "另外，在主循环启动时，`Syncd`还会额外启动两个线程："
 
-#: src/5-1-syncd-sai-workflow.md:299
+#: src/5-1-syncd-sai-workflow.md:305
 msgid ""
 "- 用于接收ASIC上报通知的通知处理线程：`m_processor-"
 ">startNotificationsProcessingThread();`\n"
@@ -6856,31 +6862,31 @@ msgstr ""
 "- 用于接收ASIC上报通知的通知处理线程：`m_processor-"
 ">startNotificationsProcessingThread();`\n"
 "- 用于处理MDIO通信的MDIO IPC处理线程：`m_mdioIpcServer->startMdioThread();`"
-
-#: src/5-1-syncd-sai-workflow.md:302
-msgid ""
-"它们的细节我们在初始化的部分不做过多展开，等后面介绍相关工作流时再来详细介"
-"绍。"
-msgstr ""
-"它们的细节我们在初始化的部分不做过多展开，等后面介绍相关工作流时再来详细介"
-"绍。"
-
-#: src/5-1-syncd-sai-workflow.md:304
-msgid "### 创建Switch对象，初始化通知机制"
-msgstr "### 创建Switch对象，初始化通知机制"
-
-#: src/5-1-syncd-sai-workflow.md:306
-msgid ""
-"在主循环启动后，`Syncd`就会开始调用SAI的API来创建Switch对象，这里的入口有两"
-"个，一个是ASIC_DB收到创建Switch的通知，另外一个是Warm Boot时，`Syncd`来主动调"
-"用，但是创建Switch这一步的内部流程都类似。"
-msgstr ""
-"在主循环启动后，`Syncd`就会开始调用SAI的API来创建Switch对象，这里的入口有两"
-"个，一个是ASIC_DB收到创建Switch的通知，另外一个是Warm Boot时，`Syncd`来主动调"
-"用，但是创建Switch这一步的内部流程都类似。"
 
 #: src/5-1-syncd-sai-workflow.md:308
 msgid ""
+"它们的细节我们在初始化的部分不做过多展开，等后面介绍相关工作流时再来详细介"
+"绍。"
+msgstr ""
+"它们的细节我们在初始化的部分不做过多展开，等后面介绍相关工作流时再来详细介"
+"绍。"
+
+#: src/5-1-syncd-sai-workflow.md:310
+msgid "### 创建Switch对象，初始化通知机制"
+msgstr "### 创建Switch对象，初始化通知机制"
+
+#: src/5-1-syncd-sai-workflow.md:312
+msgid ""
+"在主循环启动后，`Syncd`就会开始调用SAI的API来创建Switch对象，这里的入口有两"
+"个，一个是ASIC_DB收到创建Switch的通知，另外一个是Warm Boot时，`Syncd`来主动调"
+"用，但是创建Switch这一步的内部流程都类似。"
+msgstr ""
+"在主循环启动后，`Syncd`就会开始调用SAI的API来创建Switch对象，这里的入口有两"
+"个，一个是ASIC_DB收到创建Switch的通知，另外一个是Warm Boot时，`Syncd`来主动调"
+"用，但是创建Switch这一步的内部流程都类似。"
+
+#: src/5-1-syncd-sai-workflow.md:314
+msgid ""
 "在这一步中间，有一个很重要的步骤，就是初始化SAI内部实现中的通知回调，将我们之"
 "前已经创建好的通知处理逻辑传递给SAI的实现，比如FDB的事件等等。这些回调函数会"
 "被当做Switch的属性（Attributes）通过参数的形式传给SAI的`create_switch`方法，"
@@ -6893,7 +6899,7 @@ msgstr ""
 "SAI的实现会将其保存起来，这样就可以在事件发生时调用回调函数，来通知`Syncd`"
 "了。这里的核心代码如下："
 
-#: src/5-1-syncd-sai-workflow.md:310
+#: src/5-1-syncd-sai-workflow.md:316
 msgid ""
 "```cpp\n"
 "// File: src/sonic-sairedis/syncd/Syncd.cpp\n"
@@ -7059,11 +7065,11 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:384
+#: src/5-1-syncd-sai-workflow.md:390
 msgid "从Mellanox的SAI实现，我们可以看到其具体的保存的方法："
 msgstr "从Mellanox的SAI实现，我们可以看到其具体的保存的方法："
 
-#: src/5-1-syncd-sai-workflow.md:386
+#: src/5-1-syncd-sai-workflow.md:392
 msgid ""
 "```cpp\n"
 "static sai_status_t mlnx_create_switch(_Out_ sai_object_id_t     * "
@@ -7161,11 +7167,11 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:422
+#: src/5-1-syncd-sai-workflow.md:428
 msgid "## ASIC状态更新"
 msgstr "## ASIC状态更新"
 
-#: src/5-1-syncd-sai-workflow.md:424
+#: src/5-1-syncd-sai-workflow.md:430
 msgid ""
 "ASIC状态更新是`Syncd`中最重要的工作流之一，当`orchagent`发现任何变化并开始修"
 "改ASIC_DB时，就会触发该工作流，通过SAI来对ASIC进行更新。在了解了`Syncd`的主循"
@@ -7175,11 +7181,11 @@ msgstr ""
 "改ASIC_DB时，就会触发该工作流，通过SAI来对ASIC进行更新。在了解了`Syncd`的主循"
 "环之后，理解ASIC状态更新的工作流就很简单了。"
 
-#: src/5-1-syncd-sai-workflow.md:426
+#: src/5-1-syncd-sai-workflow.md:432
 msgid "所有的步骤都发生在主线程一个线程中，顺序执行，总结成时序图如下："
 msgstr "所有的步骤都发生在主线程一个线程中，顺序执行，总结成时序图如下："
 
-#: src/5-1-syncd-sai-workflow.md:428
+#: src/5-1-syncd-sai-workflow.md:434
 msgid ""
 "```mermaid\n"
 "sequenceDiagram\n"
@@ -7229,7 +7235,7 @@ msgstr ""
 "    end\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:452
+#: src/5-1-syncd-sai-workflow.md:458
 msgid ""
 "首先，`orchagent`通过Redis发送过来的操作会被`RedisSelectableChannel`对象接"
 "收，然后在主循环中被处理。当`Syncd`处理到`m_selectableChannel`时，就会调用"
@@ -7241,7 +7247,7 @@ msgstr ""
 "`processEvent`方法来处理该操作。这几步的核心代码我们上面介绍主循环时已经介绍"
 "过了，这里就不再赘述。"
 
-#: src/5-1-syncd-sai-workflow.md:454
+#: src/5-1-syncd-sai-workflow.md:460
 msgid ""
 "然后，`processEvent`会根据其中的操作类型，调用对应的SAI的API来对ASIC进行更"
 "新。其逻辑是一个巨大的switch-case语句，如下："
@@ -7249,7 +7255,7 @@ msgstr ""
 "然后，`processEvent`会根据其中的操作类型，调用对应的SAI的API来对ASIC进行更"
 "新。其逻辑是一个巨大的switch-case语句，如下："
 
-#: src/5-1-syncd-sai-workflow.md:456
+#: src/5-1-syncd-sai-workflow.md:462
 msgid ""
 "```cpp\n"
 "// File: src/sonic-sairedis/syncd/Syncd.cpp\n"
@@ -7441,11 +7447,11 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:543
+#: src/5-1-syncd-sai-workflow.md:549
 msgid "## ASIC状态变更上报"
 msgstr "## ASIC状态变更上报"
 
-#: src/5-1-syncd-sai-workflow.md:545
+#: src/5-1-syncd-sai-workflow.md:551
 msgid ""
 "反过来，当ASIC状态发生任何变化，或者需要上报数据，它也会通过SAI来通知我们，此"
 "时Syncd会监听这些通知，然后通过ASIC_DB上报给orchagent。其主要工作流如下："
@@ -7453,17 +7459,22 @@ msgstr ""
 "反过来，当ASIC状态发生任何变化，或者需要上报数据，它也会通过SAI来通知我们，此"
 "时Syncd会监听这些通知，然后通过ASIC_DB上报给orchagent。其主要工作流如下："
 
-#: src/5-1-syncd-sai-workflow.md:547
+#: src/5-1-syncd-sai-workflow.md:553
+#, fuzzy
 msgid ""
 "```mermaid\n"
 "sequenceDiagram\n"
+"    box purple SAI实现事件处理线程\n"
 "    participant SAI as SAI Impl\n"
+"    end\n"
+"    box darkblue 通知处理线程\n"
 "    participant NP as NotificationProcessor\n"
 "    participant SD as Syncd\n"
 "    participant RNP as RedisNotificationProducer\n"
 "    participant R as Redis\n"
+"    end\n"
 "\n"
-"    loop SAI实现事件处理线程\n"
+"    loop SAI实现事件处理消息循环\n"
 "        SAI->>SAI: 通过ASIC SDK获取事件\n"
 "        SAI->>SAI: 解析事件，并转换成SAI通知对象\n"
 "        SAI->>NP: 将通知对象序列化，<br/>并发送给通知处理线程的队列中\n"
@@ -7505,7 +7516,7 @@ msgstr ""
 "    end\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:572
+#: src/5-1-syncd-sai-workflow.md:582
 msgid ""
 "这里我们也来看一下具体的实现。为了更加深入的理解，我们还是借助开源的Mellanox"
 "的SAI实现来进行分析。"
@@ -7513,7 +7524,7 @@ msgstr ""
 "这里我们也来看一下具体的实现。为了更加深入的理解，我们还是借助开源的Mellanox"
 "的SAI实现来进行分析。"
 
-#: src/5-1-syncd-sai-workflow.md:574
+#: src/5-1-syncd-sai-workflow.md:584
 msgid ""
 "最开始，SAI的实现需要接受到ASIC的通知，这一步是通过ASIC的SDK来实现的，"
 "Mellanox的SAI会创建一个事件处理线程（event_thread），然后使用`select`函数来获"
@@ -7523,7 +7534,7 @@ msgstr ""
 "Mellanox的SAI会创建一个事件处理线程（event_thread），然后使用`select`函数来获"
 "取并处理ASIC发送过来的通知，核心代码如下："
 
-#: src/5-1-syncd-sai-workflow.md:576
+#: src/5-1-syncd-sai-workflow.md:586
 msgid ""
 "```cpp\n"
 "// File: platform/mellanox/mlnx-sai/SAI-Implementation/mlnx_sai/src/"
@@ -7773,7 +7784,7 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:680
+#: src/5-1-syncd-sai-workflow.md:690
 msgid ""
 "接下来，我们用FDB事件来举例，当ASIC收到FDB事件，就会被上面的事件处理循环获取"
 "到，并调用`g_notification_callbacks.on_fdb_event`函数来处理。这个函数接下来就"
@@ -7785,7 +7796,7 @@ msgstr ""
 "会调用到`Syncd`初始化时设置好的`NotificationHandler::onFdbEvent`函数，这个函"
 "数会将该事件序列化后，通过消息队列转发给通知处理线程来进行处理："
 
-#: src/5-1-syncd-sai-workflow.md:682
+#: src/5-1-syncd-sai-workflow.md:692
 msgid ""
 "```cpp\n"
 "// File: src/sonic-sairedis/syncd/NotificationHandler.cpp\n"
@@ -7807,7 +7818,7 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:691
+#: src/5-1-syncd-sai-workflow.md:701
 msgid ""
 "而此时通知处理线程会被唤醒，从消息队列中取出该事件，然后通过`Syncd`获取到"
 "`Syncd`的锁，再开始处理该通知："
@@ -7815,7 +7826,7 @@ msgstr ""
 "而此时通知处理线程会被唤醒，从消息队列中取出该事件，然后通过`Syncd`获取到"
 "`Syncd`的锁，再开始处理该通知："
 
-#: src/5-1-syncd-sai-workflow.md:693
+#: src/5-1-syncd-sai-workflow.md:703
 msgid ""
 "```cpp\n"
 "// File: src/sonic-sairedis/syncd/NotificationProcessor.cpp\n"
@@ -7877,7 +7888,7 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:721
+#: src/5-1-syncd-sai-workflow.md:731
 msgid ""
 "接下来就是事件的分发和处理了，`syncProcessNotification`函数是一系列的`if-"
 "else`语句，根据事件的类型，调用不同的处理函数来处理该事件："
@@ -7885,7 +7896,7 @@ msgstr ""
 "接下来就是事件的分发和处理了，`syncProcessNotification`函数是一系列的`if-"
 "else`语句，根据事件的类型，调用不同的处理函数来处理该事件："
 
-#: src/5-1-syncd-sai-workflow.md:723
+#: src/5-1-syncd-sai-workflow.md:733
 msgid ""
 "```cpp\n"
 "// File: src/sonic-sairedis/syncd/NotificationProcessor.cpp\n"
@@ -7925,7 +7936,7 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:741
+#: src/5-1-syncd-sai-workflow.md:751
 msgid ""
 "而每个事件处理函数都类似，他们会对发送过来的事件进行反序列化，然后调用真正的"
 "处理逻辑发送通知，比如，fdb事件对应的`handle_fdb_event`函数和"
@@ -7935,7 +7946,7 @@ msgstr ""
 "处理逻辑发送通知，比如，fdb事件对应的`handle_fdb_event`函数和"
 "`process_on_fdb_event`："
 
-#: src/5-1-syncd-sai-workflow.md:743
+#: src/5-1-syncd-sai-workflow.md:753
 msgid ""
 "```cpp\n"
 "// File: src/sonic-sairedis/syncd/NotificationProcessor.cpp\n"
@@ -8009,7 +8020,7 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:775
+#: src/5-1-syncd-sai-workflow.md:785
 msgid ""
 "具体发送事件的逻辑就非常直接了，最终就是通过[NotificationProducer](./4-2-2-"
 "redis-messaging-layer.html#notificationproducer--notificationconsumer)来发送"
@@ -8019,7 +8030,7 @@ msgstr ""
 "redis-messaging-layer.html#notificationproducer--notificationconsumer)来发送"
 "通知到ASIC_DB中："
 
-#: src/5-1-syncd-sai-workflow.md:777
+#: src/5-1-syncd-sai-workflow.md:787
 msgid ""
 "```cpp\n"
 "// File: src/sonic-sairedis/syncd/NotificationProcessor.cpp\n"
@@ -8083,11 +8094,11 @@ msgstr ""
 "}\n"
 "```"
 
-#: src/5-1-syncd-sai-workflow.md:801
+#: src/5-1-syncd-sai-workflow.md:811
 msgid "到此，`Syncd`中的通知上报的流程就结束了。"
 msgstr "到此，`Syncd`中的通知上报的流程就结束了。"
 
-#: src/5-1-syncd-sai-workflow.md:805
+#: src/5-1-syncd-sai-workflow.md:815
 msgid ""
 "1. [SONiC Architecture][SONiCArch]\n"
 "2. [Github repo: sonic-sairedis][SONiCSAIRedis]\n"
@@ -8102,12 +8113,298 @@ msgid "# BGP工作流"
 msgstr "# BGP工作流"
 
 #: src/5-2-bgp-workflow.md:3
-msgid "## BGP创建和更新"
-msgstr "## BGP创建和更新"
+msgid ""
+"[BGP][BGP]可能是交换机里面最常用，最重要，或者线上使用的最多的功能了。这一"
+"节，我们就来深入的看一下BGP相关的工作流。"
+msgstr ""
 
 #: src/5-2-bgp-workflow.md:5
-msgid "## BGP删除"
-msgstr "## BGP删除"
+msgid "## BGP相关进程"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:7
+msgid ""
+"SONiC使用[FRRouting][FRRouting]作为BGP的实现，用于负责BGP的协议处理。"
+"FRRouting是一个开源的路由软件，支持多种路由协议，包括BGP，OSPF，IS-IS，RIP，"
+"PIM，LDP等等。当FRR发布新版本后，SONiC会将其同步到[SONiC的FRR实现仓库：sonic-"
+"frr][SONiCFRR]中，每一个版本都对应这一个分支，比如`frr/8.2`。"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:9
+msgid ""
+"FRR主要由两个大部分组成，第一个部分是各个协议的实现，这些进程的名字都叫做"
+"`*d`，而当它们收到路由更新的通知的时候，就会告诉第二个部分，也就是`zebra`进"
+"程，然后`zebra`进程会进行选路，并将最优的路由信息同步到kernel中，其主体结构如"
+"下图所示："
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:11
+msgid ""
+"```\n"
+"+----+  +----+  +-----+  +----+  +----+  +----+  +-----+\n"
+"|bgpd|  |ripd|  |ospfd|  |ldpd|  |pbrd|  |pimd|  |.....|\n"
+"+----+  +----+  +-----+  +----+  +----+  +----+  +-----+\n"
+"     |       |        |       |       |       |        |\n"
+"+----v-------v--------v-------v-------v-------v--------v\n"
+"|                                                      |\n"
+"|                         Zebra                        |\n"
+"|                                                      |\n"
+"+------------------------------------------------------+\n"
+"       |                    |                   |\n"
+"       |                    |                   |\n"
+"+------v------+   +---------v--------+   +------v------+\n"
+"|             |   |                  |   |             |\n"
+"| *NIX Kernel |   | Remote dataplane |   | ........... |\n"
+"|             |   |                  |   |             |\n"
+"+-------------+   +------------------+   +-------------+\n"
+"```"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:30
+msgid ""
+"在SONiC中，这些FRR的进程都跑在`bgp`的容器中。另外，为了将FRR和Redis连接起来，"
+"SONiC在`bgp`容器中还会运行一个叫做`fpgsyncd`的进程（Forwarding Plane Manager "
+"syncd），它的主要功能是监听kernel的路由更新，然后将其同步到APP_DB中。但是因为"
+"这个进程不是FRR的一部分，所以它的实现被放在了[sonic-swss][SONiCSWSS]仓库中。"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:32
+msgid "## BGP命令实现"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:34
+msgid ""
+"由于BGP是使用FRR来实现的，所以自然而然的，`show`命令会将直接请求转发给FRR的"
+"`vtysh`，核心代码如下："
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:36
+msgid ""
+"```python\n"
+"# file: src/sonic-utilities/show/bgp_frr_v4.py\n"
+"# 'summary' subcommand (\"show ip bgp summary\")\n"
+"@bgp.command()\n"
+"@multi_asic_util.multi_asic_click_options\n"
+"def summary(namespace, display):\n"
+"    bgp_summary = bgp_util.get_bgp_summary_from_all_bgp_instances(\n"
+"        constants.IPV4, namespace, display)\n"
+"    bgp_util.display_bgp_summary(bgp_summary=bgp_summary, af=constants."
+"IPV4)\n"
+"\n"
+"# file: src/sonic-utilities/utilities_common/bgp_util.py\n"
+"def get_bgp_summary_from_all_bgp_instances(af, namespace, display):\n"
+"    # IPv6 case is emitted here for simplicity\n"
+"    vtysh_cmd = \"show ip bgp summary json\"\n"
+"    \n"
+"    for ns in device.get_ns_list_based_on_options():\n"
+"        cmd_output = run_bgp_show_command(vtysh_cmd, ns)\n"
+"\n"
+"def run_bgp_command(vtysh_cmd, bgp_namespace=multi_asic.DEFAULT_NAMESPACE, "
+"vtysh_shell_cmd=constants.VTYSH_COMMAND):\n"
+"    cmd = ['sudo', vtysh_shell_cmd] + bgp_instance_id + ['-c', vtysh_cmd]\n"
+"    output, ret = clicommon.run_command(cmd, return_cmd=True)\n"
+"```"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:59
+msgid "这里，我们也可以通过直接运行`vtysh`来进行验证："
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:61
+msgid ""
+"```bash\n"
+"root@7260cx3:/etc/sonic/frr# which vtysh\n"
+"/usr/bin/vtysh\n"
+"\n"
+"root@7260cx3:/etc/sonic/frr# vtysh\n"
+"\n"
+"Hello, this is FRRouting (version 7.5.1-sonic).\n"
+"Copyright 1996-2005 Kunihiro Ishiguro, et al.\n"
+"\n"
+"7260cx3# show ip bgp summary\n"
+"\n"
+"IPv4 Unicast Summary:\n"
+"BGP router identifier 10.1.0.32, local AS number 65100 vrf-id 0\n"
+"BGP table version 6410\n"
+"RIB entries 12809, using 2402 KiB of memory\n"
+"Peers 4, using 85 KiB of memory\n"
+"Peer groups 4, using 256 bytes of memory\n"
+"\n"
+"Neighbor        V         AS   MsgRcvd   MsgSent   TblVer  InQ OutQ  Up/Down "
+"State/PfxRcd   PfxSnt\n"
+"10.0.0.57       4      64600      3702      3704        0    0    0 "
+"08:15:03         6401     6406\n"
+"10.0.0.59       4      64600      3702      3704        0    0    0 "
+"08:15:03         6401     6406\n"
+"10.0.0.61       4      64600      3705      3702        0    0    0 "
+"08:15:03         6401     6406\n"
+"10.0.0.63       4      64600      3702      3702        0    0    0 "
+"08:15:03         6401     6406\n"
+"\n"
+"Total number of neighbors 4\n"
+"```"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:88
+msgid "而`config`命令则是通过直接操作CONFIG_DB来实现的，核心代码如下："
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:90
+msgid ""
+"```python\n"
+"# file: src/sonic-utilities/config/main.py\n"
+"\n"
+"@bgp.group(cls=clicommon.AbbreviationGroup)\n"
+"def remove():\n"
+"    \"Remove BGP neighbor configuration from the device\"\n"
+"    pass\n"
+"\n"
+"@remove.command('neighbor')\n"
+"@click.argument('neighbor_ip_or_hostname', "
+"metavar='<neighbor_ip_or_hostname>', required=True)\n"
+"def remove_neighbor(neighbor_ip_or_hostname):\n"
+"    \"\"\"Deletes BGP neighbor configuration of given hostname or ip from "
+"devices\n"
+"       User can specify either internal or external BGP neighbor to remove\n"
+"    \"\"\"\n"
+"    namespaces = [DEFAULT_NAMESPACE]\n"
+"    removed_neighbor = False\n"
+"    ...\n"
+"\n"
+"    # Connect to CONFIG_DB in linux host (in case of single ASIC) or "
+"CONFIG_DB in all the\n"
+"    # namespaces (in case of multi ASIC) and do the sepcified \"action\" on "
+"the BGP neighbor(s)\n"
+"    for namespace in namespaces:\n"
+"        config_db = ConfigDBConnector(use_unix_socket_path=True, "
+"namespace=namespace)\n"
+"        config_db.connect()\n"
+"        if _remove_bgp_neighbor_config(config_db, neighbor_ip_or_hostname):\n"
+"            removed_neighbor = True\n"
+"    ...\n"
+"```"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:118
+msgid "## BGP路由变更下发"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:120
+msgid ""
+"路由变更几乎是SONiC中最重要的工作流，它的整个流程从`bgpd`进程开始，到最终通过"
+"SAI到达ASIC芯片，中间参与的进程较多，流程也较为复杂，但是弄清楚之后，我们就可"
+"以很好的理解SONiC的设计思想，并且举一反三的理解其他配置下发的工作流了。所以这"
+"一节，我们就一起来深入的分析一下它的整体流程。"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:122
+msgid ""
+"为了方便我们理解和从代码层面来展示，我们把这个流程分成两个大块来介绍，分别是"
+"FRR是如何处理路由变化的，和SONiC的路由变更工作流以及它是如何与FRR进行整合的。"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:124
+msgid "### FRR处理路由变更"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:126
+msgid ""
+"```mermaid\n"
+"sequenceDiagram\n"
+"    autonumber\n"
+"    participant N as 邻居节点\n"
+"    box purple bgp容器\n"
+"    participant B as bgpd\n"
+"    participant ZH as zebra<br/>（请求处理线程）\n"
+"    participant ZD as zebra<br/>（数据平面处理线程）\n"
+"    end\n"
+"    participant K as Linux Kernel\n"
+"\n"
+"    N->>B: 建立BGP会话，<br/>发送路由变更\n"
+"    B->>B: 变更bgpd的本地路由表\n"
+"    B->>ZH: 通过zlient本地Socket<br/>通知Zebra更新路由表\n"
+"    ZH->>ZH: 接受bgpd发送的请求，进行选路\n"
+"    ZH->>ZD: 请求数据平面处理线程<br/>更新内核路由表\n"
+"    ZD->>K: 发送Netlink消息<br/>更新内核路由表\n"
+"```"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:145
+msgid "#### bgp容器处理路由变更"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:147
+msgid ""
+"我们在`bgpd`容器中可以在`/run/frr`目录下找到`zebra`通信使用的socket文件："
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:149
+msgid ""
+"```bash\n"
+"root@7260cx3:/run/frr# ls -l\n"
+"total 12\n"
+"...\n"
+"srwx------ 1 frr frr    0 Jun 16 09:16 zserv.api\n"
+"```"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:156
+msgid "#### zebra更新路由表"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:158
+msgid "### SONiC路由变更工作流"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:160
+msgid ""
+"```mermaid\n"
+"sequenceDiagram\n"
+"    autonumber\n"
+"    participant K as Linux Kernel\n"
+"    box purple bgp容器\n"
+"    participant FPM as fpmsyncd\n"
+"    end\n"
+"    box darkblue swss容器\n"
+"    participant OA as orchagent\n"
+"    end\n"
+"    box darkgreen syncd容器\n"
+"    participant SD as syncd\n"
+"    end\n"
+"```"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:175
+msgid "#### fpmsyncd更新Redis中的路由配置"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:177
+msgid "#### orchagent处理路由配置变化"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:179
+msgid "#### syncd更新ASIC"
+msgstr ""
+
+#: src/5-2-bgp-workflow.md:183
+#, fuzzy
+msgid ""
+"1. [SONiC Architecture][SONiCArch]\n"
+"2. [Github repo: sonic-swss][SONiCSWSS]\n"
+"3. [Github repo: sonic-swss-common][SONiCSWSSCommon]\n"
+"4. [Github repo: sonic-frr][SONiCFRR]\n"
+"5. [Github repo: sonic-utilities][SONiCUtil]\n"
+"6. [RFC 4271: A Border Gateway Protocol 4 (BGP-4)][BGP]\n"
+"7. [FRRouting][FRRouting]"
+msgstr ""
+"1. [SONiC Architecture][SONiCArch]\n"
+"2. [Github repo: sonic-swss][SONiCSWSS]\n"
+"3. [Github repo: sonic-swss-common][SONiCSWSSCommon]\n"
+"4. [Redis keyspace notifications][RedisKeyspace]\n"
+"5. [Redis Transactions][RedisTx]\n"
+"6. [Redis Atomicity with Lua][RedisLuaAtomicity]\n"
+"7. [Redis hashes][RedisHash]\n"
+"8. [Redis client handling][RedisClientHandling]"
 
 #: src/6-boot.md:1
 msgid "# 启动流程"

@@ -129,13 +129,84 @@ sequenceDiagram
     participant N as 邻居节点
     box purple bgp容器
     participant B as bgpd
-    participant Z as zebra
+    participant ZH as zebra<br/>（请求处理线程）
+    participant ZD as zebra<br/>（数据平面处理线程）
     end
-    participant K as Kernel
+    participant K as Linux Kernel
+
+    N->>B: 建立BGP会话，<br/>发送路由变更
+    B->>B: 选路，变更本地路由表（RIB）
+    alt 如果路由发生变化
+    B->>N: 通知其他邻居节点路由变化
+    end
+    B->>ZH: 通过zlient本地Socket<br/>通知Zebra更新路由表
+    ZH->>ZH: 接受bgpd发送的请求，更新本地路由表（RIB）
+    ZH->>ZD: 请求数据平面处理线程<br/>更新内核路由表
+    ZD->>K: 发送Netlink消息<br/>更新内核路由表
 ```
 
+#### bgpd处理路由变更
 
-#### bgp容器处理路由变更
+`bgpd`是FRR中专门用来处理BGP会话的进程，它会开放TCP 179端口与邻居节点建立BGP连接，并处理路由表的更新请求。当路由发生变化后，FRR也会通过它来通知其他邻居节点。
+
+请求来到`bgpd`之后，它会首先来到
+
+然后`bgpd`会开始检查是否出现更优的路径，并更新自己的本地路由表（RIB，Routing Information Base），并通过`zclient`通知`zebra`更新内核路由表。
+
+```c
+// File: src/sonic-frr/frr/bgpd/bgp_zebra.c
+void bgp_zebra_announce(struct bgp_node *rn, struct prefix *p, struct bgp_path_info *info, struct bgp *bgp, afi_t afi, safi_t safi)
+{
+    ...
+
+	zclient_route_send(valid_nh_count ? ZEBRA_ROUTE_ADD : ZEBRA_ROUTE_DELETE, zclient, &api);
+}
+```
+
+`zclient`使用本地socket与`zebra`通信，并且提供一系列的回调函数用于接收`zebra`的通知，核心代码如下：
+
+```c
+// File: src/sonic-frr/frr/bgpd/bgp_zebra.c
+void bgp_zebra_init(struct thread_master *master, unsigned short instance)
+{
+	zclient_num_connects = 0;
+
+	/* Set default values. */
+	zclient = zclient_new(master, &zclient_options_default);
+	zclient_init(zclient, ZEBRA_ROUTE_BGP, 0, &bgpd_privs);
+	zclient->zebra_connected = bgp_zebra_connected;
+	zclient->router_id_update = bgp_router_id_update;
+	zclient->interface_add = bgp_interface_add;
+	zclient->interface_delete = bgp_interface_delete;
+	zclient->interface_address_add = bgp_interface_address_add;
+    ...
+}
+
+int zclient_socket_connect(struct zclient *zclient)
+{
+	int sock;
+	int ret;
+
+	sock = socket(zclient_addr.ss_family, SOCK_STREAM, 0);
+    ...
+
+	/* Connect to zebra. */
+	ret = connect(sock, (struct sockaddr *)&zclient_addr, zclient_addr_len);
+	...
+
+	zclient->sock = sock;
+	return sock;
+}
+```
+
+我们在`bgpd`容器中可以在`/run/frr`目录下找到`zebra`通信使用的socket文件来进行简单的验证：
+
+```bash
+root@7260cx3:/run/frr# ls -l
+total 12
+...
+srwx------ 1 frr frr    0 Jun 16 09:16 zserv.api
+```
 
 #### zebra更新路由表
 
@@ -144,7 +215,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant K as Kernel
+    participant K as Linux Kernel
     box purple bgp容器
     participant FPM as fpmsyncd
     end
