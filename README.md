@@ -23,7 +23,8 @@ The book is currently in [Chinese（中文）](https://r12f.com/sonic-book) and 
 ### Prerequisites
 
 1. Install `just` by following the [installation guide](https://github.com/casey/just#installation). We use `just` instead of `make`, because it is easier to manage and use.
-2. Run `just init` for installing mdbook and related pluins. This is one time initialization.
+2. Install powershell by following the [installation guide](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-linux?view=powershell-7.3). This is because we use powershell as our make file script engine, so we can run our book on any platform. 
+3. Run `just init` for installing mdbook and related pluins. This is one time initialization.
 
 ### Build
 
