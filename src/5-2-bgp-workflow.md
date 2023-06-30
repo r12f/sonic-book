@@ -141,7 +141,7 @@ sequenceDiagram
     end
     B->>ZH: 通过zlient本地Socket<br/>通知Zebra更新路由表
     ZH->>ZH: 接受bgpd发送的请求，更新本地路由表（RIB）
-    ZH->>ZD: 请求数据平面处理线程<br/>更新内核路由表
+    ZH->>ZD: 将路由表更新请求放入<br/>数据平面处理线程的消息队列中
     ZD->>K: 发送Netlink消息<br/>更新内核路由表
 ```
 
@@ -209,6 +209,218 @@ srwx------ 1 frr frr    0 Jun 16 09:16 zserv.api
 ```
 
 #### zebra更新路由表
+
+由于FRR支持的路由协议很多，如果每个路由协议处理进程都单独的对内核进行操作则必然会产生冲突，很难协调合作，所以FRR使用一个单独的进程用于和所有的路由协议处理进程进行沟通，整合好信息之后统一的进行内核的路由表更新，这个进程就是`zebra`。
+
+在`zebra`中，内核的更新发生在一个独立的数据面处理线程中：`dplane_thread`。所有的请求都会通过`zclient`发送给`zebra`，然后转发给`dplane_thread`来处理，这样路由的处理就是有序的了，也就不会产生冲突了。
+
+`zebra`启动时，会将所有的请求处理函数进行注册，当请求到来时，就可以根据请求的类型调用相应的处理函数了，核心代码如下：
+
+```c
+// File: src/sonic-frr/frr/zebra/zapi_msg.c
+void (*zserv_handlers[])(ZAPI_HANDLER_ARGS) = {
+	[ZEBRA_ROUTER_ID_ADD] = zread_router_id_add,
+	[ZEBRA_ROUTER_ID_DELETE] = zread_router_id_delete,
+	[ZEBRA_INTERFACE_ADD] = zread_interface_add,
+	[ZEBRA_INTERFACE_DELETE] = zread_interface_delete,
+	[ZEBRA_ROUTE_ADD] = zread_route_add,
+	[ZEBRA_ROUTE_DELETE] = zread_route_del,
+	[ZEBRA_REDISTRIBUTE_ADD] = zebra_redistribute_add,
+	[ZEBRA_REDISTRIBUTE_DELETE] = zebra_redistribute_delete,
+    ...
+```
+
+我们这里拿添加路由`zread_route_add`作为例子，来继续分析后续的流程。从以下代码我们可以看到，当新的路由到来后，`zebra`会开始查看自己内部的路由表，然后调用`dplane_sys_route_add`来进行内核的路由表更新：
+
+```c
+static void zread_route_add(ZAPI_HANDLER_ARGS)
+{
+    ...
+
+    // Decode zclient request
+	s = msg;
+	if (zapi_route_decode(s, &api) < 0) {
+		return;
+	}
+	...
+ 
+    // Add route
+    ret = rib_add_multipath(afi, api.safi, &api.prefix, src_p, re);
+
+	// Update stats. IPv6 is emitted here for simplicity
+    if (ret > 0) client->v4_route_add_cnt++;
+    else if (ret < 0) client->v4_route_upd8_cnt++;
+}
+
+// File: src/sonic-frr/frr/zebra/zebra_rib.c
+int rib_add_multipath(afi_t afi, safi_t safi, struct prefix *p, struct prefix_ipv6 *src_p, struct route_entry *re)
+{
+	struct route_table *table;
+	struct route_node *rn;
+    ...
+	
+	/* Lookup table.  */
+	table = zebra_vrf_table_with_table_id(afi, safi, re->vrf_id, re->table);
+
+	/* Lookup route node.*/
+	rn = srcdest_rnode_get(table, p, src_p);
+
+	/* If this route is kernel/connected route, notify the dataplane. */
+	if (RIB_SYSTEM_ROUTE(re)) {
+		/* Notify dataplane */
+		dplane_sys_route_add(rn, re);
+	}
+    ...
+}
+```
+
+而`dplane_sys_route_add`其实只是将其放入`dplane_thread`的消息队列中而已，并不会做任何的操作：
+
+```c
+// File: src/sonic-frr/frr/zebra/zebra_dplane.c
+enum zebra_dplane_result dplane_sys_route_add(struct route_node *rn, struct route_entry *re)
+{
+	return dplane_route_update_internal(rn, re, NULL, DPLANE_OP_SYS_ROUTE_ADD);
+}
+
+static enum zebra_dplane_result
+dplane_route_update_internal(struct route_node *rn, struct route_entry *re, struct route_entry *old_re, enum dplane_op_e op)
+{
+	enum zebra_dplane_result result = ZEBRA_DPLANE_REQUEST_FAILURE;
+	int ret = EINVAL;
+
+    /* Create and init context */
+	struct zebra_dplane_ctx *ctx = ...;
+
+    /* Enqueue context for processing */
+    ret = dplane_route_enqueue(ctx);
+
+	/* Update counter */
+	atomic_fetch_add_explicit(&zdplane_info.dg_routes_in, 1, memory_order_relaxed);
+
+	if (ret == AOK)
+		result = ZEBRA_DPLANE_REQUEST_QUEUED;
+
+	return result;
+}
+```
+
+然后，我们就来到了数据面处理线程`dplane_thread`，其消息循环很简单，就是从队列中一个个取出消息，然后通过调用其处理函数：
+
+```c
+// File: src/sonic-frr/frr/zebra/zebra_dplane.c
+static int dplane_thread_loop(struct thread *event)
+{
+    ...
+
+    while (prov) {
+        ...
+
+        /* Process work here */
+		(*prov->dp_fp)(prov);
+
+		/* Check for zebra shutdown */
+		/* Dequeue completed work from the provider */
+        ...
+
+		/* Locate next provider */
+		DPLANE_LOCK();
+		prov = TAILQ_NEXT(prov, dp_prov_link);
+		DPLANE_UNLOCK();
+	}
+}
+```
+
+默认情况下，`dplane_thread`会使用`kernel_dplane_process_func`来进行消息的处理，内部会根据请求的类型对内核的操作进行分发：
+
+```c
+static int kernel_dplane_process_func(struct zebra_dplane_provider *prov)
+{
+	enum zebra_dplane_result res;
+	struct zebra_dplane_ctx *ctx;
+	int counter, limit;
+	limit = dplane_provider_get_work_limit(prov);
+
+	for (counter = 0; counter < limit; counter++) {
+		ctx = dplane_provider_dequeue_in_ctx(prov);
+		if (ctx == NULL) break;
+
+		/* A previous provider plugin may have asked to skip the kernel update.  */
+		if (dplane_ctx_is_skip_kernel(ctx)) {
+			res = ZEBRA_DPLANE_REQUEST_SUCCESS;
+			goto skip_one;
+		}
+
+		/* Dispatch to appropriate kernel-facing apis */
+		switch (dplane_ctx_get_op(ctx)) {
+		case DPLANE_OP_ROUTE_INSTALL:
+		case DPLANE_OP_ROUTE_UPDATE:
+		case DPLANE_OP_ROUTE_DELETE:
+			res = kernel_dplane_route_update(ctx);
+			break;
+        ...
+        }
+        ...
+    }
+    ...
+}
+
+static enum zebra_dplane_result
+kernel_dplane_route_update(struct zebra_dplane_ctx *ctx)
+{
+	enum zebra_dplane_result res;
+	/* Call into the synchronous kernel-facing code here */
+	res = kernel_route_update(ctx);
+    return res;
+}
+```
+
+而`kernel_route_update`则是真正的内核操作了，它会通过netlink来通知内核路由更新：
+
+```c
+// File: src/sonic-frr/frr/zebra/rt_netlink.c
+// Update or delete a prefix from the kernel, using info from a dataplane context.
+enum zebra_dplane_result kernel_route_update(struct zebra_dplane_ctx *ctx)
+{
+	int cmd, ret;
+	const struct prefix *p = dplane_ctx_get_dest(ctx);
+	struct nexthop *nexthop;
+
+	if (dplane_ctx_get_op(ctx) == DPLANE_OP_ROUTE_DELETE) {
+		cmd = RTM_DELROUTE;
+	} else if (dplane_ctx_get_op(ctx) == DPLANE_OP_ROUTE_INSTALL) {
+		cmd = RTM_NEWROUTE;
+	} else if (dplane_ctx_get_op(ctx) == DPLANE_OP_ROUTE_UPDATE) {
+        cmd = RTM_NEWROUTE;
+    }
+
+    if (!RSYSTEM_ROUTE(dplane_ctx_get_type(ctx)))
+		ret = netlink_route_multipath(cmd, ctx);
+    ...
+
+    return (ret == 0 ? ZEBRA_DPLANE_REQUEST_SUCCESS : ZEBRA_DPLANE_REQUEST_FAILURE);
+}
+
+// Routing table change via netlink interface, using a dataplane context object
+static int netlink_route_multipath(int cmd, struct zebra_dplane_ctx *ctx)
+{
+    // Build netlink request.
+	struct {
+		struct nlmsghdr n;
+		struct rtmsg r;
+		char buf[NL_PKT_BUF_SIZE];
+	} req;
+
+    req.n.nlmsg_len = NLMSG_LENGTH(sizeof(struct rtmsg));
+    req.n.nlmsg_flags = NLM_F_CREATE | NLM_F_REQUEST;
+    ...
+
+	/* Talk to netlink socket. */
+	return netlink_talk_info(netlink_talk_filter, &req.n, dplane_ctx_get_ns(ctx), 0);
+}
+```
+
+到此，FRR的工作就完成了。
 
 ### SONiC路由变更工作流
 
