@@ -39,16 +39,184 @@ sequenceDiagram
 
 `bgpd`是FRR中专门用来处理BGP会话的进程，它会开放TCP 179端口与邻居节点建立BGP连接，并处理路由表的更新请求。当路由发生变化后，FRR也会通过它来通知其他邻居节点。
 
-请求来到`bgpd`之后，它会首先来到
+请求来到`bgpd`之后，它会首先来到它的io线程：`bgp_io`。顾名思义，`bgpd`中的网络读写工作都是在这个线程上完成的：
 
-然后`bgpd`会开始检查是否出现更优的路径，并更新自己的本地路由表（RIB，Routing Information Base），并通过`zclient`通知`zebra`更新内核路由表。
+```c
+// File: src/sonic-frr/frr/bgpd/bgp_io.c
+static int bgp_process_reads(struct thread *thread)
+{
+    ...
+
+    while (more) {
+        // Read packets here
+        ...
+  
+        // If we have more than 1 complete packet, mark it and process it later.
+        if (ringbuf_remain(ibw) >= pktsize) {
+            ...
+            added_pkt = true;
+        } else break;
+    }
+    ...
+
+    if (added_pkt)
+        thread_add_event(bm->master, bgp_process_packet, peer, 0, &peer->t_process_packet);
+
+    return 0;
+}
+```
+
+当数据包读完后，`bgpd`会将其发送到主线程进行路由处理。在这里，`bgpd`会根据数据包的类型进行分发，其中路由更新的请求会交给`bpg_update_receive`来进行解析：
+
+```c
+// File: src/sonic-frr/frr/bgpd/bgp_packet.c
+int bgp_process_packet(struct thread *thread)
+{
+    ...
+	unsigned int processed = 0;
+	while (processed < rpkt_quanta_old) {
+		uint8_t type = 0;
+		bgp_size_t size;
+        ...
+
+		/* read in the packet length and type */
+		size = stream_getw(peer->curr);
+		type = stream_getc(peer->curr);
+		size -= BGP_HEADER_SIZE;
+
+		switch (type) {
+		case BGP_MSG_OPEN:
+            ...
+            break;
+		case BGP_MSG_UPDATE:
+            ...
+			mprc = bgp_update_receive(peer, size);
+            ...
+			break;
+        ...
+}
+
+// Process BGP UPDATE message for peer.
+static int bgp_update_receive(struct peer *peer, bgp_size_t size)
+{
+	struct stream *s;
+	struct attr attr;
+	struct bgp_nlri nlris[NLRI_TYPE_MAX];
+    ...
+
+    // Parse attributes and NLRI
+	memset(&attr, 0, sizeof(struct attr));
+	attr.label_index = BGP_INVALID_LABEL_INDEX;
+	attr.label = MPLS_INVALID_LABEL;
+    ...
+
+	memset(&nlris, 0, sizeof(nlris));
+    ...
+
+	if ((!update_len && !withdraw_len && nlris[NLRI_MP_UPDATE].length == 0)
+	    || (attr_parse_ret == BGP_ATTR_PARSE_EOR)) {
+        // More parsing here
+        ...
+
+		if (afi && peer->afc[afi][safi]) {
+			struct vrf *vrf = vrf_lookup_by_id(peer->bgp->vrf_id);
+
+			/* End-of-RIB received */
+			if (!CHECK_FLAG(peer->af_sflags[afi][safi], PEER_STATUS_EOR_RECEIVED)) {
+                ...
+				if (gr_info->eor_required == gr_info->eor_received) {
+                    ...
+					/* Best path selection */
+					if (bgp_best_path_select_defer( peer->bgp, afi, safi) < 0)
+						return BGP_Stop;
+				}
+			}
+            ...
+		}
+	}
+    ...
+
+	return Receive_UPDATE_message;
+}
+```
+
+然后，`bgpd`会开始检查是否出现更优的路径，并更新自己的本地路由表（RIB，Routing Information Base）：
+
+```c
+// File: src/sonic-frr/frr/bgpd/bgp_route.c
+/* Process the routes with the flag BGP_NODE_SELECT_DEFER set */
+int bgp_best_path_select_defer(struct bgp *bgp, afi_t afi, safi_t safi)
+{
+	struct bgp_dest *dest;
+	int cnt = 0;
+	struct afi_safi_info *thread_info;
+    ...
+
+	/* Process the route list */
+	for (dest = bgp_table_top(bgp->rib[afi][safi]);
+	     dest && bgp->gr_info[afi][safi].gr_deferred != 0;
+	     dest = bgp_route_next(dest))
+    {
+        ...
+		bgp_process_main_one(bgp, dest, afi, safi);
+        ...
+	}
+    ...
+
+	return 0;
+}
+
+static void bgp_process_main_one(struct bgp *bgp, struct bgp_dest *dest, afi_t afi, safi_t safi)
+{
+	struct bgp_path_info *new_select;
+	struct bgp_path_info *old_select;
+	struct bgp_path_info_pair old_and_new;
+    ...
+
+	const struct prefix *p = bgp_dest_get_prefix(dest);
+    ...
+
+	/* Best path selection. */
+	bgp_best_selection(bgp, dest, &bgp->maxpaths[afi][safi], &old_and_new, afi, safi);
+	old_select = old_and_new.old;
+	new_select = old_and_new.new;
+    ...
+
+	/* FIB update. */
+	if (bgp_fibupd_safi(safi) && (bgp->inst_type != BGP_INSTANCE_TYPE_VIEW)
+	    && !bgp_option_check(BGP_OPT_NO_FIB)) {
+
+		if (new_select && new_select->type == ZEBRA_ROUTE_BGP
+		    && (new_select->sub_type == BGP_ROUTE_NORMAL
+			|| new_select->sub_type == BGP_ROUTE_AGGREGATE
+			|| new_select->sub_type == BGP_ROUTE_IMPORTED)) {
+            ...
+
+			if (old_select && is_route_parent_evpn(old_select))
+				bgp_zebra_withdraw(p, old_select, bgp, safi);
+
+			bgp_zebra_announce(dest, p, new_select, bgp, afi, safi);
+		} else {
+			/* Withdraw the route from the kernel. */
+            ...
+		}
+	}
+
+    /* EVPN route injection and clean up */
+    ...
+
+	UNSET_FLAG(dest->flags, BGP_NODE_PROCESS_SCHEDULED);
+	return;
+}
+```
+
+最后，`bgp_zebra_announce`会通过`zclient`通知`zebra`更新内核路由表。
 
 ```c
 // File: src/sonic-frr/frr/bgpd/bgp_zebra.c
 void bgp_zebra_announce(struct bgp_node *rn, struct prefix *p, struct bgp_path_info *info, struct bgp *bgp, afi_t afi, safi_t safi)
 {
     ...
-
     zclient_route_send(valid_nh_count ? ZEBRA_ROUTE_ADD : ZEBRA_ROUTE_DELETE, zclient, &api);
 }
 ```
@@ -89,7 +257,7 @@ int zclient_socket_connect(struct zclient *zclient)
 }
 ```
 
-我们在`bgpd`容器中可以在`/run/frr`目录下找到`zebra`通信使用的socket文件来进行简单的验证：
+在`bgpd`容器中，我们可以在`/run/frr`目录下找到`zebra`通信使用的socket文件来进行简单的验证：
 
 ```bash
 root@7260cx3:/run/frr# ls -l
@@ -327,11 +495,11 @@ void rib_install_kernel(struct route_node *rn, struct route_entry *re,
 ```c
 // File: src/sonic-frr/frr/zebra/zebra_dplane.c
 enum zebra_dplane_result dplane_route_add(struct route_node *rn, struct route_entry *re) {
-	return dplane_route_update_internal(rn, re, NULL, DPLANE_OP_ROUTE_INSTALL);
+    return dplane_route_update_internal(rn, re, NULL, DPLANE_OP_ROUTE_INSTALL);
 }
 
 enum zebra_dplane_result dplane_route_update(struct route_node *rn, struct route_entry *re, struct route_entry *old_re) {
-	return dplane_route_update_internal(rn, re, old_re, DPLANE_OP_ROUTE_UPDATE);
+    return dplane_route_update_internal(rn, re, old_re, DPLANE_OP_ROUTE_UPDATE);
 }
 
 enum zebra_dplane_result dplane_sys_route_add(struct route_node *rn, struct route_entry *re) {
@@ -484,16 +652,16 @@ FPM（Forwarding Plane Manager）是FRR中用于通知其他进程路由变更�
 ```c
 static int zebra_fpm_module_init(void)
 {
-	hook_register(rib_update, zfpm_trigger_update);
-	hook_register(zebra_rmac_update, zfpm_trigger_rmac_update);
-	hook_register(frr_late_init, zfpm_init);
-	hook_register(frr_early_fini, zfpm_fini);
-	return 0;
+    hook_register(rib_update, zfpm_trigger_update);
+    hook_register(zebra_rmac_update, zfpm_trigger_rmac_update);
+    hook_register(frr_late_init, zfpm_init);
+    hook_register(frr_early_fini, zfpm_fini);
+    return 0;
 }
 
 FRR_MODULE_SETUP(.name = "zebra_fpm", .version = FRR_VERSION,
-		 .description = "zebra FPM (Forwarding Plane Manager) module",
-		 .init = zebra_fpm_module_init,
+         .description = "zebra FPM (Forwarding Plane Manager) module",
+         .init = zebra_fpm_module_init,
 );
 ```
 
@@ -502,21 +670,21 @@ FRR_MODULE_SETUP(.name = "zebra_fpm", .version = FRR_VERSION,
 ```c
 static int zfpm_trigger_update(struct route_node *rn, const char *reason)
 {
-	rib_dest_t *dest;
+    rib_dest_t *dest;
     ...
 
     // Queue the update request
-	dest = rib_dest_from_rnode(rn);
+    dest = rib_dest_from_rnode(rn);
     SET_FLAG(dest->flags, RIB_DEST_UPDATE_FPM);
-	TAILQ_INSERT_TAIL(&zfpm_g->dest_q, dest, fpm_q_entries);
+    TAILQ_INSERT_TAIL(&zfpm_g->dest_q, dest, fpm_q_entries);
     ...
 
-	zfpm_write_on();
-	return 0;
+    zfpm_write_on();
+    return 0;
 }
 
 static inline void zfpm_write_on(void) {
-	thread_add_write(zfpm_g->master, zfpm_write_cb, 0, zfpm_g->sock, &zfpm_g->t_write);
+    thread_add_write(zfpm_g->master, zfpm_write_cb, 0, zfpm_g->sock, &zfpm_g->t_write);
 }
 ```
 
@@ -525,33 +693,33 @@ static inline void zfpm_write_on(void) {
 ```c
 static int zfpm_write_cb(struct thread *thread)
 {
-	struct stream *s;
+    struct stream *s;
 
-	do {
-		int bytes_to_write, bytes_written;
-		s = zfpm_g->obuf;
+    do {
+        int bytes_to_write, bytes_written;
+        s = zfpm_g->obuf;
 
         // Convert route info to buffer here.
-		if (stream_empty(s)) zfpm_build_updates();
+        if (stream_empty(s)) zfpm_build_updates();
 
         // Write to socket until we don' have anything to write or cannot write anymore (partial write).
-		bytes_to_write = stream_get_endp(s) - stream_get_getp(s);
-		bytes_written = write(zfpm_g->sock, stream_pnt(s), bytes_to_write);
+        bytes_to_write = stream_get_endp(s) - stream_get_getp(s);
+        bytes_written = write(zfpm_g->sock, stream_pnt(s), bytes_to_write);
         ...
-	} while (1);
+    } while (1);
 
-	if (zfpm_writes_pending()) zfpm_write_on();
-	return 0;
+    if (zfpm_writes_pending()) zfpm_write_on();
+    return 0;
 }
 
 static void zfpm_build_updates(void)
 {
-	struct stream *s = zfpm_g->obuf;
-	do {
-		/* Stop processing the queues if zfpm_g->obuf is full or we do not have more updates to process */
-		if (zfpm_build_mac_updates() == FPM_WRITE_STOP) break;
-		if (zfpm_build_route_updates() == FPM_WRITE_STOP) break;
-	} while (zfpm_updates_pending());
+    struct stream *s = zfpm_g->obuf;
+    do {
+        /* Stop processing the queues if zfpm_g->obuf is full or we do not have more updates to process */
+        if (zfpm_build_mac_updates() == FPM_WRITE_STOP) break;
+        if (zfpm_build_route_updates() == FPM_WRITE_STOP) break;
+    } while (zfpm_updates_pending());
 }
 ```
 
