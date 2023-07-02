@@ -851,6 +851,8 @@ RouteSync::RouteSync(RedisPipeline *pipeline) :
 5. [Github repo: sonic-utilities][SONiCUtil]
 6. [RFC 4271: A Border Gateway Protocol 4 (BGP-4)][BGP]
 7. [FRRouting][FRRouting]
+8. [FRRouting - BGP][BGP]
+9. [FRRouting - FPM][FPM]
 
 [SONiCArch]: https://github.com/sonic-net/SONiC/wiki/Architecture
 [SONiCSWSS]: https://github.com/sonic-net/sonic-swss
@@ -859,3 +861,5 @@ RouteSync::RouteSync(RedisPipeline *pipeline) :
 [SONiCUtil]: https://github.com/sonic-net/sonic-utilities
 [BGP]: https://datatracker.ietf.org/doc/html/rfc4271
 [FRRouting]: https://frrouting.org/
+[FPM]: https://docs.frrouting.org/projects/dev-guide/en/latest/fpm.html
+[FRRBGP]: https://docs.frrouting.org/en/latest/bgp.html
