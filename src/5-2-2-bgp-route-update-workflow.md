@@ -35,6 +35,10 @@ sequenceDiagram
     ZD->>K: 发送Netlink消息更新内核路由表
 ```
 
+```admonish note
+关于FRR的实现，这里更多的是从代码的角度来阐述其工作流的过程，而不是其对BGP的实现细节，如果想要了解FRR的BGP实现细节，可以参考[官方文档](https://docs.frrouting.org/en/latest/bgp.html)。
+```
+
 ### bgpd处理路由变更
 
 `bgpd`是FRR中专门用来处理BGP会话的进程，它会开放TCP 179端口与邻居节点建立BGP连接，并处理路由表的更新请求。当路由发生变化后，FRR也会通过它来通知其他邻居节点。
