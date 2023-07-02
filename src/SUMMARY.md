@@ -25,6 +25,8 @@
 - [工作流](./5-workflows.md)
   - [Syncd-SAI工作流](./5-1-syncd-sai-workflow.md)
   - [BGP工作流](./5-2-bgp-workflow.md)
+    - [BGP命令实现](./5-2-1-bgp-command-impl.md)
+    - [BGP路由变更下发](./5-2-2-bgp-route-update-workflow.md)
 - [启动流程](./6-boot.md)
   - [正常启动](./6-1-normal-boot.md)
   - [快速启动](./6-2-fast-boot.md)
