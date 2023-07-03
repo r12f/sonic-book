@@ -77,70 +77,70 @@ static int bgp_process_reads(struct thread *thread)
 int bgp_process_packet(struct thread *thread)
 {
     ...
-	unsigned int processed = 0;
-	while (processed < rpkt_quanta_old) {
-		uint8_t type = 0;
-		bgp_size_t size;
+    unsigned int processed = 0;
+    while (processed < rpkt_quanta_old) {
+        uint8_t type = 0;
+        bgp_size_t size;
         ...
 
-		/* read in the packet length and type */
-		size = stream_getw(peer->curr);
-		type = stream_getc(peer->curr);
-		size -= BGP_HEADER_SIZE;
+        /* read in the packet length and type */
+        size = stream_getw(peer->curr);
+        type = stream_getc(peer->curr);
+        size -= BGP_HEADER_SIZE;
 
-		switch (type) {
-		case BGP_MSG_OPEN:
+        switch (type) {
+        case BGP_MSG_OPEN:
             ...
             break;
-		case BGP_MSG_UPDATE:
+        case BGP_MSG_UPDATE:
             ...
-			mprc = bgp_update_receive(peer, size);
+            mprc = bgp_update_receive(peer, size);
             ...
-			break;
+            break;
         ...
 }
 
 // Process BGP UPDATE message for peer.
 static int bgp_update_receive(struct peer *peer, bgp_size_t size)
 {
-	struct stream *s;
-	struct attr attr;
-	struct bgp_nlri nlris[NLRI_TYPE_MAX];
+    struct stream *s;
+    struct attr attr;
+    struct bgp_nlri nlris[NLRI_TYPE_MAX];
     ...
 
     // Parse attributes and NLRI
-	memset(&attr, 0, sizeof(struct attr));
-	attr.label_index = BGP_INVALID_LABEL_INDEX;
-	attr.label = MPLS_INVALID_LABEL;
+    memset(&attr, 0, sizeof(struct attr));
+    attr.label_index = BGP_INVALID_LABEL_INDEX;
+    attr.label = MPLS_INVALID_LABEL;
     ...
 
-	memset(&nlris, 0, sizeof(nlris));
+    memset(&nlris, 0, sizeof(nlris));
     ...
 
-	if ((!update_len && !withdraw_len && nlris[NLRI_MP_UPDATE].length == 0)
-	    || (attr_parse_ret == BGP_ATTR_PARSE_EOR)) {
+    if ((!update_len && !withdraw_len && nlris[NLRI_MP_UPDATE].length == 0)
+        || (attr_parse_ret == BGP_ATTR_PARSE_EOR)) {
         // More parsing here
         ...
 
-		if (afi && peer->afc[afi][safi]) {
-			struct vrf *vrf = vrf_lookup_by_id(peer->bgp->vrf_id);
+        if (afi && peer->afc[afi][safi]) {
+            struct vrf *vrf = vrf_lookup_by_id(peer->bgp->vrf_id);
 
-			/* End-of-RIB received */
-			if (!CHECK_FLAG(peer->af_sflags[afi][safi], PEER_STATUS_EOR_RECEIVED)) {
+            /* End-of-RIB received */
+            if (!CHECK_FLAG(peer->af_sflags[afi][safi], PEER_STATUS_EOR_RECEIVED)) {
                 ...
-				if (gr_info->eor_required == gr_info->eor_received) {
+                if (gr_info->eor_required == gr_info->eor_received) {
                     ...
-					/* Best path selection */
-					if (bgp_best_path_select_defer( peer->bgp, afi, safi) < 0)
-						return BGP_Stop;
-				}
-			}
+                    /* Best path selection */
+                    if (bgp_best_path_select_defer( peer->bgp, afi, safi) < 0)
+                        return BGP_Stop;
+                }
+            }
             ...
-		}
-	}
+        }
+    }
     ...
 
-	return Receive_UPDATE_message;
+    return Receive_UPDATE_message;
 }
 ```
 
@@ -151,66 +151,66 @@ static int bgp_update_receive(struct peer *peer, bgp_size_t size)
 /* Process the routes with the flag BGP_NODE_SELECT_DEFER set */
 int bgp_best_path_select_defer(struct bgp *bgp, afi_t afi, safi_t safi)
 {
-	struct bgp_dest *dest;
-	int cnt = 0;
-	struct afi_safi_info *thread_info;
+    struct bgp_dest *dest;
+    int cnt = 0;
+    struct afi_safi_info *thread_info;
     ...
 
-	/* Process the route list */
-	for (dest = bgp_table_top(bgp->rib[afi][safi]);
-	     dest && bgp->gr_info[afi][safi].gr_deferred != 0;
-	     dest = bgp_route_next(dest))
+    /* Process the route list */
+    for (dest = bgp_table_top(bgp->rib[afi][safi]);
+         dest && bgp->gr_info[afi][safi].gr_deferred != 0;
+         dest = bgp_route_next(dest))
     {
         ...
-		bgp_process_main_one(bgp, dest, afi, safi);
+        bgp_process_main_one(bgp, dest, afi, safi);
         ...
-	}
+    }
     ...
 
-	return 0;
+    return 0;
 }
 
 static void bgp_process_main_one(struct bgp *bgp, struct bgp_dest *dest, afi_t afi, safi_t safi)
 {
-	struct bgp_path_info *new_select;
-	struct bgp_path_info *old_select;
-	struct bgp_path_info_pair old_and_new;
+    struct bgp_path_info *new_select;
+    struct bgp_path_info *old_select;
+    struct bgp_path_info_pair old_and_new;
     ...
 
-	const struct prefix *p = bgp_dest_get_prefix(dest);
+    const struct prefix *p = bgp_dest_get_prefix(dest);
     ...
 
-	/* Best path selection. */
-	bgp_best_selection(bgp, dest, &bgp->maxpaths[afi][safi], &old_and_new, afi, safi);
-	old_select = old_and_new.old;
-	new_select = old_and_new.new;
+    /* Best path selection. */
+    bgp_best_selection(bgp, dest, &bgp->maxpaths[afi][safi], &old_and_new, afi, safi);
+    old_select = old_and_new.old;
+    new_select = old_and_new.new;
     ...
 
-	/* FIB update. */
-	if (bgp_fibupd_safi(safi) && (bgp->inst_type != BGP_INSTANCE_TYPE_VIEW)
-	    && !bgp_option_check(BGP_OPT_NO_FIB)) {
+    /* FIB update. */
+    if (bgp_fibupd_safi(safi) && (bgp->inst_type != BGP_INSTANCE_TYPE_VIEW)
+        && !bgp_option_check(BGP_OPT_NO_FIB)) {
 
-		if (new_select && new_select->type == ZEBRA_ROUTE_BGP
-		    && (new_select->sub_type == BGP_ROUTE_NORMAL
-			|| new_select->sub_type == BGP_ROUTE_AGGREGATE
-			|| new_select->sub_type == BGP_ROUTE_IMPORTED)) {
+        if (new_select && new_select->type == ZEBRA_ROUTE_BGP
+            && (new_select->sub_type == BGP_ROUTE_NORMAL
+            || new_select->sub_type == BGP_ROUTE_AGGREGATE
+            || new_select->sub_type == BGP_ROUTE_IMPORTED)) {
             ...
 
-			if (old_select && is_route_parent_evpn(old_select))
-				bgp_zebra_withdraw(p, old_select, bgp, safi);
+            if (old_select && is_route_parent_evpn(old_select))
+                bgp_zebra_withdraw(p, old_select, bgp, safi);
 
-			bgp_zebra_announce(dest, p, new_select, bgp, afi, safi);
-		} else {
-			/* Withdraw the route from the kernel. */
+            bgp_zebra_announce(dest, p, new_select, bgp, afi, safi);
+        } else {
+            /* Withdraw the route from the kernel. */
             ...
-		}
-	}
+        }
+    }
 
     /* EVPN route injection and clean up */
     ...
 
-	UNSET_FLAG(dest->flags, BGP_NODE_PROCESS_SCHEDULED);
-	return;
+    UNSET_FLAG(dest->flags, BGP_NODE_PROCESS_SCHEDULED);
+    return;
 }
 ```
 
@@ -380,6 +380,7 @@ static void rib_addnode(struct route_node *rn, struct route_entry *re, int proce
     ...
     rib_link(rn, re, process);
 }
+
 static void rib_link(struct route_node *rn, struct route_entry *re, int process)
 {
     rib_dest_t *dest = rib_dest_from_rnode(rn);
@@ -731,13 +732,14 @@ static void zfpm_build_updates(void)
 
 ## SONiC路由变更工作流（WIP）
 
-当FRR通过Netlink变更内核路由配置后，SONiC便会收到Netlink的通知，然后进行一系列操作将其下发给ASIC，其主要流程如下：
+当FRR变更内核路由配置后，SONiC便会收到来自Netlink和FPM的通知，然后进行一系列操作将其下发给ASIC，其主要流程如下：
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant K as Linux Kernel
     box purple bgp容器
+    participant Z as zebra
     participant FPM as fpmsyncd
     end
     box darkblue swss容器
@@ -750,7 +752,7 @@ sequenceDiagram
 
 ### fpmsyncd更新Redis中的路由配置
 
-首先，我们从源头看起。`fpmsyncd`在启动的时候便会开始监听Netlink的事件，用于接收路由变化：
+首先，我们从源头看起。`fpmsyncd`在启动的时候便会开始监听FPM和Netlink的事件，用于接收路由变更消息：
 
 ```cpp
 // File: src/sonic-swss/fpmsyncd/fpmsyncd.cpp
@@ -762,6 +764,7 @@ int main(int argc, char **argv)
     RedisPipeline pipeline(&db);
     RouteSync sync(&pipeline);
     
+    // Register netlink message handler
     NetLink netlink;
     netlink.registerGroup(RTNLGRP_LINK);
 
@@ -772,9 +775,70 @@ int main(int argc, char **argv)
 
     rtnl_route_read_protocol_names(DefaultRtProtoPath);
     ...
+
+    while (true) {
+        try {
+            // Launching FPM server and wait for zebra to connect.
+            FpmLink fpm(&sync);
+            ...
+
+            fpm.accept();
+            ...
+        } catch (FpmLink::FpmConnectionClosedException &e) {
+            // If connection is closed, keep retrying until it succeeds, before handling any other events.
+            cout << "Connection lost, reconnecting..." << endl;
+        }
+        ...
+    }
 }
 ```
 
+这样，所有的路由变更消息都会以Netlink的形式发送给`RouteSync`，其中[EVPN Type 5][EVPN]必须以原始消息的形式进行处理，所以会发送给`onMsgRaw`，其他的消息都会统一的发给处理Netlink的`onMsg`回调：（关于Netlink如何接收和处理消息，请移步[4.1.2 Netlink](./4-1-2-netlink.html)）
+
+```cpp
+// File: src/sonic-swss/fpmsyncd/fpmlink.cpp
+// Called from: FpmLink::readData()
+void FpmLink::processFpmMessage(fpm_msg_hdr_t* hdr)
+{
+    size_t msg_len = fpm_msg_len(hdr);
+    nlmsghdr *nl_hdr = (nlmsghdr *)fpm_msg_data(hdr);
+    ...
+
+    /* Read all netlink messages inside FPM message */
+    for (; NLMSG_OK (nl_hdr, msg_len); nl_hdr = NLMSG_NEXT(nl_hdr, msg_len))
+    {
+        /*
+         * EVPN Type5 Add Routes need to be process in Raw mode as they contain
+         * RMAC, VLAN and L3VNI information.
+         * Where as all other route will be using rtnl api to extract information
+         * from the netlink msg.
+         */
+        bool isRaw = isRawProcessing(nl_hdr);
+        
+        nl_msg *msg = nlmsg_convert(nl_hdr);
+        ...
+        nlmsg_set_proto(msg, NETLINK_ROUTE);
+
+        if (isRaw) {
+            /* EVPN Type5 Add route processing */
+            /* This will call into onRawMsg() */
+            processRawMsg(nl_hdr);
+        } else {
+            /* This will call into onMsg() */
+            NetDispatcher::getInstance().onNetlinkMessage(msg);
+        }
+
+        nlmsg_free(msg);
+    }
+}
+
+void FpmLink::processRawMsg(struct nlmsghdr *h)
+{
+    m_routesync->onMsgRaw(h);
+};
+```
+
+接着，`RouteSync`收到路由变更的消息之后，会在`onMsg`和`onMsgRaw`中进行判断和分发：
 
 ```cpp
 // File: src/sonic-swss/fpmsyncd/routesync.cpp
@@ -788,18 +852,17 @@ void RouteSync::onMsgRaw(struct nlmsghdr *h)
 
 void RouteSync::onMsg(int nlmsg_type, struct nl_object *obj)
 {
-    if (nlmsg_type == RTM_NEWLINK || nlmsg_type == RTM_DELLINK) {
-        nl_cache_refill(m_nl_sock, m_link_cache);
-        return;
-    }
-
-    struct rtnl_route *route_obj = (struct rtnl_route *)obj;
-
-    // Validate address family
+    // Refill Netlink cache here
     ...
 
-    /* Get the index of the master device */
-    /* if the table_id is not set in the route obj then route is for default vrf. */
+    struct rtnl_route *route_obj = (struct rtnl_route *)obj;
+    auto family = rtnl_route_get_family(route_obj);
+    if (family == AF_MPLS) {
+        onLabelRouteMsg(nlmsg_type, obj);
+        return;
+    }
+    ...
+
     unsigned int master_index = rtnl_route_get_table(route_obj);
     char master_name[IFNAMSIZ] = {0};
     if (master_index) {
@@ -820,27 +883,87 @@ void RouteSync::onMsg(int nlmsg_type, struct nl_object *obj)
 }
 ```
 
+从上面的代码中，我们可以看到这里会有四种不同的路由处理入口，这些不同的路由会被最终通过各自的[ProducerStateTable](./4-2-2-redis-messaging-layer.html#producerstatetable--consumerstatetable)写入到`APPL_DB`中的不同的Table中：
 
+| 路由类型 | 处理函数 | Table |
+| --- | --- | --- |
+| MPLS | `onLabelRouteMsg` | LABLE_ROUTE_TABLE |
+| Vnet VxLan Tunnel Route | `onVnetRouteMsg` | VNET_ROUTE_TUNNEL_TABLE |
+| 其他Vnet路由 | `onVnetRouteMsg` | VNET_ROUTE_TABLE |
+| EVPN Type 5 | `onEvpnRouteMsg` | ROUTE_TABLE |
+| 普通路由 | `onRouteMsg` | ROUTE_TABLE |
+
+这里以普通路由来举例子，其他的函数的实现虽然有所不同，但是主体的思路是一样的：
 
 ```cpp
 // File: src/sonic-swss/fpmsyncd/routesync.cpp
-RouteSync::RouteSync(RedisPipeline *pipeline) :
-    m_routeTable(pipeline, APP_ROUTE_TABLE_NAME, true),
-    m_label_routeTable(pipeline, APP_LABEL_ROUTE_TABLE_NAME, true),
-    m_vnet_routeTable(pipeline, APP_VNET_RT_TABLE_NAME, true),
-    m_vnet_tunnelTable(pipeline, APP_VNET_RT_TUNNEL_TABLE_NAME, true),
-    m_warmStartHelper(pipeline, &m_routeTable, APP_ROUTE_TABLE_NAME, "bgp", "bgp"),
-    m_nl_sock(NULL), m_link_cache(NULL)
+void RouteSync::onRouteMsg(int nlmsg_type, struct nl_object *obj, char *vrf)
 {
-    m_nl_sock = nl_socket_alloc();
-    nl_connect(m_nl_sock, NETLINK_ROUTE);
-    rtnl_link_alloc_cache(m_nl_sock, AF_UNSPEC, &m_link_cache);
+    // Parse route info from nl_object here.
+    ...
+    
+    // Get nexthop lists
+    string gw_list;
+    string intf_list;
+    string mpls_list;
+    getNextHopList(route_obj, gw_list, mpls_list, intf_list);
+    ...
+
+    // Build route info here, including protocol, interface, next hops, MPLS, weights etc.
+    vector<FieldValueTuple> fvVector;
+    FieldValueTuple proto("protocol", proto_str);
+    FieldValueTuple gw("nexthop", gw_list);
+    ...
+
+    fvVector.push_back(proto);
+    fvVector.push_back(gw);
+    ...
+    
+    // Push to ROUTE_TABLE via ProducerStateTable.
+    m_routeTable.set(destipprefix, fvVector);
+    SWSS_LOG_DEBUG("RouteTable set msg: %s %s %s %s", destipprefix, gw_list.c_str(), intf_list.c_str(), mpls_list.c_str());
+    ...
 }
 ```
 
 ### orchagent处理路由配置变化
 
+接下来，这些路由信息会来到orchagent。在orchagent启动的时候，它会创建好`VNetRouteOrch`和`RouteOrch`对象，这两个对象分别用来监听和处理Vnet相关路由和EVPN/普通路由：
+
+```cpp
+// File: src/sonic-swss/orchagent/orchdaemon.cpp
+bool OrchDaemon::init()
+{
+    ...
+
+    vector<string> vnet_tables = { APP_VNET_RT_TABLE_NAME, APP_VNET_RT_TUNNEL_TABLE_NAME };
+    VNetRouteOrch *vnet_rt_orch = new VNetRouteOrch(m_applDb, vnet_tables, vnet_orch);
+    ...
+
+    const int routeorch_pri = 5;
+    vector<table_name_with_pri_t> route_tables = {
+        { APP_ROUTE_TABLE_NAME,        routeorch_pri },
+        { APP_LABEL_ROUTE_TABLE_NAME,  routeorch_pri }
+    };
+    gRouteOrch = new RouteOrch(m_applDb, route_tables, gSwitchOrch, gNeighOrch, gIntfsOrch, vrf_orch, gFgNhgOrch, gSrv6Orch);
+    ...
+}
+```
+
+所有Orch对象的消息处理入口都是`doTask`，这里`RouteOrch`和`VNetRouteOrch`也不例外，这里我们以`RouteOrch`为例子，看看它是如何处理路由变化的：
+
+```admonish note
+从`RouteOrch`上，我们可以真切的感受到为什么这些类被命名为`Orch`。`RouteOrch`的`doTask`函数有差不多600行，其中有各种各样的命令处理，与其他Orch的交互，各种各样的细节…… 代码是相对难读，也相对难简化的，请大家读的时候一定保持耐心。
+```
+
+```cpp
+// File: src/sonic-swss/orchagent/routeorch.cpp
+```
+
+
 ### syncd更新ASIC
+
+最后，当SAI对象生成好并发送给ASIC_DB之后，syncd会收到ASIC_DB的通知，从而更新ASIC。这一段的工作流，我们已经在[Syncd-SAI工作流](./5-1-syncd-sai-workflow.html)中详细介绍过了，这里就不再赘述了，大家可以移步去查看。
 
 # 参考资料
 
@@ -853,6 +976,7 @@ RouteSync::RouteSync(RedisPipeline *pipeline) :
 7. [FRRouting][FRRouting]
 8. [FRRouting - BGP][BGP]
 9. [FRRouting - FPM][FPM]
+10. [Understanding EVPN Pure Type 5 Routes][EVPN]
 
 [SONiCArch]: https://github.com/sonic-net/SONiC/wiki/Architecture
 [SONiCSWSS]: https://github.com/sonic-net/sonic-swss
@@ -863,3 +987,4 @@ RouteSync::RouteSync(RedisPipeline *pipeline) :
 [FRRouting]: https://frrouting.org/
 [FPM]: https://docs.frrouting.org/projects/dev-guide/en/latest/fpm.html
 [FRRBGP]: https://docs.frrouting.org/en/latest/bgp.html
+[EVPN]: https://www.juniper.net/documentation/us/en/software/junos/evpn-vxlan/topics/concept/evpn-route-type5-understanding.html
