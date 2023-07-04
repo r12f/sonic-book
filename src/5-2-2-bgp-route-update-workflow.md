@@ -950,14 +950,138 @@ bool OrchDaemon::init()
 }
 ```
 
-所有Orch对象的消息处理入口都是`doTask`，这里`RouteOrch`和`VNetRouteOrch`也不例外，这里我们以`RouteOrch`为例子，看看它是如何处理路由变化的：
+所有Orch对象的消息处理入口都是`doTask`，这里`RouteOrch`和`VNetRouteOrch`也不例外，这里我们以`RouteOrch`为例子，看看它是如何处理路由变化的。
 
 ```admonish note
-从`RouteOrch`上，我们可以真切的感受到为什么这些类被命名为`Orch`。`RouteOrch`的`doTask`函数有差不多600行，其中有各种各样的命令处理，与其他Orch的交互，各种各样的细节…… 代码是相对难读，也相对难简化的，请大家读的时候一定保持耐心。
+从`RouteOrch`上，我们可以真切的感受到为什么这些类被命名为`Orch`。`RouteOrch`有2500多行，其中会有和很多其他Orch的交互，以及各种各样的细节…… 代码是相对难读，请大家读的时候一定保持耐心。
 ```
+
+`RouteOrch`在处理路由消息的时候有几点需要注意：
+
+- 从上面`init`函数，我们可以看到`RouteOrch`不仅会管理普通路由，还会管理MPLS路由，这两种路由的处理逻辑是不一样的，所以在下面的代码中，为了简化，我们只展示普通路由的处理逻辑。
+- 因为`ProducerStateTable`在传递和接受消息的时候都是批量传输的，所以，`RouteOrch`在处理消息的时候，也是批量处理的。为了支持批量处理，`RouteOrch`会借用`EntityBulker<sai_route_api_t> gRouteBulker`将需要改动的SAI路由对象缓存起来，然后在`doTask()`函数的最后，一次性将这些路由对象的改动应用到SAI中。
+- 路由的操作会需要很多其他的信息，比如每个Port的状态，每个Neighbor的状态，每个VRF的状态等等。为了获取这些信息，`RouteOrch`会与其他的Orch对象进行交互，比如`PortOrch`，`NeighOrch`，`VRFOrch`等等。
 
 ```cpp
 // File: src/sonic-swss/orchagent/routeorch.cpp
+void RouteOrch::doTask(Consumer& consumer)
+{
+    // Calling PortOrch to make sure all ports are ready before processing route messages.
+    if (!gPortsOrch->allPortsReady()) { return; }
+
+    // Call doLabelTask() instead, if the incoming messages are from MPLS messages. Otherwise, move on as regular routes.
+    ...
+
+    /* Default handling is for ROUTE_TABLE (regular routes) */
+    auto it = consumer.m_toSync.begin();
+    while (it != consumer.m_toSync.end()) {
+        // Route updates are handled in bulk.
+        // Route bulk results will be stored in a map ((key, op) => RouteBulkContext)
+        std::map<std::pair<std::string, std::string>, RouteBulkContext> toBulk;
+
+        // Add or remove routes with a route bulker
+        while (it != consumer.m_toSync.end())
+        {
+            KeyOpFieldsValuesTuple t = it->second;
+
+            // Parse route operation from the incoming message here.
+            string key = kfvKey(t);
+            string op = kfvOp(t);
+            ...
+
+            // resync application:
+            // - When routeorch receives 'resync' message (key = "resync", op = "SET"), it marks all current routes as dirty
+            //   and waits for 'resync complete' message. For all newly received routes, if they match current dirty routes,
+            //   it unmarks them dirty.
+            // - After receiving 'resync complete' (key = "resync", op != "SET") message, it creates all newly added routes
+            //   and removes all dirty routes.
+            ...
+
+            // Parsing VRF and IP prefix from the incoming message here.
+            ...
+
+            // Process regular route operations.
+            if (op == SET_COMMAND)
+            {
+                // Parse and validate route attributes from the incoming message here.
+                string ips;
+                string aliases;
+                ...
+
+                // If the nexthop_group is empty, create the next hop group key based on the IPs and aliases. 
+                // Otherwise, get the key from the NhgOrch. The result will be stored in the "nhg" variable below.
+                NextHopGroupKey& nhg = ctx.nhg;
+                ...
+                if (nhg_index.empty())
+                {
+                    // Here the nexthop_group is empty, so we create the next hop group key based on the IPs and aliases.
+                    ...
+
+                    string nhg_str = "";
+                    if (blackhole) {
+                        nhg = NextHopGroupKey();
+                    } else if (srv6_nh == true) {
+                        ...
+                        nhg = NextHopGroupKey(nhg_str, overlay_nh, srv6_nh);
+                    } else if (overlay_nh == false) {
+                        ...
+                        nhg = NextHopGroupKey(nhg_str, weights);
+                    } else {
+                        ...
+                        nhg = NextHopGroupKey(nhg_str, overlay_nh, srv6_nh);
+                    }
+                }
+                else
+                {
+                    // Here we have a nexthop_group, so we get the key from the NhgOrch.
+                    const NhgBase& nh_group = getNhg(nhg_index);
+                    nhg = nh_group.getNhgKey();
+                    ...
+                }
+                ...
+
+                // Now we start to create the SAI route entry.
+                if (nhg.getSize() == 1 && nhg.hasIntfNextHop())
+                {
+                    // Skip certain routes, such as not valid, directly routes to tun0, linklocal or multicast routes, etc.
+                    ...
+
+                    // Create SAI route entry in addRoute function.
+                    if (addRoute(ctx, nhg)) it = consumer.m_toSync.erase(it);
+                    else it++;
+                }
+
+                /*
+                 * Check if the route does not exist or needs to be updated or
+                 * if the route is using a temporary next hop group owned by
+                 * NhgOrch.
+                 */
+                else if (m_syncdRoutes.find(vrf_id) == m_syncdRoutes.end() ||
+                    m_syncdRoutes.at(vrf_id).find(ip_prefix) == m_syncdRoutes.at(vrf_id).end() ||
+                    m_syncdRoutes.at(vrf_id).at(ip_prefix) != RouteNhg(nhg, ctx.nhg_index) ||
+                    gRouteBulker.bulk_entry_pending_removal(route_entry) ||
+                    ctx.using_temp_nhg)
+                {
+                    if (addRoute(ctx, nhg)) it = consumer.m_toSync.erase(it);
+                    else it++;
+                }
+                ...
+            }
+            // Handle other ops, like DEL_COMMAND, etc.
+            ...
+        }
+
+        // Flush the route bulker, so routes will be written to syncd and ASIC
+        gRouteBulker.flush();
+
+        // Go through the bulker results.
+        // Handle SAI failures, update neighbors, counters, send notifications in add/removeRoutePost functions.
+        ... 
+
+        /* Remove next hop group if the reference count decreases to zero */
+        ...
+    }
+}
 ```
 
 
