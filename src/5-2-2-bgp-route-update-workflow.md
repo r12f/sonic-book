@@ -1293,9 +1293,9 @@ void initSaiApi()
 
 相信大家第一次看到这个代码会感觉到非常的困惑。不过别着急，这其实就是`orchagent`中SAI对象的转发机制。
 
-熟悉RPC的小伙伴一定不会对`proxy-stub`模式感到陌生 —— 利用统一的接口来定义通信双方调用接口，在调用方实现序列化和发送，然后再接收方实现接收，反序列化与分发。这里SONiC的做法也是类似的：利用SAI AP本身作为统一的接口，并实现好序列化和发送功能给`orchagent`来调用，然后再`syncd`中实现接收，反序列化与分发功能。
+熟悉RPC的小伙伴一定不会对`proxy-stub`模式感到陌生 —— 利用统一的接口来定义通信双方调用接口，在调用方实现序列化和发送，然后再接收方实现接收，反序列化与分发。这里SONiC的做法也是类似的：利用SAI API本身作为统一的接口，并实现好序列化和发送功能给`orchagent`来调用，然后再`syncd`中实现接收，反序列化与分发功能。
 
-这里，发送端叫做`ClientSai`，实现在`src/sonic-sairedis/lib/ClientSai.*`中。而序列化与反序列化实现在metadata中：`src/sonic-sairedis/meta/sai_serialize.h`：
+这里，发送端叫做`ClientSai`，实现在`src/sonic-sairedis/lib/ClientSai.*`中。而序列化与反序列化实现在SAI metadata中：`src/sonic-sairedis/meta/sai_serialize.h`：
 
 ```cpp
 // File: src/sonic-sairedis/lib/ClientSai.h
@@ -1398,11 +1398,11 @@ sai_status_t ClientSai::bulkCreate(
 }
 ```
 
-最终，`ClientSai`会调用`m_communicationChannel->set()`，将序列化后的SAI对象发送给`syncd`。而这个Channel就是利用Redis和`syncd`通信的Channel了。在202106版本之前，这个Channel使用的是[基于Redis的ProducerTable](https://github.com/sonic-net/sonic-sairedis/blob/202106/lib/inc/RedisChannel.h)，而从202111版本开始，这个Channel已经更改为[ZMQ](https://github.com/sonic-net/sonic-sairedis/blob/202111/lib/ZeroMQChannel.h)了。关于进程通信的方法，这里不再赘述，大家可以参考第四章描述的[进程间的通信机制](./4-2-2-redis-messaging-layer.html)。
+最终，`ClientSai`会调用`m_communicationChannel->set()`，将序列化后的SAI对象发送给`syncd`。而这个Channel，在202106版本之前，就是[基于Redis的ProducerTable](https://github.com/sonic-net/sonic-sairedis/blob/202106/lib/inc/RedisChannel.h)了。可能是基于效率的考虑，从202111版本开始，这个Channel已经更改为[ZMQ](https://github.com/sonic-net/sonic-sairedis/blob/202111/lib/ZeroMQChannel.h)了。关于进程通信的方法，这里就不再赘述了，大家可以参考第四章描述的[进程间的通信机制](./4-2-2-redis-messaging-layer.html)。
 
 ### syncd更新ASIC
 
-最后，当SAI对象生成好并发送给ASIC_DB之后，syncd会收到ASIC_DB的通知，从而更新ASIC。这一段的工作流，我们已经在[Syncd-SAI工作流](./5-1-syncd-sai-workflow.html)中详细介绍过了，这里就不再赘述了，大家可以移步去查看。
+最后，当SAI对象生成好并发送给`syncd`后，`syncd`会接收，处理，更新ASIC_DB，最后更新ASIC。这一段的工作流，我们已经在[Syncd-SAI工作流](./5-1-syncd-sai-workflow.html)中详细介绍过了，这里就不再赘述了，大家可以移步去查看。
 
 # 参考资料
 
