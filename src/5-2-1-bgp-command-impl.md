@@ -14,7 +14,7 @@ def summary(namespace, display):
 
 # file: src/sonic-utilities/utilities_common/bgp_util.py
 def get_bgp_summary_from_all_bgp_instances(af, namespace, display):
-    # IPv6 case is emitted here for simplicity
+    # IPv6 case is omitted here for simplicity
     vtysh_cmd = "show ip bgp summary json"
     
     for ns in device.get_ns_list_based_on_options():

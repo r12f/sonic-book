@@ -325,7 +325,7 @@ static void zread_route_add(ZAPI_HANDLER_ARGS)
     }
     ret = rib_add_multipath_nhe(afi, api.safi, &api.prefix, src_p, re, &nhe);
 
-    // Update stats. IPv6 is emitted here for simplicity.
+    // Update stats. IPv6 is omitted here for simplicity.
     if (ret > 0) client->v4_route_add_cnt++;
     else if (ret < 0) client->v4_route_upd8_cnt++;
 }
@@ -730,7 +730,7 @@ static void zfpm_build_updates(void)
 
 到此，FRR的工作就完成了。
 
-## SONiC路由变更工作流（WIP）
+## SONiC路由变更工作流
 
 当FRR变更内核路由配置后，SONiC便会收到来自Netlink和FPM的通知，然后进行一系列操作将其下发给ASIC，其主要流程如下：
 
@@ -975,10 +975,6 @@ void RouteOrch::doTask(Consumer& consumer)
     /* Default handling is for ROUTE_TABLE (regular routes) */
     auto it = consumer.m_toSync.begin();
     while (it != consumer.m_toSync.end()) {
-        // Route updates are handled in bulk.
-        // Route bulk results will be stored in a map ((key, op) => RouteBulkContext)
-        std::map<std::pair<std::string, std::string>, RouteBulkContext> toBulk;
-
         // Add or remove routes with a route bulker
         while (it != consumer.m_toSync.end())
         {
@@ -1067,7 +1063,7 @@ void RouteOrch::doTask(Consumer& consumer)
                 }
                 ...
             }
-            // Handle other ops, like DEL_COMMAND, etc.
+            // Handle other ops, like DEL_COMMAND for route deletion, etc.
             ...
         }
 
@@ -1084,6 +1080,325 @@ void RouteOrch::doTask(Consumer& consumer)
 }
 ```
 
+解析完路由操作后，`RouteOrch`会调用`addRoute`或者`removeRoute`函数来创建或者删除路由。这里以添加路由`addRoute`为例子来继续分析。它的逻辑主要分为几个大部分：
+
+1. 从NeighOrch中获取下一跳信息，并检查下一跳是否真的可用。
+2. 如果是新路由，或者是重新添加正在等待删除的路由，那么就会创建一个新的SAI路由对象
+3. 如果是已有的路由，那么就更新已有的SAI路由对象
+
+```cpp
+// File: src/sonic-swss/orchagent/routeorch.cpp
+bool RouteOrch::addRoute(RouteBulkContext& ctx, const NextHopGroupKey &nextHops)
+{
+    // Get nexthop information from NeighOrch.
+    // We also need to check PortOrch for inband port, IntfsOrch to ensure the related interface is created and etc.
+    ...
+    
+    // Start to sync the SAI route entry.
+    sai_route_entry_t route_entry;
+    route_entry.vr_id = vrf_id;
+    route_entry.switch_id = gSwitchId;
+    copy(route_entry.destination, ipPrefix);
+
+    sai_attribute_t route_attr;
+    auto& object_statuses = ctx.object_statuses;
+    
+    // Create a new route entry in this case.
+    //
+    // In case the entry is already pending removal in the bulk, it would be removed from m_syncdRoutes during the bulk call.
+    // Therefore, such entries need to be re-created rather than set attribute.
+    if (it_route == m_syncdRoutes.at(vrf_id).end() || gRouteBulker.bulk_entry_pending_removal(route_entry)) {
+        if (blackhole) {
+            route_attr.id = SAI_ROUTE_ENTRY_ATTR_PACKET_ACTION;
+            route_attr.value.s32 = SAI_PACKET_ACTION_DROP;
+        } else {
+            route_attr.id = SAI_ROUTE_ENTRY_ATTR_NEXT_HOP_ID;
+            route_attr.value.oid = next_hop_id;
+        }
+
+        /* Default SAI_ROUTE_ATTR_PACKET_ACTION is SAI_PACKET_ACTION_FORWARD */
+        object_statuses.emplace_back();
+        sai_status_t status = gRouteBulker.create_entry(&object_statuses.back(), &route_entry, 1, &route_attr);
+        if (status == SAI_STATUS_ITEM_ALREADY_EXISTS) {
+            return false;
+        }
+    }
+    
+    // Update existing route entry in this case.
+    else {
+        // Set the packet action to forward when there was no next hop (dropped) and not pointing to blackhole.
+        if (it_route->second.nhg_key.getSize() == 0 && !blackhole) {
+            route_attr.id = SAI_ROUTE_ENTRY_ATTR_PACKET_ACTION;
+            route_attr.value.s32 = SAI_PACKET_ACTION_FORWARD;
+
+            object_statuses.emplace_back();
+            gRouteBulker.set_entry_attribute(&object_statuses.back(), &route_entry, &route_attr);
+        }
+
+        // Only 1 case is listed here as an example. Other cases are handled with similar logic by calling set_entry_attributes as well.
+        ...
+    }
+    ...
+}
+```
+
+在创建和设置好所有的路由后，`RouteOrch`会调用`gRouteBulker.flush()`来将所有的路由写入到ASIC_DB中。`flush()`函数很简单，就是将所有的请求分批次进行处理，默认情况下每一批是1000个，这个定义在`OrchDaemon`中，并通过构造函数传入：
+
+```cpp
+// File: src/sonic-swss/orchagent/orchdaemon.cpp
+#define DEFAULT_MAX_BULK_SIZE 1000
+size_t gMaxBulkSize = DEFAULT_MAX_BULK_SIZE;
+
+// File: src/sonic-swss/orchagent/bulker.h
+template <typename T>
+class EntityBulker
+{
+public:
+    using Ts = SaiBulkerTraits<T>;
+    using Te = typename Ts::entry_t;
+    ...
+
+    void flush()
+    {
+        // Bulk remove entries
+        if (!removing_entries.empty()) {
+            // Split into batches of max_bulk_size, then call flush. Similar to creating_entries, so details are omitted.
+            std::vector<Te> rs;
+            ...
+            flush_removing_entries(rs);
+            removing_entries.clear();
+        }
+
+        // Bulk create entries
+        if (!creating_entries.empty()) {
+            // Split into batches of max_bulk_size, then call flush_creating_entries to call SAI batch create API to create
+            // the objects in batch.
+            std::vector<Te> rs;
+            std::vector<sai_attribute_t const*> tss;
+            std::vector<uint32_t> cs;
+            
+            for (auto const& i: creating_entries) {
+                sai_object_id_t *pid = std::get<0>(i);
+                auto const& attrs = std::get<1>(i);
+                if (*pid == SAI_NULL_OBJECT_ID) {
+                    rs.push_back(pid);
+                    tss.push_back(attrs.data());
+                    cs.push_back((uint32_t)attrs.size());
+
+                    // Batch create here.
+                    if (rs.size() >= max_bulk_size) {
+                        flush_creating_entries(rs, tss, cs);
+                    }
+                }
+            }
+
+            flush_creating_entries(rs, tss, cs);
+            creating_entries.clear();
+        }
+
+        // Bulk update existing entries
+        if (!setting_entries.empty()) {
+            // Split into batches of max_bulk_size, then call flush. Similar to creating_entries, so details are omitted.
+            std::vector<Te> rs;
+            std::vector<sai_attribute_t> ts;
+            std::vector<sai_status_t*> status_vector;
+            ...
+            flush_setting_entries(rs, ts, status_vector);
+            setting_entries.clear();
+        }
+    }
+
+    sai_status_t flush_creating_entries(
+        _Inout_ std::vector<Te> &rs,
+        _Inout_ std::vector<sai_attribute_t const*> &tss,
+        _Inout_ std::vector<uint32_t> &cs)
+    {
+        ...
+
+        // Call SAI bulk create API
+        size_t count = rs.size();
+        std::vector<sai_status_t> statuses(count);
+        sai_status_t status = (*create_entries)((uint32_t)count, rs.data(), cs.data(), tss.data()
+            , SAI_BULK_OP_ERROR_MODE_IGNORE_ERROR, statuses.data());
+
+        // Set results back to input entries and clean up the batch below.
+        for (size_t ir = 0; ir < count; ir++) {
+            auto& entry = rs[ir];
+            sai_status_t *object_status = creating_entries[entry].second;
+            if (object_status) {
+                *object_status = statuses[ir];
+            }
+        }
+
+        rs.clear(); tss.clear(); cs.clear();
+        return status;
+    }
+
+    // flush_removing_entries and flush_setting_entries are similar to flush_creating_entries, so we omit them here.
+    ...
+};
+```
+
+### orchagent中的SAI对象转发
+
+细心的小伙伴肯定已经发现了奇怪的地方，这里`EntityBulker`怎么看着像在直接调用SAI API呢？难道它们不应该是在syncd中调用的吗？如果我们对传入`EntityBulker`的SAI API对象进行跟踪，我们甚至会找到sai_route_api_t就是SAI的接口，而`orchagent`中还有SAI的初始化代码，如下：
+
+```cpp
+// File: src/sonic-sairedis/debian/libsaivs-dev/usr/include/sai/sairoute.h
+/**
+ * @brief Router entry methods table retrieved with sai_api_query()
+ */
+typedef struct _sai_route_api_t
+{
+    sai_create_route_entry_fn                   create_route_entry;
+    sai_remove_route_entry_fn                   remove_route_entry;
+    sai_set_route_entry_attribute_fn            set_route_entry_attribute;
+    sai_get_route_entry_attribute_fn            get_route_entry_attribute;
+
+    sai_bulk_create_route_entry_fn              create_route_entries;
+    sai_bulk_remove_route_entry_fn              remove_route_entries;
+    sai_bulk_set_route_entry_attribute_fn       set_route_entries_attribute;
+    sai_bulk_get_route_entry_attribute_fn       get_route_entries_attribute;
+} sai_route_api_t;
+
+// File: src/sonic-swss/orchagent/saihelper.cpp
+void initSaiApi()
+{
+    SWSS_LOG_ENTER();
+
+    if (ifstream(CONTEXT_CFG_FILE))
+    {
+        SWSS_LOG_NOTICE("Context config file %s exists", CONTEXT_CFG_FILE);
+        gProfileMap[SAI_REDIS_KEY_CONTEXT_CONFIG] = CONTEXT_CFG_FILE;
+    }
+
+    sai_api_initialize(0, (const sai_service_method_table_t *)&test_services);
+    sai_api_query(SAI_API_SWITCH,               (void **)&sai_switch_api);
+    ...
+    sai_api_query(SAI_API_NEIGHBOR,             (void **)&sai_neighbor_api);
+    sai_api_query(SAI_API_NEXT_HOP,             (void **)&sai_next_hop_api);
+    sai_api_query(SAI_API_NEXT_HOP_GROUP,       (void **)&sai_next_hop_group_api);
+    sai_api_query(SAI_API_ROUTE,                (void **)&sai_route_api);
+    ...
+
+    sai_log_set(SAI_API_SWITCH,                 SAI_LOG_LEVEL_NOTICE);
+    ...
+    sai_log_set(SAI_API_NEIGHBOR,               SAI_LOG_LEVEL_NOTICE);
+    sai_log_set(SAI_API_NEXT_HOP,               SAI_LOG_LEVEL_NOTICE);
+    sai_log_set(SAI_API_NEXT_HOP_GROUP,         SAI_LOG_LEVEL_NOTICE);
+    sai_log_set(SAI_API_ROUTE,                  SAI_LOG_LEVEL_NOTICE);
+    ...
+}
+```
+
+相信大家第一次看到这个代码会感觉到非常的困惑。不过别着急，这其实就是`orchagent`中SAI对象的转发机制。
+
+熟悉RPC的小伙伴一定不会对`proxy-stub`模式感到陌生 —— 利用统一的接口来定义通信双方调用接口，在调用方实现序列化和发送，然后再接收方实现接收，反序列化与分发。这里SONiC的做法也是类似的：利用SAI AP本身作为统一的接口，并实现好序列化和发送功能给`orchagent`来调用，然后再`syncd`中实现接收，反序列化与分发功能。
+
+这里，发送端叫做`ClientSai`，实现在`src/sonic-sairedis/lib/ClientSai.*`中。而序列化与反序列化实现在metadata中：`src/sonic-sairedis/meta/sai_serialize.h`：
+
+```cpp
+// File: src/sonic-sairedis/lib/ClientSai.h
+namespace sairedis
+{
+    class ClientSai:
+        public sairedis::SaiInterface
+    {
+        ...
+    };
+}
+
+// File: src/sonic-sairedis/meta/sai_serialize.h
+// Serialize
+std::string sai_serialize_route_entry(_In_ const sai_route_entry_t &route_entry);
+...
+
+// Deserialize
+void sai_deserialize_route_entry(_In_ const std::string& s, _In_ sai_route_entry_t &route_entry);
+...
+```
+
+`orchagent`在编译的时候，会去链接`libsairedis`，从而实现调用SAI API时，对SAI对象进行序列化和发送：
+
+```makefile
+# File: src/sonic-swss/orchagent/Makefile.am
+orchagent_LDADD = $(LDFLAGS_ASAN) -lnl-3 -lnl-route-3 -lpthread -lsairedis -lsaimeta -lsaimetadata -lswsscommon -lzmq
+```
+
+我们这里用Bulk Create作为例子，来看看`ClientSai`是如何实现序列化和发送的：
+
+```cpp
+// File: src/sonic-sairedis/lib/ClientSai.cpp
+sai_status_t ClientSai::bulkCreate(
+        _In_ sai_object_type_t object_type,
+        _In_ sai_object_id_t switch_id,
+        _In_ uint32_t object_count,
+        _In_ const uint32_t *attr_count,
+        _In_ const sai_attribute_t **attr_list,
+        _In_ sai_bulk_op_error_mode_t mode,
+        _Out_ sai_object_id_t *object_id,
+        _Out_ sai_status_t *object_statuses)
+{
+    MUTEX();
+    REDIS_CHECK_API_INITIALIZED();
+
+    std::vector<std::string> serialized_object_ids;
+
+    // Server is responsible for generate new OID but for that we need switch ID
+    // to be sent to server as well, so instead of sending empty oids we will
+    // send switch IDs
+    for (uint32_t idx = 0; idx < object_count; idx++) {
+        serialized_object_ids.emplace_back(sai_serialize_object_id(switch_id));
+    }
+    auto status = bulkCreate(object_type, serialized_object_ids, attr_count, attr_list, mode, object_statuses);
+
+    // Since user requested create, OID value was created remotely and it was returned in m_lastCreateOids
+    for (uint32_t idx = 0; idx < object_count; idx++) {
+        if (object_statuses[idx] == SAI_STATUS_SUCCESS) {
+            object_id[idx] = m_lastCreateOids.at(idx);
+        } else {
+            object_id[idx] = SAI_NULL_OBJECT_ID;
+        }
+    }
+
+    return status;
+}
+
+sai_status_t ClientSai::bulkCreate(
+        _In_ sai_object_type_t object_type,
+        _In_ const std::vector<std::string> &serialized_object_ids,
+        _In_ const uint32_t *attr_count,
+        _In_ const sai_attribute_t **attr_list,
+        _In_ sai_bulk_op_error_mode_t mode,
+        _Inout_ sai_status_t *object_statuses)
+{
+    ...
+
+    // Calling SAI serialize APIs to serialize all objects
+    std::string str_object_type = sai_serialize_object_type(object_type);
+    std::vector<swss::FieldValueTuple> entries;
+    for (size_t idx = 0; idx < serialized_object_ids.size(); ++idx) {
+        auto entry = SaiAttributeList::serialize_attr_list(object_type, attr_count[idx], attr_list[idx], false);
+        if (entry.empty()) {
+            swss::FieldValueTuple null("NULL", "NULL");
+            entry.push_back(null);
+        }
+
+        std::string str_attr = Globals::joinFieldValues(entry);
+        swss::FieldValueTuple fvtNoStatus(serialized_object_ids[idx] , str_attr);
+        entries.push_back(fvtNoStatus);
+    }
+    std::string key = str_object_type + ":" + std::to_string(entries.size());
+
+    // Send to syncd via the communication channel.
+    m_communicationChannel->set(key, entries, REDIS_ASIC_STATE_COMMAND_BULK_CREATE);
+
+    // Wait for response from syncd.
+    return waitForBulkResponse(SAI_COMMON_API_BULK_CREATE, (uint32_t)serialized_object_ids.size(), object_statuses);
+}
+```
+
+最终，`ClientSai`会调用`m_communicationChannel->set()`，将序列化后的SAI对象发送给`syncd`。而这个Channel就是利用Redis和`syncd`通信的Channel了。在202106版本之前，这个Channel使用的是[基于Redis的ProducerTable](https://github.com/sonic-net/sonic-sairedis/blob/202106/lib/inc/RedisChannel.h)，而从202111版本开始，这个Channel已经更改为[ZMQ](https://github.com/sonic-net/sonic-sairedis/blob/202111/lib/ZeroMQChannel.h)了。关于进程通信的方法，这里不再赘述，大家可以参考第四章描述的[进程间的通信机制](./4-2-2-redis-messaging-layer.html)。
 
 ### syncd更新ASIC
 

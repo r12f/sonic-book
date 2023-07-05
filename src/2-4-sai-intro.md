@@ -59,7 +59,7 @@ sai_status_t sai_api_initialize(_In_ uint64_t flags, _In_ const sai_service_meth
     if (g_initialized) {
         return SAI_STATUS_FAILURE;
     }
-    // Validate parameters here (code emitted)
+    // Validate parameters here (code omitted)
 
     memcpy(&g_mlnx_services, services, sizeof(g_mlnx_services));
     g_initialized = true;
