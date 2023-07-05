@@ -1411,17 +1411,19 @@ sai_status_t ClientSai::bulkCreate(
 3. [Github repo: sonic-swss-common][SONiCSWSSCommon]
 4. [Github repo: sonic-frr][SONiCFRR]
 5. [Github repo: sonic-utilities][SONiCUtil]
-6. [RFC 4271: A Border Gateway Protocol 4 (BGP-4)][BGP]
-7. [FRRouting][FRRouting]
-8. [FRRouting - BGP][BGP]
-9. [FRRouting - FPM][FPM]
-10. [Understanding EVPN Pure Type 5 Routes][EVPN]
+6. [Github repo: sonic-sairedis][SONiCSAIRedis]
+7. [RFC 4271: A Border Gateway Protocol 4 (BGP-4)][BGP]
+8. [FRRouting][FRRouting]
+9.  [FRRouting - BGP][BGP]
+10. [FRRouting - FPM][FPM]
+11. [Understanding EVPN Pure Type 5 Routes][EVPN]
 
 [SONiCArch]: https://github.com/sonic-net/SONiC/wiki/Architecture
 [SONiCSWSS]: https://github.com/sonic-net/sonic-swss
 [SONiCSWSSCommon]: https://github.com/sonic-net/sonic-swss-common
 [SONiCFRR]: https://github.com/sonic-net/sonic-frr
 [SONiCUtil]: https://github.com/sonic-net/sonic-utilities
+[SONiCSAIRedis]: https://github.com/sonic-net/sonic-sairedis/
 [BGP]: https://datatracker.ietf.org/doc/html/rfc4271
 [FRRouting]: https://frrouting.org/
 [FPM]: https://docs.frrouting.org/projects/dev-guide/en/latest/fpm.html
