@@ -742,12 +742,29 @@ sequenceDiagram
     participant Z as zebra
     participant FPM as fpmsyncd
     end
+    box darkred database容器
+    participant R as Redis
+    end
     box darkblue swss容器
     participant OA as orchagent
     end
     box darkgreen syncd容器
     participant SD as syncd
     end
+    participant A as ASIC
+
+    K->>FPM: 内核路由变更时通过Netlink发送通知
+    Z->>FPM: 通过FPM接口和Netlink<br/>消息格式发送路由变更通知
+
+    FPM->>R: 通过ProducerStateTable<br/>将路由变更信息写入<br/>APPL_DB
+
+    R->>OA: 通过ConsumerStateTable<br/>接收路由变更信息
+    
+    OA->>OA: 处理路由变更信息<br/>生成SAI路由对象
+    OA->>SD: 通过ProducerTable<br/>或者ZMQ将SAI路由对象<br/>发给syncd
+
+    SD->>R: 接收SAI路由对象，写入ASIC_DB
+    SD->>A: 通过SAI接口<br/>配置ASIC
 ```
 
 ### fpmsyncd更新Redis中的路由配置
@@ -1398,7 +1415,43 @@ sai_status_t ClientSai::bulkCreate(
 }
 ```
 
-最终，`ClientSai`会调用`m_communicationChannel->set()`，将序列化后的SAI对象发送给`syncd`。而这个Channel，在202106版本之前，就是[基于Redis的ProducerTable](https://github.com/sonic-net/sonic-sairedis/blob/202106/lib/inc/RedisChannel.h)了。可能是基于效率的考虑，从202111版本开始，这个Channel已经更改为[ZMQ](https://github.com/sonic-net/sonic-sairedis/blob/202111/lib/ZeroMQChannel.h)了。关于进程通信的方法，这里就不再赘述了，大家可以参考第四章描述的[进程间的通信机制](./4-2-2-redis-messaging-layer.html)。
+最终，`ClientSai`会调用`m_communicationChannel->set()`，将序列化后的SAI对象发送给`syncd`。而这个Channel，在202106版本之前，就是[基于Redis的ProducerTable](https://github.com/sonic-net/sonic-sairedis/blob/202106/lib/inc/RedisChannel.h)了。可能是基于效率的考虑，从202111版本开始，这个Channel已经更改为[ZMQ](https://github.com/sonic-net/sonic-sairedis/blob/202111/lib/ZeroMQChannel.h)了。
+
+```cpp
+// File: https://github.com/sonic-net/sonic-sairedis/blob/202106/lib/inc/RedisChannel.h
+class RedisChannel: public Channel
+{
+    ...
+
+    /**
+      * @brief Asic state channel.
+      *
+      * Used to sent commands like create/remove/set/get to syncd.
+      */
+    std::shared_ptr<swss::ProducerTable>  m_asicState;
+
+    ...
+};
+
+// File: src/sonic-sairedis/lib/ClientSai.cpp
+sai_status_t ClientSai::initialize(
+        _In_ uint64_t flags,
+        _In_ const sai_service_method_table_t *service_method_table)
+{
+    ...
+    
+    m_communicationChannel = std::make_shared<ZeroMQChannel>(
+            cc->m_zmqEndpoint,
+            cc->m_zmqNtfEndpoint,
+            std::bind(&ClientSai::handleNotification, this, _1, _2, _3));
+
+    m_apiInitialized = true;
+
+    return SAI_STATUS_SUCCESS;
+}
+```
+
+关于进程通信的方法，这里就不再赘述了，大家可以参考第四章描述的[进程间的通信机制](./4-2-2-redis-messaging-layer.html)。
 
 ### syncd更新ASIC
 
