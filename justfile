@@ -45,6 +45,10 @@ po-serve PO='en':
     @just _log-head "Starting mdbook server with translated {{PO}} book ..."
     $env:MDBOOK_BOOK__LANGUAGE="{{PO}}"; mdbook serve -d book/{{PO}} -n 0.0.0.0; $env:MDBOOK_BOOK__LANGUAGE=$null
 
+po-tr PO='en':
+    @just _log-head "Starting translating {{PO}} book ..."
+    potr -p ./po/{{PO}}.po -e deepl -t {{PO}}
+
 #
 # Utility tasks
 #
