@@ -13,147 +13,147 @@ msgstr ""
 
 #: src/SUMMARY.md:3
 msgid "SONiC入门指南"
-msgstr ""
+msgstr "Getting Started with SONiC"
 
 #: src/SUMMARY.md:4
 msgid "安装"
-msgstr ""
+msgstr "Installation"
 
 #: src/SUMMARY.md:5
 msgid "虚拟测试环境"
-msgstr ""
+msgstr "Hello World! Virtually!"
 
 #: src/SUMMARY.md:6
 msgid "常用命令"
-msgstr ""
+msgstr "Common commands"
 
 #: src/SUMMARY.md:7
 msgid "核心组件"
-msgstr ""
+msgstr "Core Components"
 
 #: src/SUMMARY.md:8
 msgid "Redis数据库"
-msgstr ""
+msgstr "Redis Database"
 
 #: src/SUMMARY.md:9
 msgid "服务与工作流"
-msgstr ""
+msgstr "Service and Workflow"
 
 #: src/SUMMARY.md:10
 msgid "核心容器"
-msgstr ""
+msgstr "Core Containers"
 
 #: src/SUMMARY.md:11
 msgid "SAI"
-msgstr ""
+msgstr "SAI"
 
 #: src/SUMMARY.md:12
 msgid "开发上手指南"
-msgstr ""
+msgstr "Getting Started on Development"
 
 #: src/SUMMARY.md:13
 msgid "代码仓库"
-msgstr ""
+msgstr "Code repo"
 
 #: src/SUMMARY.md:14
 msgid "编译"
-msgstr ""
+msgstr "Compile"
 
 #: src/SUMMARY.md:15
 msgid "测试"
-msgstr ""
+msgstr "Test"
 
 #: src/SUMMARY.md:16
 msgid "调试"
-msgstr ""
+msgstr "Debugging"
 
 #: src/SUMMARY.md:17
 msgid "SAI调试"
-msgstr ""
+msgstr "SAI debugging"
 
 #: src/SUMMARY.md:18
 msgid "通信机制"
-msgstr ""
+msgstr "Communication"
 
 #: src/SUMMARY.md:19
 msgid "与内核的通信"
-msgstr ""
+msgstr "Communication with the kernel"
 
 #: src/SUMMARY.md:20
 msgid "命令行调用"
-msgstr ""
+msgstr "Command line call"
 
 #: src/SUMMARY.md:21
 msgid "Netlink"
-msgstr ""
+msgstr "Netlink"
 
 #: src/SUMMARY.md:22
 msgid "基于Redis的通信"
-msgstr ""
+msgstr "Redis-based Communication"
 
 #: src/SUMMARY.md:23
 msgid "Redis封装"
-msgstr ""
+msgstr "Redis Ops"
 
 #: src/SUMMARY.md:24
 msgid "通信层"
-msgstr ""
+msgstr "Communication layer"
 
 #: src/SUMMARY.md:25
 msgid "基于ZMQ的通信"
-msgstr ""
+msgstr "ZMQ-based Communication"
 
 #: src/SUMMARY.md:26
 msgid "服务层封装 - Orch"
-msgstr ""
+msgstr "Service Layer - Orch"
 
 #: src/SUMMARY.md:27
 msgid "事件分发和错误处理"
-msgstr ""
+msgstr "Event Dispatching and Error Handling"
 
 #: src/SUMMARY.md:28
 msgid "工作流"
-msgstr ""
+msgstr "Workflow"
 
 #: src/SUMMARY.md:29
 msgid "Syncd-SAI工作流"
-msgstr ""
+msgstr "Syncd-SAI workflow"
 
 #: src/SUMMARY.md:30
 msgid "BGP工作流"
-msgstr ""
+msgstr "BGP workflow"
 
 #: src/SUMMARY.md:31
 msgid "BGP命令实现"
-msgstr ""
+msgstr "BGP Command Implementation"
 
 #: src/SUMMARY.md:32
 msgid "BGP路由变更下发"
-msgstr ""
+msgstr "BGP Routing Change Issued"
 
 #: src/SUMMARY.md:33
 msgid "启动流程"
-msgstr ""
+msgstr "Start the process"
 
 #: src/SUMMARY.md:34
 msgid "冷启动"
-msgstr ""
+msgstr "Cold start"
 
 #: src/SUMMARY.md:35
 msgid "快速启动"
-msgstr ""
+msgstr "Quick Start"
 
 #: src/SUMMARY.md:36
 msgid "热启动"
-msgstr ""
+msgstr "Hot start"
 
 #: src/1-intro.md:1
 msgid "# SONiC入门指南"
-msgstr ""
+msgstr "# Getted Started with SONiC"
 
 #: src/1-intro.md:3
 msgid "## 为什么要做SONiC"
-msgstr ""
+msgstr "## Why SONiC"
 
 #: src/1-intro.md:5
 msgid ""
@@ -161,6 +161,11 @@ msgid ""
 "是，从1986年第一台交换机面世开始，虽然各个厂商都在进行着相关的开发，到现在为"
 "止种类也相当的多，但是依然存在一些问题，比如："
 msgstr ""
+"We know that there is a more or less comprehensive operating system inside "
+"each switch, which is used to configure and check the status of the switch. "
+"However, since the first switch came out in 1986, although various "
+"manufacturers have been carrying out related development and there is a wide "
+"variety of them now, there are still some problems, for example:"
 
 #: src/1-intro.md:7
 msgid ""
@@ -171,6 +176,14 @@ msgid ""
 "的\n"
 "4. 设备功能升级缓慢，难以很好的支持快速的产品迭代"
 msgstr ""
+"1. Closed ecosystem and not open-sourced, primarily used for supporting its "
+"own hardware and not very compatible with other manufacturers' devices.\n"
+"2. Some OSes only supports limited scenarios, making it challenging to "
+"support a variety of complex scenarios in large-scale data centers.\n"
+"3. Upgrades may lead to network interruptions, making seamless upgrades "
+"difficult, which can often be fatal for cloud providers.\n"
+"4. Device functionality upgrades are slow, making it difficult to support "
+"rapid product iterations."
 
 #: src/1-intro.md:12
 msgid ""
@@ -179,15 +192,22 @@ msgid ""
 "使用SONiC，也保证了SONiC的实现确实能够承受大规模的生产环境的考验，这也是SONiC"
 "的一个优势。"
 msgstr ""
+"Therefore, Microsoft initiated an open-source project, SONiC, in 2016, "
+"hoping to make SONiC a universal network operating system through open "
+"source, and thus solve the above problems. Moreover, Microsoft's widespread "
+"use of SONiC in Azure verifies that SONiC can withstand the test of large-"
+"scale production environments, which is also an advantage of SONiC."
 
 #: src/1-intro.md:14
 msgid "## 主体架构"
-msgstr ""
+msgstr "## Architecture"
 
 #: src/1-intro.md:16
 msgid ""
 "SONiC是微软开发的基于debian的开源的网络操作系统，它的设计核心思想有三个："
 msgstr ""
+"SONiC is an open-source network operating system based on Debian developed "
+"by Microsoft. It has three core design principles:"
 
 #: src/1-intro.md:18
 msgid ""
@@ -204,26 +224,48 @@ msgid ""
 "进行操作和查询，而不用担心状态丢失和协议兼容问题，最后还可以很方便的进行状态"
 "的备份和恢复。"
 msgstr ""
+"1. **Hardware and Software Decoupling**: Through SAI (Switch Abstraction "
+"Interface), the operation of the hardware is abstracted, enabling SONiC to "
+"support multiple hardware platforms. This layer of abstraction is defined by "
+"SONiC and implemented by various manufacturers.\n"
+"2. **Microservice Software with Docker Containers**: The main functions on "
+"SONiC are broken down into individual Docker containers. Unlike traditional "
+"network operating systems, system upgrades can be done on a single container "
+"without requiring a full upgrade and restart. This makes upgrades and "
+"maintenance convenient, supporting rapid development and iteration.\n"
+"3. **Using Redis as the Central Database for Service Decoupling**: The "
+"configuration and status of most services are eventually stored in the "
+"central Redis database. This not only allows all services to easily "
+"cooperate (data storage and pubsub) but also facilitates tool development on "
+"top of it. It uses a unified method to operate and query various services "
+"without worrying about state loss and protocol compatibility issues. "
+"Finally, it is very convenient to back up and restore the status."
 
 #: src/1-intro.md:22
 msgid ""
 "这让SONiC拥有了非常开放的生态（[Community][SONiCLanding]，[Workgroups]"
 "[SONiCWG]，[Devices][SONiCDevices]），总体而言，SONiC的架构如下图所示："
 msgstr ""
+"This gives SONiC a very open ecosystem ([Community][SONiCLanding], "
+"[Workgroups][SONiCWG], [Devices][SONiCDevices]). Overall, the architecture "
+"of SONiC is as shown in the following diagram:"
 
 #: src/1-intro.md:26 src/2-components.md:17
 msgid "_(Source: [SONiC Wiki - Architecture][SONiCArch])_"
-msgstr ""
+msgstr "_(Source: [SONiC Wiki - Architecture][SONiCArch])_"
 
 #: src/1-intro.md:28
 msgid ""
 "当然，这样的设计也有一些缺点，比如：对磁盘的占用会变大，不过，现在一点点存储"
 "空间并不是什么很大的问题，而且这个问题也都可以通过一些方法来解决。"
 msgstr ""
+"Of course, such design also has some disadvantages, such as: the occupancy "
+"of the disk will increase. However, a bit of storage space is not a big "
+"issue now, and this problem can also be solved by some methods."
 
 #: src/1-intro.md:30
 msgid "## 发展方向"
-msgstr ""
+msgstr "## Future Direction"
 
 #: src/1-intro.md:32
 msgid ""
@@ -232,6 +274,14 @@ msgid ""
 "计算，端网融合等等，都对交换机的发展提出了更高的要求和挑战，也促使着各大厂商"
 "和研究机构不断的进行创新。SONiC也一样，随着时间的发展，需求一点没有减少。"
 msgstr ""
+"Although switches have been developed for many years, with the development "
+"of the cloud nowadays, the requirements for the network are higher and "
+"higher. Whether it's intuitive needs, such as larger bandwidth and larger "
+"capacity, or the latest research, such as in-band computing, end-network "
+"fusion, etc., all pose higher requirements and challenges to the development "
+"of switches, prompting various manufacturers and research institutions to "
+"continue to innovate. The same goes for SONiC. As time goes on, the demand "
+"has not decreased at all."
 
 #: src/1-intro.md:34
 msgid ""
@@ -239,28 +289,36 @@ msgid ""
 "最新的动态感兴趣，也可以关注它的Workshop，比如，最近的[OCP Global Summit "
 "2022 - SONiC Workshop][SONiCWorkshop]。这里就不展开了。"
 msgstr ""
+"Regarding the development direction of SONiC, we can see it in its [Roadmap]"
+"[SONiCPlanning]. If you are interested in the latest status updates, we can "
+"also follow its Workshop, such as the recent [OCP Global Summit 2022 - SONiC "
+"Workshop][SONiCWorkshop]."
 
 #: src/1-intro.md:36
 msgid "## 感谢"
-msgstr ""
+msgstr "## Acknowledgement"
 
 #: src/1-intro.md:38
 msgid "感谢以下朋友的帮助和贡献，没有你们也就没有这本入门指南！"
 msgstr ""
+"Huge thanks to the following friends for their help and contributions! Without "
+"you there would be no this book!"
 
 #: src/1-intro.md:40
 msgid "[@bingwang-ms](https://github.com/bingwang-ms)"
-msgstr ""
+msgstr "[@bingwang-ms](https://github.com/bingwang-ms)"
 
 #: src/1-intro.md:42
 msgid "# License"
-msgstr ""
+msgstr "# License"
 
 #: src/1-intro.md:44
 msgid ""
 "本书使用 [署名-非商业性使用-相同方式共享（CC BY-NC-SA）4.0 许可协议](https://"
 "creativecommons.org/licenses/by-nc-sa/4.0/)。"
 msgstr ""
+"This book uses the [CC BY-NC-SA 4.0 "
+"License Agreement](https://creativecommons.org/licenses/by-nc-sa/4.0/)."
 
 #: src/1-intro.md:46 src/1-1-install.md:164
 #: src/1-2-hello-world-virtually.md:189 src/1-3-command-cheatsheet.md:184
@@ -273,7 +331,7 @@ msgstr ""
 #: src/5-1-syncd-sai-workflow.md:813 src/5-2-bgp-workflow.md:32
 #: src/5-2-1-bgp-command-impl.md:87 src/5-2-2-bgp-route-update-workflow.md:1460
 msgid "# 参考资料"
-msgstr ""
+msgstr "# References"
 
 #: src/1-intro.md:48
 msgid ""
@@ -285,20 +343,29 @@ msgid ""
 "6. [SONiC User Manual][SONiCManual]\n"
 "7. [OCP Global Summit 2022 - SONiC Workshop][SONiCWorkshop]"
 msgstr ""
+"1. [SONiC Wiki - Architecture][SONiCArch]\n"
+"2. [SONiC Wiki - Roadmap Planning][SONiCPlanning]\n"
+"3. [SONiC Landing Page][SONiCLanding]\n"
+"4. [SONiC Workgroups][SONiCWG]\n"
+"5. [SONiC Supported Devices and Platforms][SONiCDevices]\n"
+"6. [SONiC User Manual][SONiCManual]\n"
+"7. [OCP Global Summit 2022 - SONiC Workshop][SONiCWorkshop]"
 
 #: src/1-1-install.md:1
 msgid "# 安装"
-msgstr ""
+msgstr "# Installation"
 
 #: src/1-1-install.md:3
 msgid ""
 "如果你自己就拥有一台交换机，或者想购买一台交换机，在上面安装SONiC，那么请认真"
 "阅读这一小节，否则可以自行跳过。:D"
 msgstr ""
+"If you own a switch yourself, or plan to buy one and install SONiC on it, "
+"please read this section carefully; otherwise, you can skip over it. :D"
 
 #: src/1-1-install.md:5
 msgid "## 交换机选择和SONiC安装"
-msgstr ""
+msgstr "## Switch Selection and SONiC Installation"
 
 #: src/1-1-install.md:7
 msgid ""
@@ -306,6 +373,11 @@ msgid ""
 "[SONiCDevices]找到，如果你的交换机型号不在列表中，那么就需要联系厂商，看看是"
 "否有支持SONiC的计划。有很多交换机是不支持SONiC的，比如："
 msgstr ""
+"First, please confirm whether your switch supports SONiC. The switch models "
+"currently supported by SONiC can be found [here][SONiCDevices]. If your "
+"switch model is not on the list, you will need to contact the manufacturer "
+"to see if there is a plan to support SONiC. Many switches do not support "
+"SONiC, for example:"
 
 #: src/1-1-install.md:9
 msgid ""
