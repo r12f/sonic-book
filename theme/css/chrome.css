@@ -521,6 +521,8 @@ ul#searchresults span.teaser em {
     color: var(--icons);
 }
 .theme-popup a {
+    display: block;
+    width: 100%;
     color: inherit;
 }
 .theme-popup .theme {
