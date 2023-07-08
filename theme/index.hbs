@@ -141,11 +141,11 @@
 
                     <div class="right-buttons">
                         <button id="lang-toggle" class="icon-button" type="button" title="Change Language" aria-label="Change Language" aria-haspopup="true" aria-expanded="false" aria-controls="lang-list">
-                            <i class="fa fa-flag"></i>
+                            <i class="fa fa-globe"></i>
                         </button>
                         <ul id="lang-list" class="theme-popup" style="left: auto;" aria-label="Languages" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="cn">中文</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="en">English</button></li>
+                            <li role="none"><button role="menuitem" class="theme"><a id="lang-cn">中文</a></button></li>
+                            <li role="none"><button role="menuitem" class="theme"><a id="lang-en">English</a></button></li>
                         </ul>
                         {{#if print_enable}}
                         <a href="{{ path_to_root }}print.html" title="Print this book" aria-label="Print this book">
@@ -330,7 +330,7 @@
             'en',
         ];
 
-        (function langs() {
+        (function initLangs() {
             var html = document.querySelector('html');
             var langToggleButton = document.getElementById('lang-toggle');
             var langPopup = document.getElementById('lang-list');
@@ -354,16 +354,6 @@
                 }
             });
 
-            langPopup.addEventListener('click', function (e) {
-                var lang = e.target.id || e.target.parentElement.id;
-                window.location.pathname = window.location.pathname
-                    .split('/')
-                    .map((s, idx) => {
-                        return idx == 2 ? lang : s;
-                    })
-                    .join('/');
-            });
-
             langPopup.addEventListener('focusout', function(e) {
                 // e.relatedTarget is null in Safari and Firefox on macOS (see workaround below)
                 if (!!e.relatedTarget && !langToggleButton.contains(e.relatedTarget) && !langPopup.contains(e.relatedTarget)) {
@@ -376,6 +366,36 @@
                 if (langPopup.style.display === 'block' && !langToggleButton.contains(e.target) && !langPopup.contains(e.target)) {
                     hideLangs();
                 }
+            });
+
+            // For each language, update the link to point to the current page in that language
+            let linkParts = window.location.pathname.split('/');
+            let langIndex = linkParts.findIndex((s) => langs.includes(s));
+            langs.forEach(function (lang) {
+                var link = document.getElementById('lang-' + lang);
+                if (!link) {
+                    return;
+                }
+
+                let newLinkParts = linkParts.slice();
+
+                // If it is Chinese, remove the current language from the path
+                if (lang === "cn") {
+                    if (langIndex !== -1) {
+                        newLinkParts.splice(langIndex, 1);
+                    }
+                }
+                
+                // Otherwise, add the new language to the path
+                else {
+                    if (langIndex === -1) {
+                        newLinkParts.splice(newLinkParts.length - 1, 0, lang);
+                    } else {
+                        newLinkParts[langIndex] = lang;
+                    }
+                }
+
+                link.href = newLinkParts.join('/');
             });
 
         })();

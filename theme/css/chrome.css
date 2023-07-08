@@ -520,6 +520,9 @@ ul#searchresults span.teaser em {
 .theme-popup .default {
     color: var(--icons);
 }
+.theme-popup a {
+    color: inherit;
+}
 .theme-popup .theme {
     width: 100%;
     border: 0;
