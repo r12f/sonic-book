@@ -19,6 +19,7 @@ init:
     cargo install mdbook-admonish
     cargo install mdbook-pagetoc
     cargo install mdbook-mermaid
+    cargo install mdbook-open-on-gh
 
 build:
     @just _log-head "Building book ..."

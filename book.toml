@@ -12,6 +12,10 @@ extra-watch-dirs = ["po"]
 
 [preprocessor.pagetoc]
 
+[preprocessor.open-on-gh]
+command = "mdbook-open-on-gh"
+renderer = ["html"]
+
 [preprocessor.admonish]
 command = "mdbook-admonish"
 assets_version = "2.0.1" # do not edit: managed by `mdbook-admonish install`
@@ -23,5 +27,8 @@ command = "mdbook-mermaid"
 after = ["links"]
 
 [output.html]
-additional-css = ["theme/css/mdbook-admonish.css", "theme/pagetoc.css"]
+additional-css = ["theme/css/mdbook-admonish.css", "theme/pagetoc.css", "theme/css/open-in.css"]
 additional-js  = ["theme/pagetoc.js", "theme/mermaid.min.js", "theme/mermaid-init.js"]
+git-repository-url = "https://github.com/r12f/sonic-book"
+git-branch = "main"
+open-on-text = "Found a bug? [Edit this page on GitHub.]"
