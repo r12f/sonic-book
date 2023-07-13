@@ -11,7 +11,9 @@ on:
     paths:
       - "src/**"
       - "po/**"
+      - "theme/**"
       - "justfile"
+      - "book.toml"
       - .github/workflows/mdbook.yml
 
   # Allows you to run this workflow manually from the Actions tab

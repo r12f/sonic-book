@@ -32,3 +32,4 @@ additional-js  = ["theme/pagetoc.js", "theme/mermaid.min.js", "theme/mermaid-ini
 git-repository-url = "https://github.com/r12f/sonic-book"
 git-branch = "main"
 open-on-text = "Found a bug? [Edit this page on GitHub.]"
+google-analytics = "G-PNR40ZKD06"
