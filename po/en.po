@@ -49,7 +49,7 @@ msgstr "SAI"
 
 #: src/SUMMARY.md:12
 msgid "开发上手指南"
-msgstr "Getting Started on Development"
+msgstr "Dev Guide"
 
 #: src/SUMMARY.md:13
 msgid "代码仓库"
@@ -77,7 +77,7 @@ msgstr "Communication"
 
 #: src/SUMMARY.md:19
 msgid "与内核的通信"
-msgstr "Communication with the kernel"
+msgstr "Communication with Kernel"
 
 #: src/SUMMARY.md:20
 msgid "命令行调用"
@@ -113,39 +113,39 @@ msgstr "Event Dispatching and Error Handling"
 
 #: src/SUMMARY.md:28
 msgid "工作流"
-msgstr "Workflow"
+msgstr "Workflows"
 
 #: src/SUMMARY.md:29
 msgid "Syncd-SAI工作流"
-msgstr "Syncd-SAI workflow"
+msgstr "Syncd-SAI workflows"
 
 #: src/SUMMARY.md:30
 msgid "BGP工作流"
-msgstr "BGP workflow"
+msgstr "BGP workflows"
 
 #: src/SUMMARY.md:31
 msgid "BGP命令实现"
-msgstr "BGP Command Implementation"
+msgstr "BGP CLI Commands"
 
 #: src/SUMMARY.md:32
 msgid "BGP路由变更下发"
-msgstr "BGP Routing Change Issued"
+msgstr "BGP route update"
 
 #: src/SUMMARY.md:33
 msgid "启动流程"
-msgstr "Start the process"
+msgstr "Boot"
 
 #: src/SUMMARY.md:34
 msgid "冷启动"
-msgstr "Cold start"
+msgstr "Cold boot"
 
 #: src/SUMMARY.md:35
 msgid "快速启动"
-msgstr "Quick Start"
+msgstr "Fast boot"
 
 #: src/SUMMARY.md:36
 msgid "热启动"
-msgstr "Hot start"
+msgstr "Warm boot"
 
 #: src/1-intro.md:1
 msgid "# SONiC入门指南"
