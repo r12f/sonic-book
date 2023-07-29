@@ -49,7 +49,7 @@ msgstr "SAI"
 
 #: src/SUMMARY.md:12
 msgid "开发上手指南"
-msgstr "Getting Started on Development"
+msgstr "Dev Guide"
 
 #: src/SUMMARY.md:13
 msgid "代码仓库"
@@ -77,7 +77,7 @@ msgstr "Communication"
 
 #: src/SUMMARY.md:19
 msgid "与内核的通信"
-msgstr "Communication with the kernel"
+msgstr "Communication with Kernel"
 
 #: src/SUMMARY.md:20
 msgid "命令行调用"
@@ -113,39 +113,39 @@ msgstr "Event Dispatching and Error Handling"
 
 #: src/SUMMARY.md:28
 msgid "工作流"
-msgstr "Workflow"
+msgstr "Workflows"
 
 #: src/SUMMARY.md:29
 msgid "Syncd-SAI工作流"
-msgstr "Syncd-SAI workflow"
+msgstr "Syncd-SAI workflows"
 
 #: src/SUMMARY.md:30
 msgid "BGP工作流"
-msgstr "BGP workflow"
+msgstr "BGP workflows"
 
 #: src/SUMMARY.md:31
 msgid "BGP命令实现"
-msgstr "BGP Command Implementation"
+msgstr "BGP CLI Commands"
 
 #: src/SUMMARY.md:32
 msgid "BGP路由变更下发"
-msgstr "BGP Routing Change Issued"
+msgstr "BGP route update"
 
 #: src/SUMMARY.md:33
 msgid "启动流程"
-msgstr "Start the process"
+msgstr "Boot"
 
 #: src/SUMMARY.md:34
 msgid "冷启动"
-msgstr "Cold start"
+msgstr "Cold boot"
 
 #: src/SUMMARY.md:35
 msgid "快速启动"
-msgstr "Quick Start"
+msgstr "Fast boot"
 
 #: src/SUMMARY.md:36
 msgid "热启动"
-msgstr "Hot start"
+msgstr "Warm boot"
 
 #: src/1-intro.md:1
 msgid "# SONiC入门指南"
@@ -161,11 +161,11 @@ msgid ""
 "是，从1986年第一台交换机面世开始，虽然各个厂商都在进行着相关的开发，到现在为"
 "止种类也相当的多，但是依然存在一些问题，比如："
 msgstr ""
-"We know that there is a more or less comprehensive operating system inside "
-"each switch, which is used to configure and check the status of the switch. "
-"However, since the first switch came out in 1986, although various "
-"manufacturers have been carrying out related development and there is a wide "
-"variety of them now, there are still some problems, for example:"
+"We know that there is a operating system running inside every switches, "
+"no matter if it is complicated or not. It is used for configuring and checking the "
+"status of the switch. Since the first switch came out in 1986, with various "
+"manufacturers have been doing related development, nowadays, we have a lot of different OSes. "
+"However, there are still some problems, for example:"
 
 #: src/1-intro.md:7
 msgid ""
@@ -181,9 +181,8 @@ msgstr ""
 "2. Some OSes only supports limited scenarios, making it challenging to "
 "support a variety of complex scenarios in large-scale data centers.\n"
 "3. Upgrades may lead to network interruptions, making seamless upgrades "
-"difficult, which can often be fatal for cloud providers.\n"
-"4. Device functionality upgrades are slow, making it difficult to support "
-"rapid product iterations."
+"difficult, which can often be a deal breaker for cloud providers.\n"
+"4. New features or bug fixes are coming out slowly, hard to suppoprt rapid development in production."
 
 #: src/1-intro.md:12
 msgid ""
@@ -192,11 +191,10 @@ msgid ""
 "使用SONiC，也保证了SONiC的实现确实能够承受大规模的生产环境的考验，这也是SONiC"
 "的一个优势。"
 msgstr ""
-"Therefore, Microsoft initiated an open-source project, SONiC, in 2016, "
-"hoping to make SONiC a universal network operating system through open "
-"source, and thus solve the above problems. Moreover, Microsoft's widespread "
-"use of SONiC in Azure verifies that SONiC can withstand the test of large-"
-"scale production environments, which is also an advantage of SONiC."
+"Therefore, Microsoft initiated an open-source project in 2016 - SONiC, so that "
+"we can solve the problems above by building universal network operating system (NOS). "
+"Moreover, Microsoft is widely using SONiC in Azure, which ensures SONiC can indeed support "
+"large scale cloud environments. This is also an advantage of SONiC."
 
 #: src/1-intro.md:14
 msgid "## 主体架构"
@@ -206,8 +204,8 @@ msgstr "## Architecture"
 msgid ""
 "SONiC是微软开发的基于debian的开源的网络操作系统，它的设计核心思想有三个："
 msgstr ""
-"SONiC is an open-source network operating system based on Debian developed "
-"by Microsoft. It has three core design principles:"
+"SONiC is an open-source network operating system (NOS) based on Debian and developed "
+"by Microsoft. It is designed with three core principles:"
 
 #: src/1-intro.md:18
 msgid ""
@@ -224,22 +222,21 @@ msgid ""
 "进行操作和查询，而不用担心状态丢失和协议兼容问题，最后还可以很方便的进行状态"
 "的备份和恢复。"
 msgstr ""
-"1. **Hardware and Software Decoupling**: Through SAI (Switch Abstraction "
-"Interface), the operation of the hardware is abstracted, enabling SONiC to "
-"support multiple hardware platforms. This layer of abstraction is defined by "
+"1. **Hardware and software decoupling**: Abstract the hardware layer via SAI (Switch Abstraction "
+"Interface), which enables SONiC to support multiple hardware platforms. This layer of abstraction is defined by "
 "SONiC and implemented by various manufacturers.\n"
-"2. **Microservice Software with Docker Containers**: The main functions on "
+"2. **Containerized service management**: The features of "
 "SONiC are broken down into individual Docker containers. Unlike traditional "
 "network operating systems, system upgrades can be done on a single container "
 "without requiring a full upgrade and restart. This makes upgrades and "
-"maintenance convenient, supporting rapid development and iteration.\n"
-"3. **Using Redis as the Central Database for Service Decoupling**: The "
-"configuration and status of most services are eventually stored in the "
+"maintenance convenient, which helps rapid development and iteration.\n"
+"3. **Redis as the central database for service decoupling**: The "
+"configuration and status of most services are stored in the "
 "central Redis database. This not only allows all services to easily "
-"cooperate (data storage and pubsub) but also facilitates tool development on "
-"top of it. It uses a unified method to operate and query various services "
+"collaborate with each other (data storage and communication) but also simplifies the tool development "
+"by providing a unified way to query and configure various services "
 "without worrying about state loss and protocol compatibility issues. "
-"Finally, it is very convenient to back up and restore the status."
+"Finally, it is very convenient to back up and restore the configs as well."
 
 #: src/1-intro.md:22
 msgid ""
@@ -259,9 +256,9 @@ msgid ""
 "当然，这样的设计也有一些缺点，比如：对磁盘的占用会变大，不过，现在一点点存储"
 "空间并不是什么很大的问题，而且这个问题也都可以通过一些方法来解决。"
 msgstr ""
-"Of course, such design also has some disadvantages, such as: the occupancy "
-"of the disk will increase. However, a bit of storage space is not a big "
-"issue now, and this problem can also be solved by some methods."
+"Of course, such design also has some disadvantages, such as: the "
+"disk usage will increase. However, nowadays storage space is usually not a big "
+"issue, and it can also be solved or eased by various ways."
 
 #: src/1-intro.md:30
 msgid "## 发展方向"
@@ -275,12 +272,12 @@ msgid ""
 "和研究机构不断的进行创新。SONiC也一样，随着时间的发展，需求一点没有减少。"
 msgstr ""
 "Although switches have been developed for many years, with the development "
-"of the cloud nowadays, the requirements for the network are higher and "
-"higher. Whether it's intuitive needs, such as larger bandwidth and larger "
+"of the cloud nowadays, the demands of network becomes higher and "
+"higher. No matter it's intuitive features, such as larger bandwidth and larger "
 "capacity, or the latest research, such as in-band computing, end-network "
-"fusion, etc., all pose higher requirements and challenges to the development "
-"of switches, prompting various manufacturers and research institutions to "
-"continue to innovate. The same goes for SONiC. As time goes on, the demand "
+"fusion, etc., all result in higher requirements and challenges to the development "
+"of switches, as well as continuous innovations from manufacturers and research institutions. "
+"The same goes for SONiC. As time goes on, the number of feature request "
 "has not decreased at all."
 
 #: src/1-intro.md:34
@@ -289,8 +286,8 @@ msgid ""
 "最新的动态感兴趣，也可以关注它的Workshop，比如，最近的[OCP Global Summit "
 "2022 - SONiC Workshop][SONiCWorkshop]。这里就不展开了。"
 msgstr ""
-"Regarding the development direction of SONiC, we can see it in its [Roadmap]"
-"[SONiCPlanning]. If you are interested in the latest status updates, we can "
+"Regarding the future direction of SONiC, we can see it in its [Roadmap]"
+"[SONiCPlanning]. If you are interested in the latest updates, we can "
 "also follow its Workshop, such as the recent [OCP Global Summit 2022 - SONiC "
 "Workshop][SONiCWorkshop]."
 
@@ -302,7 +299,7 @@ msgstr "## Acknowledgement"
 msgid "感谢以下朋友的帮助和贡献，没有你们也就没有这本入门指南！"
 msgstr ""
 "Huge thanks to the following friends for their help and contributions! "
-"Without you there would be no this book!"
+"Without you there would be no way to get this book done!"
 
 #: src/1-intro.md:40
 msgid "[@bingwang-ms](https://github.com/bingwang-ms)"
