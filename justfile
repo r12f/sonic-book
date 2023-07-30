@@ -37,7 +37,6 @@ install-gh-bin GITHUB_PATH BIN_NAME:
     chmod +x ./{{BIN_NAME}}
     mv ./{{BIN_NAME}} ~/.cargo/bin
     @just _log-info "Installing {{BIN_NAME}} completed!"
-    @just _log-info ""
 
 build:
     @just _log-head "Building book ..."
