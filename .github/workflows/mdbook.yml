@@ -47,7 +47,7 @@ jobs:
           curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf -y | sh
           rustup update
       - name: Init build environment
-        run: just init
+        run: just init-builder
 
       # Build
       - name: Build with mdBook

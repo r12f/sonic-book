@@ -21,6 +21,24 @@ init:
     cargo install mdbook-mermaid
     cargo install mdbook-open-on-gh
 
+init-builder:
+    @just install-gh-bin https://github.com/rust-lang/mdBook/releases/download/v0.4.32/mdbook-v0.4.32-x86_64-unknown-linux-gnu.tar.gz mdbook
+    cargo install mdbook-i18n-helpers
+    @just install-gh-bin https://github.com/tommilligan/mdbook-admonish/releases/download/v1.10.1/mdbook-admonish-v1.10.1-x86_64-unknown-linux-gnu.tar.gz mdbook-admonish
+    @just install-gh-bin https://github.com/slowsage/mdbook-pagetoc/releases/download/v0.1.7/mdbook-pagetoc-v0.1.7-x86_64-unknown-linux-gnu.tar.gz mdbook-pagetoc
+    @just install-gh-bin https://github.com/badboy/mdbook-mermaid/releases/download/v0.12.6/mdbook-mermaid-v0.12.6-x86_64-unknown-linux-gnu.tar.gz mdbook-mermaid
+    @just install-gh-bin https://github.com/badboy/mdbook-open-on-gh/releases/download/2.3.3/mdbook-open-on-gh-2.3.3-x86_64-unknown-linux-gnu.tar.gz mdbook-open-on-gh
+
+install-gh-bin GITHUB_PATH BIN_NAME:
+    @just _log-head "Installing {{BIN_NAME}} from {{GITHUB_PATH}} ..."
+    rm bin.tar.gz
+    wget {{GITHUB_PATH}} -O bin.tar.gz
+    tar zxvf ./bin.tar.gz
+    chmod +x ./{{BIN_NAME}}
+    mv ./{{BIN_NAME}} ~/.cargo/bin
+    @just _log-info "Installing {{BIN_NAME}} completed!"
+    @just _log-info ""
+
 build:
     @just _log-head "Building book ..."
     mdbook build
