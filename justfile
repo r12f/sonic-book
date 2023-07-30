@@ -31,7 +31,7 @@ init-builder:
 
 install-gh-bin GITHUB_PATH BIN_NAME:
     @just _log-head "Installing {{BIN_NAME}} from {{GITHUB_PATH}} ..."
-    rm bin.tar.gz
+    rm -f bin.tar.gz
     wget {{GITHUB_PATH}} -O bin.tar.gz
     tar zxvf ./bin.tar.gz
     chmod +x ./{{BIN_NAME}}
