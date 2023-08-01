@@ -91,7 +91,7 @@ total 2.8G
 
 ![](assets/chapter-1/gns3-import-appliance-select-image.png)
 
-这个时候就可以看到我们的ji镜像了，点击`Next`。
+这个时候就可以看到我们的镜像了，点击`Next`。
 
 ![](assets/chapter-1/gns3-import-appliance-image.png)
 

@@ -100,7 +100,6 @@ msgid "通信层"
 msgstr "Communication layer"
 
 #: src/SUMMARY.md:25
-#, fuzzy
 msgid "基于ZMQ的通信 (WIP)"
 msgstr "ZMQ-based Communication (WIP)"
 
@@ -133,7 +132,6 @@ msgid "BGP路由变更下发"
 msgstr "BGP route update"
 
 #: src/SUMMARY.md:33
-#, fuzzy
 msgid "启动流程 (WIP)"
 msgstr "Boot (WIP)"
 
@@ -733,7 +731,7 @@ msgid ""
 "行一些配置，以保证流量会通过网卡，流经交换机，否则，请跳过这一步。"
 msgstr ""
 "If you only have one machine and try to connect a dual-port NIC to your "
-"switch for testing, then we also need to do some configuration on the "
+"switch for testing, then we will also need some changes on the "
 "machine to ensure that traffic will go through the NIC and switch, "
 "otherwise, feel free to skip this step."
 
@@ -882,13 +880,11 @@ msgid ""
 "不能错过，这一章会总结一下如何通过GNS3在本地搭建一个虚拟的SONiC的Lab，让你可"
 "以很快的在本地体验一把SONiC的基本功能。"
 msgstr ""
-"Although SONiC is powerful, most of the time a switch that can support SONiC "
-"system is not cheap. If you just want to try SONiC, but don't want to spend "
-"money on a SONiC hardware device, then this chapter must not be missed. This "
-"chapter will summarize how to build a virtual SONiC's Lab locally through "
-"GNS3, so that you This chapter will summarize how to build a virtual SONiC "
-"lab locally through GNS3, so that you can quickly experience the basic "
-"functions of SONiC locally."
+"Although SONiC is powerful, it is usually not cheap to get a switch that supports SONiC. "
+"If you would like to give SONiC a try, but don't want to spend too much "
+"money on getting a SONiC-supported device, then you are in the right place. This "
+"chapter will guide you on how to use GNS3 to build a virtual SONiC's Lab locally, "
+"so that you can quickly experience the basic functionalities of SONiC locally."
 
 #: src/1-2-hello-world-virtually.md:5
 msgid ""
@@ -896,10 +892,10 @@ msgid ""
 "使用而言，用GNS3可能是最方便快捷的了，所以本文就以GNS3为例，介绍一下如何在本"
 "地搭建一个SONiC的Lab。那么，我们就开始吧！"
 msgstr ""
-"There are several ways to run SONiC locally, such as docker + vswitch, p4 "
-"soft switch, etc. For first time users, using GNS3 is probably the most "
-"convenient and fast, so this article will take GNS3 as an example and "
-"introduce how to build a SONiC lab locally. so, let's get started!"
+"Despite there are multiple ways to run SONiC locally, such as docker + vswitch or p4 "
+"switch, for first time users, using GNS3 is probably the most "
+"convenient and fast way. So, we will be using GNS3 as an example in this chapter and "
+"introduce how to build your own SONiC lab locally. Now, let's get started!"
 
 #: src/1-2-hello-world-virtually.md:7
 msgid "## 安装GNS3"
@@ -910,8 +906,8 @@ msgid ""
 "首先，为了让我们方便而且直观的建立测试用的虚拟网络，我们需要先来安装一下"
 "GNS3。"
 msgstr ""
-"First, to make it easy and intuitive to set up a virtual network for "
-"testing, we need to install GNS3 first."
+"FIrst, to make it easy and intuitive to set up a virtual network for "
+"testing, let's get GNS3 installed."
 
 #: src/1-2-hello-world-virtually.md:11
 msgid ""
@@ -920,12 +916,11 @@ msgid ""
 "样，我们在等会搭建虚拟网络的时候，就不需要手动的运行很多命令，或者写脚本了，"
 "大部分的工作都可以通过图形界面来完成了。"
 msgstr ""
-"[GNS3, full name Graphical Network Simulator 3, is a graphical network "
+"[GNS3 (Graphical Network Simulator 3), is a graphical network "
 "simulation software][GNS3]. It supports many different virtualization "
-"technologies, such as: QEMU, VMware, VirtualBox, and so on. This way, we "
-"don't need to run many commands manually or write scripts when we will build "
-"a virtual network later, most of the work can be done through the graphical "
-"interface."
+"technologies, such as: QEMU, VMware, VirtualBox, and so on. With GNS3, we "
+"can finish majority of the network creation work through GUI, without worrying "
+"about remembering and running any commands or writing any scripts."
 
 #: src/1-2-hello-world-virtually.md:13
 msgid "### 安装依赖"
@@ -936,17 +931,16 @@ msgid ""
 "安装它之前，我们需要先安装几个其他的软件：docker, wireshark, putty, qemu, "
 "ubridge, libvirt和bridge-utils，已经装好的小伙伴可以自行跳过。"
 msgstr ""
-"Before installing it, we need to install several other software: docker, "
-"wireshark, putty, qemu, ubridge, libvirt and bridge-utils, which you can "
-"skip if you have already installed them."
+"Before installing GNS3, we need to install several other softwares: docker, "
+"wireshark, putty, qemu, ubridge, libvirt and bridge-utils. Please feel free to "
+"skip this step, if you have already have them installed."
 
 #: src/1-2-hello-world-virtually.md:17
 msgid ""
 "首先是Docker，它们的安装过程，大家可以自己通过下面的传送门去安装：[https://"
 "docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)"
 msgstr ""
-"First is Docker, their installation process, you can install them yourself "
-"through the following portal: [https://docs.docker.com/engine/install/]"
+"First is Docker, we can follow their official doc to get it installed: [https://docs.docker.com/engine/install/]"
 "(https://docs.docker.com/engine/install/)"
 
 #: src/1-2-hello-world-virtually.md:19
@@ -955,9 +949,9 @@ msgid ""
 "意，ubridge和Wireshark的安装过程中会询问是不是要创建wireshark用户组来bypass "
 "sudo，这里一定要选择Yes。"
 msgstr ""
-"The rest are very easy to install on ubuntu, just execute the following "
-"commands. Note here that the installation process of ubridge and Wireshark "
-"will ask if you want to create a wireshark user group to bypass sudo, so be "
+"The rest softwares can be easy installed on ubuntu, by running the following "
+"commands. Note that the installation process of ubridge and Wireshark "
+"will ask if you want to create a wireshark user group to bypass sudo. Please be "
 "sure to select Yes here."
 
 #: src/1-2-hello-world-virtually.md:21
@@ -974,7 +968,7 @@ msgstr ""
 
 #: src/1-2-hello-world-virtually.md:25
 msgid "安装好了之后，我们就可以来安装GNS3了。"
-msgstr "Once it is installed, we can come to install GNS3."
+msgstr "Once it is done, we can start installing GNS3 now."
 
 #: src/1-2-hello-world-virtually.md:27
 msgid "### 安装GNS3"
@@ -984,7 +978,7 @@ msgstr "### Install GNS3"
 msgid "在Ubuntu上，GNS3的安装非常简单，只需要执行下面的命令就可以了。"
 msgstr ""
 "On Ubuntu, the installation of GNS3 is very simple, just execute the "
-"following command."
+"following commands:"
 
 #: src/1-2-hello-world-virtually.md:31
 msgid ""
@@ -1005,7 +999,7 @@ msgid ""
 "然后把你的用户加入到如下的组中，这样GNS3就可以去访问docker，wireshark等功能而"
 "不用sudo了。"
 msgstr ""
-"Then add your user to the following group so that GNS3 can go to access "
+"Then add your user to the following groups so that GNS3 can go to access "
 "docker, wireshark, and other functions without sudo."
 
 #: src/1-2-hello-world-virtually.md:39
@@ -1027,12 +1021,11 @@ msgid ""
 "如果你使用的不是Ubuntu，更详细的安装文档可以参考[他们的官方文档]"
 "[GNS3Install]。"
 msgstr ""
-"If you're using something other than Ubuntu, more detailed installation "
-"documentation can be found in [their official documentation][GNS3Install]."
+"If you're not using Ubuntu, please follow the [their official documentation][GNS3Install] here for more detailed installation process."
 
 #: src/1-2-hello-world-virtually.md:47
 msgid "## 准备SONiC的镜像"
-msgstr "## Prepare the SONiC image"
+msgstr "## Prepare SONiC image"
 
 #: src/1-2-hello-world-virtually.md:49
 msgid ""
@@ -1041,11 +1034,10 @@ msgid ""
 "建虚拟的环境，所以我们需要使用基于VSwitch的镜像来创建虚拟交换机：sonic-vs."
 "img.gz。"
 msgstr ""
-"Before testing, we also need an image of SONiC. Since a large number of "
-"different vendors need to be supported, and each vendor's underlying "
-"implementation is different, each vendor ends up compiling an image of their "
-"own. Here, since we are creating a virtual environment, we need to use a "
-"VSwitch-based image to create the virtual switch: sonic-vs.img.gz."
+"Before testing, we still need a SONiC image. Since SONiC needs to support various of platforms, "
+"and different platform has different underlying implementation, each platform will have their own image. "
+"Here, since we are creating a virtual environment, we need to use the image with "
+"VSwitch platform to create the virtual switch: sonic-vs.img.gz."
 
 #: src/1-2-hello-world-virtually.md:51
 msgid ""
@@ -1055,16 +1047,16 @@ msgid ""
 "builds?branchName=master)。只要找一个最新的成功的Build就行，在Artifacts中找到"
 "sonic-vs.img.gz，下载就可以了。"
 msgstr ""
-"The [SONiC mirror of the project is here](https://github.com/sonic-net/sonic-"
-"buildimage), although we can go compile it ourselves, but the speed is "
-"really a bit slow, so to save time, we can directly [go here to download the "
-"latest mirror](https://sonic- build.azurewebsites.net/ui/sonic/pipelines/142/"
-"builds?branchName=master). Just look for the latest successful Build, find "
+"The [project for building SONiC image is here](https://github.com/sonic-net/sonic-"
+"buildimage). Although we can build it ourselves, the speed is "
+"really slow. To save time, we can directly [download the "
+"latest image from here](https://sonic- build.azurewebsites.net/ui/sonic/pipelines/142/"
+"builds?branchName=master). Simply look for the latest successful Build, find "
 "sonic-vs.img.gz in Artifacts, and download it."
 
 #: src/1-2-hello-world-virtually.md:53
 msgid "然后，我们来准备一下项目："
-msgstr "Then, let's prepare the project:"
+msgstr "Then, let's get the project prepared:"
 
 #: src/1-2-hello-world-virtually.md:55
 msgid ""
@@ -1085,18 +1077,18 @@ msgstr ""
 "git\n"
 "cd sonic-buildimage/platform/vs\n"
 "\n"
-"# 将下载的镜像放在这个目录下，然后运行下面这个命令进行解压缩。\n"
+"# Download the image under this folder, then unzip the image with following commands。\n"
 "gzip -d sonic-vs.img.gz\n"
 "\n"
-"# 下面这个命令会生成GNS3的镜像配置文件\n"
+"# Run the following command to generate the GNS3 image configuration file:\n"
 "./sonic-gns3a.sh\n"
 "```"
 
 #: src/1-2-hello-world-virtually.md:66
 msgid "执行完成之后，我们运行`ls`命令就可以看到我们需要的镜像文件了。"
 msgstr ""
-"Once the execution is complete, we can run the `ls` command to see the image "
-"file we need."
+"Once it is done, we can see the image "
+"file we need by running `ls` command."
 
 #: src/1-2-hello-world-virtually.md:68
 msgid ""
@@ -1117,16 +1109,14 @@ msgstr ""
 "$ l\n"
 "total 2.8G\n"
 "...\n"
-"-rw-rw-r--  1 r12f r12f 1.1K Apr 18 16:36 SONiC-latest.gns3a  # <= 这个是GNS3"
-"的镜像配置文件\n"
-"-rw-rw-r--  1 r12f r12f 2.8G Apr 18 16:32 sonic-vs.img        # <= 这个是我们"
-"解压出来的镜像\n"
+"-rw-rw-r--  1 r12f r12f 1.1K Apr 18 16:36 SONiC-latest.gns3a  # <= This is the GNS3 image configuration file\n"
+"-rw-rw-r--  1 r12f r12f 2.8G Apr 18 16:32 sonic-vs.img        # <= This is the unzipped SONiC image file\n"
 "...\n"
 "```"
 
 #: src/1-2-hello-world-virtually.md:78
 msgid "## 导入镜像"
-msgstr "## Import Mirror"
+msgstr "## Import image into GNS3"
 
 #: src/1-2-hello-world-virtually.md:80
 msgid ""
@@ -1135,9 +1125,9 @@ msgid ""
 "是这样，将GNS3运行在了远程的服务器上，但是图形界面通过MobaXterm显示在了本地的"
 "Windows机器上。"
 msgstr ""
-"Now, type `gns3` inside the command line and you can start GNS3. If you are "
-"sshing to another machine, try enabling X11 forwarding so that you can run "
-"GNS3 remotely, but with the GUI displayed locally. This is what I did, "
+"Now, we can run `gns3` in command line to start GNS3! If you are "
+"ssh into another machine, try enabling X11 forwarding, so that you can run "
+"GNS3 remotely, but with the GUI displayed locally. This is what I am did - "
 "running GNS3 on the remote server, but with the GUI displayed locally on the "
 "Windows machine via MobaXterm."
 
@@ -1147,8 +1137,8 @@ msgid ""
 "用的X11转发，请注意，这个目录是在你远程服务器上，而不是本地。"
 msgstr ""
 "Once it's running, GNS3 will ask us to create a project, it's simple, just "
-"fill in a directory address. If you are using X11 forwarding, please note "
-"that this directory is on your remote server, not local."
+"give it a directory path. If you are using X11 forwarding, please note "
+"that this directory is on your remote server, not your local machine."
 
 #: src/1-2-hello-world-virtually.md:86
 msgid ""
@@ -1164,31 +1154,31 @@ msgstr ""
 "and click `Next`."
 
 #: src/1-2-hello-world-virtually.md:94
-msgid "这个时候就可以看到我们的ji镜像了，点击`Next`。"
-msgstr "This time you can see our ji image, click `Next`."
+msgid "这个时候就可以看到我们的镜像了，点击`Next`。"
+msgstr "Now you can see our image file, click `Next`."
 
 #: src/1-2-hello-world-virtually.md:98
 msgid ""
 "这个时候会开始导入镜像，这个过程可能会比较慢，因为GNS3需要将镜像转换成qcow2格"
 "式，放入我们的项目目录中。导入完成之后，我们就可以看到我们的镜像了。"
 msgstr ""
-"This time it will start importing the image, this process may be slow "
+"Now, it will start importing the image, this process may be slow "
 "because GNS3 needs to convert the image to qcow2 format and put it in our "
 "project directory. Once the import is complete, we will be able to see our "
 "image."
 
 #: src/1-2-hello-world-virtually.md:102
 msgid "好的！完成！"
-msgstr "Yes! Done!"
+msgstr "Great! Image is now imported!"
 
 #: src/1-2-hello-world-virtually.md:104
 msgid "## 创建网络"
-msgstr "## Create a network"
+msgstr "## Create virtual network"
 
 #: src/1-2-hello-world-virtually.md:106
 msgid "好了！现在一切就绪，我们还是创建一个虚拟的网络吧！"
 msgstr ""
-"There! Now that everything is in place, let's just create a virtual network!"
+"Great! Now we have everything is in place, let's create a virtual network for our testing!"
 
 #: src/1-2-hello-world-virtually.md:108
 msgid ""
@@ -1196,10 +1186,9 @@ msgid ""
 "然后把线连起来就可以了。连接好之后记得点上面的Play按钮开始网络模拟。这里我们"
 "就不多说了，直接上图。"
 msgstr ""
-"The GNS3 GUI works very well, basically just open the sidebar, drag in the "
-"switch, drag in the VPC, and connect the wires. After connecting, remember "
-"to tap the Play button on top to start the network simulation. Here we will "
-"not say much more, directly on the picture."
+"The GNS3 GUI are really easy to use, Basically, simply open the sidebar, drag in the "
+"switch, drag in the VPC, and connect the wires. After everything is connected, "
+"click the Play button on top to start the network simulation. Then we should see the network starts running as below: "
 
 #: src/1-2-hello-world-virtually.md:112
 msgid ""
@@ -1210,20 +1199,20 @@ msgid ""
 "个我们连接好了的Interface的状态都是`up`的了。"
 msgstr ""
 "Next, right click on the switch and select `Custom Console`, then select "
-"Putty to open the Console for the switch we saw above. Here, the default "
+"Putty to open the console for our virtual switch. Here, the default "
 "username and password for SONiC are `admin` and `YourPaSsWoRd`. Once we are "
-"logged in, we can run the familiar command `show interfaces status` or `show "
-"ip interface` to see the status of the network. We can also see here that "
-"the status of the first two interfaces that we have connected is `up`."
+"logged in, we can run any SONiC commands, such as `show interfaces status` or `show "
+"ip interface` to see the status of the network. As above shows, we can see "
+"the status of the two connected interfaces are both `up`!"
 
 #: src/1-2-hello-world-virtually.md:114
 msgid ""
 "除了这种简单的网络以外，GNS3还可以创建非常复杂的网络，比如多层ECMP结构等等。"
 "这里就不多说了，有兴趣的可以自己去试一试~"
 msgstr ""
-"In addition to such simple networks, GNS3 can also create very complex "
-"networks, such as multi-layer ECMP structures and so on. Here is not much to "
-"say, if you are interested, you can try it yourself~"
+"Besides creating simple network like this, GNS3 also supports very complicated "
+"networks, such as multi-layer ECMP and so on, but we won't dive too deep here. "
+"If you are interested, please feel free to give it a try!"
 
 #: src/1-2-hello-world-virtually.md:116
 msgid "## 配置网络"
@@ -1233,16 +1222,16 @@ msgstr "## Configure the network"
 msgid ""
 "SONiC软交换机下，默认的端口使用的是10.0.0.x的子网（如下），而且都是eth pair："
 msgstr ""
-"Under the SONiC soft switch, the default ports use the 10.0.0.x subnet (as "
-"follows) and are all eth pair:"
+"In the SONiC virtual switch, the default ports are all created as eth pairs and all uses the 10.0.0.x subnet (as "
+"follows):"
 
 #: src/1-2-hello-world-virtually.md:129
 msgid ""
 "这里，我们比较方便的做法是创建一个小的vlan，把我们的端口都包在里面（我们这里"
 "用的是Ethernet4和Ethernet8）："
 msgstr ""
-"Here, it is more convenient to create a small vlan and wrap all our ports in "
-"it (we use Ethernet4 and Ethernet8 here)::"
+"To make everything work, the most convenient way is still creating a vlan and put all the ports in "
+"it (we use Ethernet4 and Ethernet8 here):"
 
 #: src/1-2-hello-world-virtually.md:131
 msgid ""
@@ -1281,7 +1270,7 @@ msgstr ""
 #: src/1-2-hello-world-virtually.md:147
 msgid "这样，我们的vlan就创建好了，我们可以通过`show vlan brief`来查看一下："
 msgstr ""
-"Thus, our vlan is created, and we can check it out by `show vlan brief`:"
+"There you go! Our vlan is created, and we can check it out by `show vlan brief`:"
 
 #: src/1-2-hello-world-virtually.md:149
 msgid ""
@@ -1317,7 +1306,7 @@ msgstr ""
 
 #: src/1-2-hello-world-virtually.md:159
 msgid "然后，我们就可以给所有的主机配置一个10.0.0.x的IP地址了。"
-msgstr "Then we can configure all hosts with a 10.0.0.x IP address."
+msgstr "Then, we can assign a 10.0.0.x IP address to all the virtual host now:"
 
 #: src/1-2-hello-world-virtually.md:161
 msgid ""
@@ -1339,15 +1328,15 @@ msgstr ""
 
 #: src/1-2-hello-world-virtually.md:169
 msgid "好的，现在我们来Ping一下吧！"
-msgstr "Okay, now let's ping it!"
+msgstr "Okay! Time to ping!"
 
 #: src/1-2-hello-world-virtually.md:173
 msgid "通了！"
-msgstr "It's through!"
+msgstr "Tada!"
 
 #: src/1-2-hello-world-virtually.md:175
 msgid "## 抓包"
-msgstr "## Grab Bag"
+msgstr "## Packet capture"
 
 #: src/1-2-hello-world-virtually.md:177
 msgid ""
@@ -1355,20 +1344,19 @@ msgid ""
 "了。我们只需要右键点击图中我们想抓包的Link上，然后选择`Start capture`，就可以"
 "开始抓包了。"
 msgstr ""
-"Above, before we installed GNS3, we purposely installed Wireshark so that we "
-"can capture packets inside GNS3. All we need to do is right click on the "
-"Link we want to capture and select `Start capture` to start capturing "
-"packets."
+"As installation process shows above, before we installed GNS3, we purposely installed Wireshark so that we "
+"can directly capture packets inside GNS3. All we need to do is right click on the "
+"link we want to capture and select `Start capture`."
 
 #: src/1-2-hello-world-virtually.md:181
 msgid "稍等一下，Wireshark就会自动打开，实时的显示所有的包，非常的方便："
 msgstr ""
-"After a short wait, Wireshark will automatically open and display all "
-"packages in real time, which is very convenient:"
+"Very soon, Wireshark will be opened up and display all "
+"the network packets in real time, which is very convenient:"
 
 #: src/1-2-hello-world-virtually.md:185
 msgid "## 更多的网络"
-msgstr "## More Networks"
+msgstr "## More complicated network, please"
 
 #: src/1-2-hello-world-virtually.md:187
 msgid ""
@@ -1377,8 +1365,10 @@ msgid ""
 "些内容，感兴趣的小伙伴可以去传送到这篇文档去看看：[SONiC Deployment and "
 "Testing Using GNS3][SONiCWithGNS3]。"
 msgstr ""
-"XFlow Research has published a very detailed document to introduce these "
-"contents, interested partners can go to this document to see: [SONiC "
+"Besides the simplest network we built above, we can actually use GNS3 to build "
+"very complicated network for testing, such as multi-layer ECMP + eBGP, etc. "
+"XFlow Research has published a very detailed document on how to do this. "
+"If you are interested, please feel free to check it out: [SONiC "
 "Deployment and Testing Using GNS3][SONiCWithGNS3]."
 
 #: src/1-2-hello-world-virtually.md:191

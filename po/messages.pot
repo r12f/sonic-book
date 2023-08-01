@@ -742,7 +742,7 @@ msgid "选择我们刚刚生成的`SONiC-latest.gns3a`镜像配置文件，然�
 msgstr ""
 
 #: src/1-2-hello-world-virtually.md:94
-msgid "这个时候就可以看到我们的ji镜像了，点击`Next`。"
+msgid "这个时候就可以看到我们的镜像了，点击`Next`。"
 msgstr ""
 
 #: src/1-2-hello-world-virtually.md:98
