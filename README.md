@@ -2,7 +2,7 @@
 
 ![Build Pipeline](https://img.shields.io/github/actions/workflow/status/r12f/sonic-book/mdbook.yml)
 
-Version: [Chinese](https://r12f.com/sonic-book) | [English (WIP)](https://r12f.com/sonic-book/en/)
+Version: [Chinese](https://r12f.com/sonic-book) | [English (Machine Translated, WIP)](https://r12f.com/sonic-book/en/)
 
 > What is SONiC?
 > 
