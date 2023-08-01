@@ -25,7 +25,7 @@ msgid "虚拟测试环境"
 msgstr ""
 
 #: src/SUMMARY.md:6
-msgid "常用命令"
+msgid "常用命令 (WIP)"
 msgstr ""
 
 #: src/SUMMARY.md:7

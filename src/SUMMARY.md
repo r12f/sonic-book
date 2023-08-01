@@ -3,7 +3,7 @@
 - [SONiC入门指南](./1-intro.md)
   - [安装](./1-1-install.md)
   - [虚拟测试环境](./1-2-hello-world-virtually.md)
-  - [常用命令](./1-3-command-cheatsheet.md)
+  - [常用命令 (WIP)](./1-3-command-cheatsheet.md)
 - [核心组件](./2-components.md)
   - [Redis数据库](./2-1-database.md)
   - [服务与工作流](./2-2-services-intro.md)

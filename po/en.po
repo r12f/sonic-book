@@ -24,8 +24,8 @@ msgid "虚拟测试环境"
 msgstr "Hello World! Virtually!"
 
 #: src/SUMMARY.md:6
-msgid "常用命令"
-msgstr "Common commands"
+msgid "常用命令 (WIP)"
+msgstr "Frequently used commands (WIP)"
 
 #: src/SUMMARY.md:7
 msgid "核心组件"
