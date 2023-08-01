@@ -245,7 +245,7 @@ msgstr ""
 
 #: src/1-intro.md:46
 #: src/1-1-install.md:164
-#: src/1-2-hello-world-virtually.md:189
+#: src/1-2-hello-world-virtually.md:187
 #: src/1-3-command-cheatsheet.md:184
 #: src/2-components.md:19
 #: src/2-1-database.md:74
@@ -422,7 +422,7 @@ msgid "新安装完的SONiC交换机会有一个默认的网络配置，这个�
 msgstr ""
 
 #: src/1-1-install.md:75
-#: src/1-2-hello-world-virtually.md:120
+#: src/1-2-hello-world-virtually.md:118
 msgid ""
 "```bash\n"
 "admin@sonic:~$ show ip interfaces\n"
@@ -742,7 +742,7 @@ msgid "选择我们刚刚生成的`SONiC-latest.gns3a`镜像配置文件，然�
 msgstr ""
 
 #: src/1-2-hello-world-virtually.md:94
-msgid "这个时候就可以看到我们的ji镜像了，点击`Next`。"
+msgid "这个时候就可以看到我们的镜像了，点击`Next`。"
 msgstr ""
 
 #: src/1-2-hello-world-virtually.md:98
@@ -776,22 +776,18 @@ msgid ""
 msgstr ""
 
 #: src/1-2-hello-world-virtually.md:114
-msgid "除了这种简单的网络以外，GNS3还可以创建非常复杂的网络，比如多层ECMP结构等等。这里就不多说了，有兴趣的可以自己去试一试~"
-msgstr ""
-
-#: src/1-2-hello-world-virtually.md:116
 msgid "## 配置网络"
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:118
+#: src/1-2-hello-world-virtually.md:116
 msgid "SONiC软交换机下，默认的端口使用的是10.0.0.x的子网（如下），而且都是eth pair："
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:129
+#: src/1-2-hello-world-virtually.md:127
 msgid "这里，我们比较方便的做法是创建一个小的vlan，把我们的端口都包在里面（我们这里用的是Ethernet4和Ethernet8）："
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:131
+#: src/1-2-hello-world-virtually.md:129
 msgid ""
 "```bash\n"
 "# Remove old config\n"
@@ -810,11 +806,11 @@ msgid ""
 "```"
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:147
+#: src/1-2-hello-world-virtually.md:145
 msgid "这样，我们的vlan就创建好了，我们可以通过`show vlan brief`来查看一下："
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:149
+#: src/1-2-hello-world-virtually.md:147
 msgid ""
 "```bash\n"
 "admin@sonic:~$ show vlan brief\n"
@@ -830,11 +826,11 @@ msgid ""
 "```"
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:159
+#: src/1-2-hello-world-virtually.md:157
 msgid "然后，我们就可以给所有的主机配置一个10.0.0.x的IP地址了。"
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:161
+#: src/1-2-hello-world-virtually.md:159
 msgid ""
 "```bash\n"
 "# VPC1\n"
@@ -845,40 +841,40 @@ msgid ""
 "```"
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:169
+#: src/1-2-hello-world-virtually.md:167
 msgid "好的，现在我们来Ping一下吧！"
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:173
+#: src/1-2-hello-world-virtually.md:171
 msgid "通了！"
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:175
+#: src/1-2-hello-world-virtually.md:173
 msgid "## 抓包"
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:177
+#: src/1-2-hello-world-virtually.md:175
 msgid ""
 "上面，我们安装GNS3前，我们特意安装了Wireshark，这样我们就可以在GNS3里面抓包了。我们只需要右键点击图中我们想抓包的Link上，然后选择`Start "
 "capture`，就可以开始抓包了。"
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:181
+#: src/1-2-hello-world-virtually.md:179
 msgid "稍等一下，Wireshark就会自动打开，实时的显示所有的包，非常的方便："
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:185
+#: src/1-2-hello-world-virtually.md:183
 msgid "## 更多的网络"
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:187
+#: src/1-2-hello-world-virtually.md:185
 msgid ""
 "除了上面这种最简单的网络搭建，我们其实可以用GNS3搭建很多非常复杂的网络来进行测试，比如多层ECMP + eBGP等等。XFlow "
 "Research发布了一篇非常详细的文档来介绍这些内容，感兴趣的小伙伴可以去传送到这篇文档去看看：[SONiC Deployment and "
 "Testing Using GNS3][SONiCWithGNS3]。"
 msgstr ""
 
-#: src/1-2-hello-world-virtually.md:191
+#: src/1-2-hello-world-virtually.md:189
 msgid ""
 "1. [GNS3][GNS3]\n"
 "2. [GNS3 Linux Install][GNS3Install]\n"

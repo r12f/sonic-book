@@ -91,7 +91,7 @@ total 2.8G
 
 ![](assets/chapter-1/gns3-import-appliance-select-image.png)
 
-这个时候就可以看到我们的ji镜像了，点击`Next`。
+这个时候就可以看到我们的镜像了，点击`Next`。
 
 ![](assets/chapter-1/gns3-import-appliance-image.png)
 
@@ -110,8 +110,6 @@ GNS3的图形界面非常的好用，基本上就是打开侧边栏，把交换�
 ![](assets/chapter-1/gns3-console.png)
 
 接着，在交换机上点击右键，选择`Custom Console`，再选择Putty，就可以打开我们的上面看到的交换机的Console了。这里，SONiC的默认用户名和密码是`admin`和`YourPaSsWoRd`。登录进去之后，我们就可以运行熟悉的命令，用`show interfaces status`或者`show ip interface`来查看网络的状态了。我们这里也可以看到，前面两个我们连接好了的Interface的状态都是`up`的了。
-
-除了这种简单的网络以外，GNS3还可以创建非常复杂的网络，比如多层ECMP结构等等。这里就不多说了，有兴趣的可以自己去试一试~
 
 ## 配置网络
 
