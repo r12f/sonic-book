@@ -61,15 +61,15 @@ msgid "编译"
 msgstr ""
 
 #: src/SUMMARY.md:15
-msgid "测试"
+msgid "测试 (WIP)"
 msgstr ""
 
 #: src/SUMMARY.md:16
-msgid "调试"
+msgid "调试 (WIP)"
 msgstr ""
 
 #: src/SUMMARY.md:17
-msgid "SAI调试"
+msgid "SAI调试 (WIP)"
 msgstr ""
 
 #: src/SUMMARY.md:18
@@ -101,7 +101,7 @@ msgid "通信层"
 msgstr ""
 
 #: src/SUMMARY.md:25
-msgid "基于ZMQ的通信"
+msgid "基于ZMQ的通信 (WIP)"
 msgstr ""
 
 #: src/SUMMARY.md:26
@@ -133,19 +133,19 @@ msgid "BGP路由变更下发"
 msgstr ""
 
 #: src/SUMMARY.md:33
-msgid "启动流程"
+msgid "启动流程 (WIP)"
 msgstr ""
 
 #: src/SUMMARY.md:34
-msgid "冷启动"
+msgid "冷启动 (WIP)"
 msgstr ""
 
 #: src/SUMMARY.md:35
-msgid "快速启动"
+msgid "快速启动 (WIP)"
 msgstr ""
 
 #: src/SUMMARY.md:36
-msgid "热启动"
+msgid "热启动 (WIP)"
 msgstr ""
 
 #: src/1-intro.md:1
