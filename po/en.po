@@ -28,7 +28,7 @@ msgid "常用命令 (WIP)"
 msgstr "Frequently used commands (WIP)"
 
 #: src/SUMMARY.md:7
-msgid "核心组件"
+msgid "核心组件简介"
 msgstr "Core Components"
 
 #: src/SUMMARY.md:8
@@ -1830,7 +1830,7 @@ msgid "1. [SONiC Command Line Interface Guide][SONiCCommands]"
 msgstr "1. [SONiC Command Line Interface Guide][SONiCCommands]"
 
 #: src/2-components.md:1
-msgid "# 核心组件"
+msgid "# 核心组件简介"
 msgstr "# Core components"
 
 #: src/2-components.md:3
