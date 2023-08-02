@@ -28,7 +28,7 @@ msgid "常用命令 (WIP)"
 msgstr "Frequently used commands (WIP)"
 
 #: src/SUMMARY.md:7
-msgid "核心组件"
+msgid "核心组件简介"
 msgstr "Core Components"
 
 #: src/SUMMARY.md:8
@@ -1830,14 +1830,14 @@ msgid "1. [SONiC Command Line Interface Guide][SONiCCommands]"
 msgstr "1. [SONiC Command Line Interface Guide][SONiCCommands]"
 
 #: src/2-components.md:1
-msgid "# 核心组件"
+msgid "# 核心组件简介"
 msgstr "# Core components"
 
 #: src/2-components.md:3
 msgid ""
 "我们也许会觉得交换机是一个很简单的网络设备，但是实际上交换机上的组件非常的"
 "多，而且由于SONiC中Redis的解耦，我们很难简单的对代码进行跟踪来理解服务之间的"
-"关系，这就需要我们先建立一个比较抽线的整体模型，然后再去深入的学习每个组件的"
+"关系，这就需要我们先建立一个比较抽象的整体模型，然后再去深入的学习每个组件的"
 "细节。所以在深入其他部分之前，我们这里先对每个组件都做一个点到为止的介绍，帮"
 "助大家建立一个大概的整体模型。"
 msgstr ""

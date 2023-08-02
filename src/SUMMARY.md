@@ -4,7 +4,7 @@
   - [安装](./1-1-install.md)
   - [虚拟测试环境](./1-2-hello-world-virtually.md)
   - [常用命令 (WIP)](./1-3-command-cheatsheet.md)
-- [核心组件](./2-components.md)
+- [核心组件简介](./2-components.md)
   - [Redis数据库](./2-1-database.md)
   - [服务与工作流](./2-2-services-intro.md)
   - [核心容器](./2-3-key-containers.md)
