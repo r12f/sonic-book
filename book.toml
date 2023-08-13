@@ -16,15 +16,16 @@ extra-watch-dirs = ["po"]
 command = "mdbook-open-on-gh"
 renderer = ["html"]
 
+[preprocessor.gettext]
+after = ["links"]
+
 [preprocessor.admonish]
 command = "mdbook-admonish"
 assets_version = "2.0.1" # do not edit: managed by `mdbook-admonish install`
+after = ["gettext"]
 
 [preprocessor.mermaid]
 command = "mdbook-mermaid"
-
-[preprocessor.gettext]
-after = ["links"]
 
 [output.html]
 additional-css = ["theme/css/mdbook-admonish.css", "theme/pagetoc.css", "theme/css/open-in.css"]
