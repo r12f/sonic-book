@@ -1219,7 +1219,7 @@ msgstr ""
 
 #: src/2-1-database.md:5
 msgid ""
-"为了提供这些功能，SONiC会在Redis中创建一个名为`sonic-db`的数据库，其配置和分库信息我们可以在`/var/run/redis/sonic-db/database_config.json`中找到："
+"为了提供这些功能，SONiC会在Redis中创建一个名为`sonic-db`的数据库实例，其配置和分库信息我们可以在`/var/run/redis/sonic-db/database_config.json`中找到："
 msgstr ""
 
 #: src/2-1-database.md:7
@@ -1277,16 +1277,16 @@ msgstr ""
 #: src/2-1-database.md:40
 msgid ""
 "- "
-"**CONFIG_DB**：ID为4，存储所有服务的**配置信息**，比如端口配置，VLAN配置等等。它代表着**用户想要交换机达到的状态**的数据模型，这也是所有CLI和外部应用程序修改配置时的主要操作对象。\n"
+"**CONFIG_DB（ID = 4）**：存储所有服务的**配置信息**，比如端口配置，VLAN配置等等。它代表着**用户想要交换机达到的状态**的数据模型，这也是所有CLI和外部应用程序修改配置时的主要操作对象。\n"
 "- **APPL_DB（Application "
 "DB）**：ID为0，存储**所有服务的内部状态信息**。这些信息有两种：一种是各个服务在读取了CONFIG_DB的配置信息后，自己计算出来的。我们可以理解为**各个服务想要交换机达到的状态**（Goal "
 "State），还有一种是当最终硬件状态发生变化被写回时，有些服务会直接写回到APPL_DB，而不是我们下面马上要介绍的STATE_DB。这些信息我们可以理解为**各个服务认为交换机当前的状态**（Current "
 "State）。\n"
-"- **STATE_DB**：ID为6，存储着交换机**各个部件当前的状态**（Current "
+"- **STATE_DB（ID = 6）**：存储着交换机**各个部件当前的状态**（Current "
 "State）。当SONiC中的服务收到了STATE_DB的状态变化，但是发现和Goal "
 "State不一致的时候，SONiC就会重新下发配置，直到两者一致。（当然，对于那些回写到APPL_DB状态，服务就会监听APPL_DB的变化，而不是STATE_DB了。）\n"
 "- "
-"**ASIC_DB**：ID为1，存储着**SONiC想要交换机ASIC达到状态信息**，比如，ACL，转发方式等等。和APPL_DB不同，这个数据库里面的数据模型是面向ASIC设计的，而不是面向服务抽象的。这样做的目的是为了方便各个厂商进行SAI和ASIC驱动的开发。"
+"**ASIC_DB（ID = 1）**：存储着**SONiC想要交换机ASIC达到状态信息**，比如，ACL，路由等等。和APPL_DB不同，这个数据库里面的数据模型是面向ASIC设计的，而不是面向服务抽象的。这样做的目的是为了方便各个厂商进行SAI和ASIC驱动的开发。"
 msgstr ""
 
 #: src/2-1-database.md:45
