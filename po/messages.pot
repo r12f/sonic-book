@@ -3685,11 +3685,11 @@ msgid ""
 msgstr ""
 
 #: src/5-core-components.md:1
-msgid "# 工作流"
+msgid "# 核心组件解析"
 msgstr ""
 
 #: src/5-core-components.md:3
-msgid "这一章，我们会从代码的层面上来深入的分析一下SONiC中一些比较有代表性的工作流。"
+msgid "这一章，我们会从代码的层面上来深入的分析一下SONiC中一些比较有代表性的核心组件和它们的工作流。"
 msgstr ""
 
 #: src/5-core-components.md:5
@@ -3702,7 +3702,7 @@ msgid ""
 msgstr ""
 
 #: src/5-1-syncd-and-sai.md:1
-msgid "# Syncd工作流"
+msgid "# Syncd和SAI"
 msgstr ""
 
 #: src/5-1-syncd-and-sai.md:3
@@ -4778,7 +4778,7 @@ msgid ""
 msgstr ""
 
 #: src/5-2-bgp.md:1
-msgid "# BGP工作流"
+msgid "# BGP"
 msgstr ""
 
 #: src/5-2-bgp.md:3

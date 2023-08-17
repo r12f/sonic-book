@@ -6495,12 +6495,13 @@ msgstr ""
 "problems, as the full amount of synchronization will be performed at startup."
 
 #: src/5-core-components.md:1
-msgid "# 工作流"
-msgstr "# Workflow"
+msgid "# 核心组件解析"
+msgstr "Core Components"
 
 #: src/5-core-components.md:3
 msgid ""
-"这一章，我们会从代码的层面上来深入的分析一下SONiC中一些比较有代表性的工作流。"
+"这一章，我们会从代码的层面上来深入的分析一下SONiC中一些比较有代表性的核心组件"
+"和它们的工作流。"
 msgstr ""
 "In this chapter, we will take a deeper look at some of the more "
 "representative workflows in SONiC from the code level."
@@ -6526,8 +6527,8 @@ msgstr ""
 "```"
 
 #: src/5-1-syncd-and-sai.md:1
-msgid "# Syncd工作流"
-msgstr "# Syncd workflow"
+msgid "# Syncd和SAI"
+msgstr "# Syncd and SAI"
 
 #: src/5-1-syncd-and-sai.md:3
 msgid ""
@@ -8568,8 +8569,8 @@ msgstr ""
 "3. [Github repo: Nvidia (Mellanox) SAI implementation][MnlxSAI]"
 
 #: src/5-2-bgp.md:1
-msgid "# BGP工作流"
-msgstr "# BGP Workflow"
+msgid "# BGP"
+msgstr "# BGP"
 
 #: src/5-2-bgp.md:3
 msgid ""
@@ -12450,11 +12451,3 @@ msgstr "# Fast boot"
 msgid "# 热启动"
 msgstr "# Warm boot"
 
-#~ msgid "工作流"
-#~ msgstr "Workflows"
-
-#~ msgid "Syncd-SAI工作流"
-#~ msgstr "Syncd-SAI workflows"
-
-#~ msgid "BGP工作流"
-#~ msgstr "BGP workflows"
