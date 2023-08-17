@@ -37,7 +37,7 @@ msgid "Redis数据库"
 msgstr ""
 
 #: src/SUMMARY.md:9
-msgid "服务与工作流"
+msgid "服务与工作流简介"
 msgstr ""
 
 #: src/SUMMARY.md:10
@@ -1336,7 +1336,7 @@ msgid "1. [SONiC Architecture][SONiCArch]"
 msgstr ""
 
 #: src/2-2-services-intro.md:1
-msgid "# 服务与控制流"
+msgid "# 服务与工作流简介"
 msgstr ""
 
 #: src/2-2-services-intro.md:3

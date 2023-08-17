@@ -29,15 +29,15 @@ msgstr "Frequently used commands (WIP)"
 
 #: src/SUMMARY.md:7
 msgid "核心组件简介"
-msgstr "Core Components"
+msgstr "Core Components Intro"
 
 #: src/SUMMARY.md:8
 msgid "Redis数据库"
 msgstr "Redis Database"
 
 #: src/SUMMARY.md:9
-msgid "服务与工作流"
-msgstr "Service and Workflow"
+msgid "服务与工作流简介"
+msgstr "Service and Workflow Intro"
 
 #: src/SUMMARY.md:10
 msgid "核心容器"
@@ -2163,8 +2163,8 @@ msgid "1. [SONiC Architecture][SONiCArch]"
 msgstr "1. [SONiC Architecture][SONiCArch]"
 
 #: src/2-2-services-intro.md:1
-msgid "# 服务与控制流"
-msgstr "# Service and control flow"
+msgid "# 服务与工作流简介"
+msgstr "# Service and Workflow Intro"
 
 #: src/2-2-services-intro.md:3
 msgid ""
@@ -12450,4 +12450,3 @@ msgstr "# Fast boot"
 #: src/6-3-warm-boot.md:1
 msgid "# 热启动"
 msgstr "# Warm boot"
-
