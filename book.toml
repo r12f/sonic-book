@@ -1,9 +1,9 @@
 [book]
 authors = ["r12f"]
-language = "cn"
+language = "en"
 multilingual = false
 src = "src"
-title = "SONiC入门指南"
+title = "Getting Started with Sonic"
 
 [build]
 extra-watch-dirs = ["po"]

@@ -1,6 +1,6 @@
 # Installation
 
-如果你自己就拥有一台交换机，或者想购买一台交换机，在上面安装SONiC，那么请认真阅读这一小节，否则可以自行跳过。:D
+If you already own a switch or are planning to purchase one and install SONiC on it, please read this section carefully. Otherwise, feel free to skip it. :D
 
 ## Switch Selection and SONiC Installation
 
