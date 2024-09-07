@@ -3,7 +3,7 @@ authors = ["r12f"]
 language = "en"
 multilingual = false
 src = "src"
-title = "Getting Started with Sonic"
+title = "Getting Started with SONiC"
 
 [build]
 extra-watch-dirs = ["po"]
