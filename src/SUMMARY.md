@@ -25,7 +25,7 @@
   - [ZMQ-based Communication (WIP)](./4-3-zmq-messaging.md)
   - [Service Layer Wrappers - Orch](./4-4-orch-layer.md)
   - [Event Polling and Error Handling](./4-5-event-polling-and-error-handling.md)
-- [Core Components Analysis](./5-core-components.md)
+- [Core Components](./5-core-components.md)
   - [Syncd and SAI](./5-1-syncd-and-sai.md)
   - [BGP](./5-2-bgp.md)
     - [BGP Command Implementation](./5-2-1-bgp-command-impl.md)
