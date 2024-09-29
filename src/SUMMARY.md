@@ -14,7 +14,7 @@
   - [Build Envirionment](./3-2-build-env.md)
   - [Testing (WIP)](./3-3-testing.md)
   - [Debugging (WIP)](./3-4-debugging.md)
-    - [SAI Debugging (WIP)](./3-4-sai-debugging.md)
+    - [SAI Debugging (WIP)](./3-4-1-sai-debugging.md)
 - [Communication Mechanisms](./4-communications.md)
   - [Communication with Linux Kernel]()
     - [Command Line Invocation](./4-1-1-exec.md)
