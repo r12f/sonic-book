@@ -1,22 +1,22 @@
-# 核心组件简介
+# Core components
 
-我们也许会觉得交换机是一个很简单的网络设备，但是实际上交换机上的组件非常的多，而且由于SONiC中Redis的解耦，我们很难简单的对代码进行跟踪来理解服务之间的关系，这就需要我们先建立一个比较抽象的整体模型，然后再去深入的学习每个组件的细节。所以在深入其他部分之前，我们这里先对每个组件都做一个点到为止的介绍，帮助大家建立一个大概的整体模型。
+We might feel that a switch is a simple network device, but in fact, there could be many components running on the switch.
+
+Since SONiC decoupled all its services using Redis, it can be difficult to understand the relationships between services by simpling tracking the code. To get started on SONiC quickly, it is better to first establish a high-level model, and then delve into the details of each component. Therefore, before diving into other parts, we will first give a brief introduction to each component to help everyone build a rough overall model.
 
 ```admonish info
-在阅读本章之前，有两个名词会经常在本章和SONiC的官方文档中出现：ASIC（Application-Specific Integrated Circuit）和ASIC状态（State）。它们指的是交换机中用来进行包处理的Pipeline的状态，比如，ACL，转发方式等等，这个和其他交换机的硬件状态，比如，端口状态（端口速度，接口类型），IP信息等等硬件状态是非常不同的。
+Before reading this chapter, there are two terms that will frequently appear in this chapter and in SONiC's official documentation: ASIC (Application-Specific Integrated Circuit) and ASIC state. They refer to the state of the pipeline used for packet processing in the switch, such as ACL or other packet forwarding methods.
 
-如果大家有兴趣了解更深入的细节，可以先移步阅读两个相关资料：[SAI (Switch Abstraction Interface) API][SAIAPI]和一篇RMT（Reprogrammable Match Table）的相关论文：[Forwarding Metamorphosis: Fast Programmable Match-Action Processing in Hardware for SDN][PISA]。
-
-这些都会对我们阅读SONiC的文档有很大的帮助。
+If you are interested in learning more details, you can first read two related materials: [SAI (Switch Abstraction Interface) API][SAIAPI] and a related paper on RMT (Reprogrammable Match Table): [Forwarding Metamorphosis: Fast Programmable Match-Action Processing in Hardware for SDN][PISA].
 ```
 
-另外为了方便我们的理解和阅读，我们也把SONiC架构图在这里放在这一章的开头，作为引用：
+In addition, to help us get started, we placed the SONiC architecture diagram here again as a reference:
 
 ![](assets/chapter-2/sonic-arch.png)
 
 _(Source: [SONiC Wiki - Architecture][SONiCArch])_
 
-# 参考资料
+# References
 
 1. [SONiC Architecture][SONiCArch]
 2. [SAI API][SAIAPI]
