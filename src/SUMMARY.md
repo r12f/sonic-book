@@ -11,7 +11,7 @@
   - [SAI](./2-4-sai-intro.md)
 - [Developer Guide](./3-dev-guide.md)
   - [Code Repositories](./3-1-code-repos.md)
-  - [Compilation](./3-2-compile.md)
+  - [Build Envirionment](./3-2-build-env.md)
   - [Testing (WIP)](./3-3-testing.md)
   - [Debugging (WIP)](./3-4-debugging.md)
     - [SAI Debugging (WIP)](./3-4-sai-debugging.md)

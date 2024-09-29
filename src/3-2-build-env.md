@@ -1,6 +1,4 @@
-# Build
-
-## Build Environment
+# Build Environment
 
 To ensure that we can successfully build SONiC on any platform as well, SONiC leverages docker to build its build environment. It installs all tools and dependencies in a docker container of the corresponding Debian version, mounts its code into the container, and then start the build process inside the container. This way, we can easily build SONiC on any platform without worrying about dependency mismatches. For example, some packages in Debian have higher versions than in Ubuntu, which might cause unexpected errors during build time or runtime.
 
