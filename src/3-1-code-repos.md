@@ -1,134 +1,136 @@
-# 代码仓库
+# Code Repositories
 
-SONiC的代码都托管在[GitHub的sonic-net账号][SONiCGitHub]上，仓库数量有30几个之多，所以刚开始看SONiC的代码时，肯定是会有点懵的，不过不用担心，我们这里就来一起看看～
+The code of SONiC is hosted on the [sonic-net account on GitHub][SONiCGitHub], with over 30 repositories. It can be a bit overwhelming at first, but don't worry, we'll go through them together here.
 
-## 核心仓库
+## Core Repositories
 
-首先是SONiC中最重要的两个核心仓库：SONiC和sonic-buildimage。
+First, let's look at the two most important core repositories in SONiC: SONiC and sonic-buildimage.
 
-### Landing仓库：SONiC
+### Landing Repository: `SONiC`
 
 <https://github.com/sonic-net/SONiC>
 
-这个仓库里面存储着SONiC的Landing Page和大量的文档，Wiki，教程，以往的Talk的Slides，等等等等。这个仓库可以说是每个新人上手最常用的仓库了，但是注意，这个仓库里面**没有任何的代码**，只有文档。
+This repository contains the SONiC Landing Page and a large number of documents, Wiki, tutorials, slides from past talks, and so on. This repository is the most commonly used by newcomers, but note that there is **no code** in this repository, only documentation.
 
-### 镜像构建仓库：sonic-buildimage
+### Image Build Repository: `sonic-buildimage`
 
 <https://github.com/sonic-net/sonic-buildimage>
 
-这个构建仓库为什么对于我们十分重要？和其他项目不同，**SONiC的构建仓库其实才是它的主仓库**！这个仓库里面包含：
+Why is this build repository so important to us? Unlike other projects, **the build repository of SONiC is actually its main repository**! This repository contains:
 
-- 所有的功能实现仓库，它们都以submodule的形式被加入到了这个仓库中（`src`目录）
-- 所有设备厂商的支持文件（`device`目录），比如每个型号的交换机的配置文件，用来访问硬件的支持脚本，等等等等，比如：我的交换机是Arista 7050 QX-32S，那么我就可以在`device/arista/x86_64-arista_7050_qx32s`目录中找到它的支持文件。
-- 所有ASIC芯片厂商提供的支持文件（`platform`目录），比如每个平台的驱动程序，BSP，底层支持的脚本等等。这里我们可以看到几乎所有的主流芯片厂商的支持文件，比如：Broadcom，Mellanox，等等，也有用来做模拟软交换机的实现，比如vs和p4。
-- SONiC用来构建所有容器镜像的Dockerfile（`dockers`目录）
-- 各种各样通用的配置文件和脚本（`files`目录）
-- 用来做构建的编译容器的dockerfile（`sonic-slave-*`目录）
-- 等等……
+- All the feature implementation repositories, in the form of git submodules (under the `src` directory).
+- Support files for each device from switch manufactures (under the `device` directory), such as device configuration files for each model of switch, scripts, and so on. For example, my switch is an Arista 7050QX-32S, so I can find its support files in the `device/arista/x86_64-arista_7050_qx32s` directory.
+- Support files provided by all ASIC chip manufacturers (in the `platform` directory), such as drivers, BSP, and low-level support scripts for each platform. Here we can see support files from almost all major chip manufacturers, such as Broadcom, Mellanox, etc., as well as implementations for simulated software switches, such as vs and p4. But for protecting IPs from each vendor, most of the time, the repo only contains the Makefiles that downloads these things for build purpose.
+- Dockerfiles for building all container images used by SONiC (in the `dockers` directory).
+- Various general configuration files and scripts (in the `files` directory).
+- Dockerfiles for the build containers used for building (in the `sonic-slave-*` directories).
+- And more...
 
-正因为这个仓库里面将所有相关的资源全都放在了一起，所以我们学习SONiC的代码时，基本只需要下载这一个源码仓库就可以了，不管是搜索还是跳转都非常方便！
+Because this repository brings all related resources together, we basically only need to checkout this single repository to get all SONiC's code. It makes searching and navigating the code much more convenient than checking out the repos one by one!
 
-## 功能实现仓库
+## Feature Repositories
 
-除了核心仓库，SONiC下还有很多功能实现仓库，里面都是各个容器和子服务的实现，这些仓库都被以submodule的形式放在了sonic-buildimage的`src`目录下，如果我们想对SONiC进行修改和贡献，我们也需要了解一下。
+In addition to the core repositories, SONiC also has many feature repositories, which contain the implementations of various containers and services. These repositories are imported as submodules in the `src` directory of sonic-buildimage. If we would like to modify and contribute to SONiC, we also need to understand them.
 
-### SWSS（Switch State Service）相关仓库
+### SWSS (Switch State Service) Related Repositories
 
-在上一篇中我们介绍过，SWSS容器是SONiC的大脑，在SONiC下，它由两个repo组成：[sonic-swss-common](https://github.com/sonic-net/sonic-swss-common)和[sonic-swss](https://github.com/sonic-net/sonic-swss)。
+As introduced in the previous section, the SWSS container is the brain of SONiC. In SONiC, it consists of two repositories: [sonic-swss-common](https://github.com/sonic-net/sonic-swss-common) and [sonic-swss](https://github.com/sonic-net/sonic-swss).
 
-#### SWSS公共库：sonic-swss-common
+#### SWSS Common Library: `sonic-swss-common`
 
-首先是公共库：sonic-swss-common（<https://github.com/sonic-net/sonic-swss-common>）。
+The first one is the common library: `sonic-swss-common` (<https://github.com/sonic-net/sonic-swss-common>).
 
-这个仓库里面包含了所有`*mgrd`和`*syncd`服务所需要的公共功能，比如，logger，json，netlink的封装，Redis操作和基于Redis的各种服务间通讯机制的封装等等。虽然能看出来这个仓库一开始的目标是专门给swss服务使用的，但是也正因为功能多，很多其他的仓库都有它的引用，比如`swss-sairedis`和`swss-restapi`。
+This repository contains all the common functionalities needed by `*mgrd` and `*syncd` services, such as logger, JSON, netlink encapsulation, Redis operations, and various inter-service communication mechanisms based on Redis. Although it was initially intended for swss services, its extensive functionalities have led to its use in many other repositories, such as `swss-sairedis` and `swss-restapi`.
 
-#### SWSS主仓库：sonic-swss
+#### Main SWSS Repository: `sonic-swss`
 
-然后就是SWSS的主仓库sonic-swss了：<https://github.com/sonic-net/sonic-swss>。
+Next is the main SWSS repository: `sonic-swss` (<https://github.com/sonic-net/sonic-swss>).
 
-我们可以在这个仓库中找到：
+In this repository, we can find:
 
-- 绝大部分的`*mgrd`和`*syncd`服务：`orchagent`, `portsyncd/portmgrd/intfmgrd`，`neighsyncd/nbrmgrd`，`natsyncd/natmgrd`，`buffermgrd`，`coppmgrd`，`macsecmgrd`，`sflowmgrd`，`tunnelmgrd`，`vlanmgrd`，`vrfmgrd`，`vxlanmgrd`，等等。
-- `swssconfig`：在`swssconfig`目录下，用于在快速重启时（fast reboot）恢复FDB和ARP表。
-- `swssplayer`：也在`swssconfig`目录下，用来记录所有通过SWSS进行的配置下发操作，这样我们就可以利用它来做replay，从而对问题进行重现和调试。
-- 甚至一些不在SWSS容器中的服务，比如`fpmsyncd`（bgp容器）和`teamsyncd/teammgrd`（teamd容器）。
+- Most of the `*mgrd` and `*syncd` services: `orchagent`, `portsyncd/portmgrd/intfmgrd`, `neighsyncd/nbrmgrd`, `natsyncd/natmgrd`, `buffermgrd`, `coppmgrd`, `macsecmgrd`, `sflowmgrd`, `tunnelmgrd`, `vlanmgrd`, `vrfmgrd`, `vxlanmgrd`, and more.
+- `swssconfig`: Located in the `swssconfig` directory, used to restore FDB and ARP tables during fast reboot.
+- `swssplayer`: Also in the `swssconfig` directory, used to record all configuration operations performed through SWSS, allowing us to replay them for troubleshooting and debugging.
+- Even some services not in the SWSS container, such as `fpmsyncd` (BGP container) and `teamsyncd/teammgrd` (teamd container).
 
-### SAI/平台相关仓库
+### SAI/Platform Related Repositories
 
-接下来就是作为交换机抽象接口的SAI了，[虽然SAI是微软提出来并在2015年3月份发布了0.1版本](https://www.opencompute.org/documents/switch-abstraction-interface-ocp-specification-v0-2-pdf)，但是[在2015年9月份，SONiC都还没有发布第一个版本的时候，就已经被OCP接收并作为一个公共的标准了](https://azure.microsoft.com/en-us/blog/switch-abstraction-interface-sai-officially-accepted-by-the-open-compute-project-ocp/)，这也是SONiC能够在这么短的时间内就得到了这么多厂商的支持的原因之一。而也因为如此，SAI的代码仓库也被分成了两部分：
+Next is the Switch Abstraction Interface (SAI). [Although SAI was proposed by Microsoft and released version 0.1 in March 2015](https://www.opencompute.org/documents/switch-abstraction-interface-ocp-specification-v0-2-pdf), [by September 2015, before SONiC had even released its first version, it was already accepted by OCP as a public standard](https://azure.microsoft.com/en-us/blog/switch-abstraction-interface-sai-officially-accepted-by-the-open-compute-project-ocp/). This shows how quickly SONiC and SAI was getting supports from the community and vendors.
 
-- OCP下的OpenComputeProject/SAI：<https://github.com/opencomputeproject/SAI>。里面包含了有关SAI标准的所有代码，包括SAI的头文件，behavior model，测试用例，文档等等。
-- SONiC下的sonic-sairedis：<https://github.com/sonic-net/sonic-sairedis>。里面包含了SONiC中用来和SAI交互的所有代码，比如syncd服务，和各种调试统计，比如用来做replay的`saiplayer`和用来导出asic状态的`saidump`。
+Overall, the SAI code is divided into two parts:
 
-除了这两个仓库之外，还有一个平台相关的仓库，比如：[sonic-platform-vpp](https://github.com/sonic-net/sonic-platform-vpp)，它的作用是通过SAI的接口，利用vpp来实现数据平面的功能，相当于一个高性能的软交换机，个人感觉未来可能会被合并到buildimage仓库中，作为platform目录下的一部分。
+- OpenComputeProject/SAI under OCP: <https://github.com/opencomputeproject/SAI>. This repository contains all the code related to the SAI standard, including SAI header files, behavior models, test cases, documentation, and more.
+- sonic-sairedis under SONiC: <https://github.com/sonic-net/sonic-sairedis>. This repository contains all the code used by SONiC to interact with SAI, such as the syncd service and various debugging tools like `saiplayer` for replay and `saidump` for exporting ASIC states.
 
-### 管理服务（mgmt）相关仓库
+In addition to these two repositories, there is another platform-related repository, such as [sonic-platform-vpp](https://github.com/sonic-net/sonic-platform-vpp), which uses SAI interfaces to implement data plane functionalities through VPP, essentially acting as a high-performance soft switch. I personally feel it might be merged into the buildimage repository in the future as part of the platform directory.
 
-然后是SONiC中所有和[管理服务][SONiCMgmtFramework]相关的仓库：
+### Management Service (mgmt) Related Repositories
 
-| 名称 | 说明 |
+Next are all the repositories related to [management services][SONiCMgmtFramework] in SONiC:
+
+| Name | Description |
 | --- | --- |
-| [sonic-mgmt-common](https://github.com/sonic-net/sonic-mgmt-common) | 管理服务的基础库，里面包含着`translib`，yang model相关的代码 |
-| [sonic-mgmt-framework](https://github.com/sonic-net/sonic-mgmt-framework) | 使用Go来实现的REST Server，是下方架构图中的REST Gateway（进程名：`rest_server`） |
-| [sonic-gnmi](https://github.com/sonic-net/sonic-gnmi) | 和sonic-mgmt-framework类似，是下方架构图中，基于gRPC的gNMI（gRPC Network Management Interface）Server |
-| [sonic-restapi](https://github.com/sonic-net/sonic-restapi) | 这是SONiC使用go来实现的另一个配置管理的REST Server，和mgmt-framework不同，这个server在收到消息后会直接对CONFIG_DB进行操作，而不是走translib（下图中没有，进程名：`go-server-server`） |
-| [sonic-mgmt](https://github.com/sonic-net/sonic-mgmt) | 各种自动化脚本（`ansible`目录），测试（`tests`目录），用来搭建test bed和测试上报（`test_reporting`目录）之类的， |
+| [sonic-mgmt-common](https://github.com/sonic-net/sonic-mgmt-common) | Base library for management services, containing `translib`, YANG model-related code |
+| [sonic-mgmt-framework](https://github.com/sonic-net/sonic-mgmt-framework) | REST Server implemented in Go, acting as the REST Gateway in the architecture diagram below (process name: `rest_server`) |
+| [sonic-gnmi](https://github.com/sonic-net/sonic-gnmi) | Similar to sonic-mgmt-framework, this is the gNMI (gRPC Network Management Interface) Server based on gRPC in the architecture diagram below |
+| [sonic-restapi](https://github.com/sonic-net/sonic-restapi) | Another configuration management REST Server implemented in Go. Unlike mgmt-framework, this server directly operates on CONFIG_DB upon receiving messages, instead of using translib (not shown in the diagram, process name: `go-server-server`) |
+| [sonic-mgmt](https://github.com/sonic-net/sonic-mgmt) | Various automation scripts (in the `ansible` directory), tests (in the `tests` directory), test bed setup and test reporting (in the `test_reporting` directory), and more |
 
-这里还是附上SONiC管理服务的架构图，方便大家配合食用 [\[4\]][SONiCMgmtFramework]：
+Here is the architecture diagram of SONiC management services for reference [\[4\]][SONiCMgmtFramework]:
 
 ![](assets/chapter-3/sonic-mgmt-framework.jpg)
 
-### 平台监控相关仓库：sonic-platform-common和sonic-platform-daemons
+### Platform Monitoring Related Repositories: `sonic-platform-common` and `sonic-platform-daemons`
 
-以下两个仓库都和平台监控和控制相关，比如LED，风扇，电源，温控等等：
+The following two repositories are related to platform monitoring and control, such as LEDs, fans, power supplies, thermal control, and more:
 
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| [sonic-platform-common](https://github.com/sonic-net/sonic-platform-common) | 这是给厂商们提供的基础包，用来定义访问风扇，LED，电源管理，温控等等模块的接口定义，这些接口都是用python来实现的 |
-| [sonic-platform-daemons](https://github.com/sonic-net/sonic-platform-daemons) | 这里包含了SONiC中pmon容器中运行的各种监控服务：`chassisd`，`ledd`，`pcied`，`psud`，`syseepromd`，`thermalctld`，`xcvrd`，`ycabled`，它们都使用python实现，通过和中心数据库Redis进行连接，和加载并调用各个厂商提供的接口实现来对各个模块进行监控和控制 |
+| [sonic-platform-common](https://github.com/sonic-net/sonic-platform-common) | A base package provided to manufacturers, defining interfaces for accessing fans, LEDs, power management, thermal control, and other modules, all implemented in Python |
+| [sonic-platform-daemons](https://github.com/sonic-net/sonic-platform-daemons) | Contains various monitoring services running in the pmon container in SONiC, such as `chassisd`, `ledd`, `pcied`, `psud`, `syseepromd`, `thermalctld`, `xcvrd`, `ycabled`. All these services are implemented in Python, and used for monitoring and controlling the platform modules, by calling the interface implementations provided by manufacturers.  |
 
-### 其他功能实现仓库
+### Other Feature Repositories
 
-除了上面这些仓库以外，SONiC还有很多实现其方方面面功能的仓库，有些是一个或多个进程，有些是一些库，它们的作用如下表所示：
+In addition to the repositories above, SONiC has many repositories implementing various functionalities. They can be services or libraries described in the table below:
 
-| 仓库 | 介绍 |
+| Repository | Description |
 | --- | --- |
-| [sonic-snmpagent](https://github.com/sonic-net/sonic-snmpagent) | [AgentX](https://www.ietf.org/rfc/rfc2741.txt) SNMP subagent的实现（`sonic_ax_impl`），用于连接Redis数据库，给snmpd提供所需要的各种信息，可以把它理解成snmpd的控制面，而snmpd是数据面，用于响应外部SNMP的请求 |
-| [sonic-frr](https://github.com/sonic-net/sonic-frr) | FRRouting，各种路由协议的实现，所以这个仓库中我们可以找到如`bgpd`，`zebra`这类的路由相关的进程实现 |
-| [sonic-linkmgrd](https://github.com/sonic-net/sonic-linkmgrd) | Dual ToR support，检查Link的状态，并且控制ToR的连接 |
+| [sonic-frr](https://github.com/sonic-net/sonic-frr) | FRRouting, implementing various routing protocols, so in this repository, we can find implementations of routing-related processes like `bgpd`, `zebra`, etc. |
+| [sonic-snmpagent](https://github.com/sonic-net/sonic-snmpagent) | Implementation of [AgentX](https://www.ietf.org/rfc/rfc2741.txt) SNMP subagent (`sonic_ax_impl`), used to connect to the Redis database and provide various information needed by snmpd. It can be understood as the control plane of snmpd, while snmpd is the data plane, responding to external SNMP requests |
+| [sonic-linkmgrd](https://github.com/sonic-net/sonic-linkmgrd) | Dual ToR support, checking the status of links and controlling ToR connections |
 | [sonic-dhcp-relay](https://github.com/sonic-net/sonic-dhcp-relay) | DHCP relay agent |
-| [sonic-dhcpmon](https://github.com/sonic-net/sonic-dhcpmon) | 监控DHCP的状态，并报告给中心数据库Redis |
-| [sonic-dbsyncd](https://github.com/sonic-net/sonic-dbsyncd) | `lldp_syncd`服务，但是repo的名字没取好，叫做dbsyncd |
-| [sonic-pins](https://github.com/sonic-net/sonic-pins) | Google开发的基于P4的网络栈支持（P4 Integrated Network Stack，PINS），更多信息可以参看[PINS的官网][SONiCPINS]。 |
-| [sonic-stp](https://github.com/sonic-net/sonic-stp) | STP（Spanning Tree Protocol）的支持 |
+| [sonic-dhcpmon](https://github.com/sonic-net/sonic-dhcpmon) | Monitors the status of DHCP and reports to the central Redis database |
+| [sonic-dbsyncd](https://github.com/sonic-net/sonic-dbsyncd) | `lldp_syncd` service, but the repository name is not well-chosen, called dbsyncd |
+| [sonic-pins](https://github.com/sonic-net/sonic-pins) | Google's P4-based network stack support (P4 Integrated Network Stack, PINS). More information can be found on the [PINS website][SONiCPINS] |
+| [sonic-stp](https://github.com/sonic-net/sonic-stp) | STP (Spanning Tree Protocol) support |
 | [sonic-ztp](https://github.com/sonic-net/sonic-ztp) | [Zero Touch Provisioning][SONiCZTP] |
 | [DASH](https://github.com/sonic-net/DASH) | [Disaggregated API for SONiC Hosts][SONiCDASH] |
-| [sonic-host-services](https://github.com/sonic-net/sonic-host-services) | 运行在host上通过dbus用来为容器中的服务提供支持的服务，比如保存和重新加载配置，保存dump之类的非常有限的功能，类似一个host broker |
-| [sonic-fips](https://github.com/sonic-net/sonic-fips) | FIPS（Federal Information Processing Standards）的支持，里面有很多为了支持FIPS标准而加入的各种补丁文件 |
-| [sonic-wpa-supplicant](https://github.com/sonic-net/sonic-wpa-supplicant) | 各种无线网络协议的支持 |
+| [sonic-host-services](https://github.com/sonic-net/sonic-host-services) | Services running on the host, providing support to services in containers via dbus, such as saving and reloading configurations, saving dumps, etc., similar to a host broker |
+| [sonic-fips](https://github.com/sonic-net/sonic-fips) | FIPS (Federal Information Processing Standards) support, containing various patch files added to support FIPS standards |
+| [sonic-wpa-supplicant](https://github.com/sonic-net/sonic-wpa-supplicant) | Support for various wireless network protocols |
 
-## 工具仓库：sonic-utilities
+## Tooling Repository: `sonic-utilities`
 
 <https://github.com/sonic-net/sonic-utilities>
 
-这个仓库存放着SONiC所有的命令行下的工具：
+This repository contains all the command-line tools for SONiC:
 
-- `config`，`show`，`clear`目录：这是三个SONiC CLI的主命令的实现。需要注意的是，具体的命令实现并不一定在这几个目录里面，大量的命令是通过调用其他命令来实现的，这几个命令只是提供了一个入口。
-- `scripts`，`sfputil`，`psuutil`，`pcieutil`，`fwutil`，`ssdutil`，`acl_loader`目录：这些目录下提供了大量的工具命令，但是它们大多并不是直接给用户使用的，而是被`config`，`show`和`clear`目录下的命令调用的，比如：`show platform fan`命令，就是通过调用`scripts`目录下的`fanshow`命令来实现的。
-- `utilities_common`，`flow_counter_util`，`syslog_util`目录：这些目录和上面类似，但是提供的是基础类，可以直接在python中import调用。
-- 另外还有很多其他的命令：`fdbutil`，`pddf_fanutil`，`pddf_ledutil`，`pddf_psuutil`，`pddf_thermalutil`，等等，用于查看和控制各个模块的状态。
-- `connect`和`consutil`目录：这两个目录下的命令是用来连接到其他SONiC设备并对其进行管理的。
-- `crm`目录：用来配置和查看SONiC中的[CRM（Critical Resource Monitoring）][SONiCCRM]。这个命令并没有被包含在`config`和`show`命令中，所以用户可以直接使用。
-- `pfc`目录：用来配置和查看SONiC中的[PFC（Priority-based Flow Control）][SONiCPFC]。
-- `pfcwd`目录：用来配置和查看SONiC中的[PFC Watch Dog][SONiCPFCWD]，比如启动，停止，修改polling interval之类的操作。
+- `config`, `show`, `clear` directories: These are the implementations of the three main SONiC CLI commands. Note that the specific command implementations may not necessarily be in these directories; many commands are implemented by calling other commands, with these directories providing an entry point.
+- `scripts`, `sfputil`, `psuutil`, `pcieutil`, `fwutil`, `ssdutil`, `acl_loader` directories: These directories provide many tool commands, but most are not directly used by users; instead, they are called by commands in the `config`, `show`, and `clear` directories. For example, the `show platform fan` command is implemented by calling the `fanshow` command in the `scripts` directory.
+- `utilities_common`, `flow_counter_util`, `syslog_util` directories: Similar to the above, but they provide base classes that can be directly imported and called in Python.
+- There are also many other commands: `fdbutil`, `pddf_fanutil`, `pddf_ledutil`, `pddf_psuutil`, `pddf_thermalutil`, etc., used to view and control the status of various modules.
+- `connect` and `consutil` directories: Commands in these directories are used to connect to and manage other SONiC devices.
+- `crm` directory: Used to configure and view [CRM (Critical Resource Monitoring)][SONiCCRM] in SONiC. This command is not included in the `config` and `show` commands, so users can use it directly.
+- `pfc` directory: Used to configure and view PFC (Priority-based Flow Control) in SONiC.
+- `pfcwd` directory: Used to configure and view [PFC Watch Dog][SONiCPFCWD] in SONiC, such as starting, stopping, modifying polling intervals, and more.
 
-## 内核补丁：sonic-linux-kernel
+## Kernel Patches: sonic-linux-kernel
 
 <https://github.com/sonic-net/sonic-linux-kernel>
 
-虽然SONiC是基于debian的，但是默认的debian内核却不一定能运行SONiC，比如某个模块默认没有启动，或者某些老版本的驱动有问题，所以SONiC需要或多或少有一些修改的Linux内核。而这个仓库就是用来存放所有的内核补丁的。
+Although SONiC is based on Debian, the default Debian kernel may not necessarily run SONiC, such as certain modules not being enabled by default or issues with older drivers. Therefore, SONiC requires some modifications to the Linux kernel. This repository is used to store all the kernel patches.
 
-# 参考资料
+# References
 
 1. [SONiC Architecture][SONiCArch]
 2. [SONiC Source Repositories][SONiCRepo]
@@ -140,6 +142,7 @@ SONiC的代码都托管在[GitHub的sonic-net账号][SONiCGitHub]上，仓库数
 8. [SONiC P4 Integrated Network Stack][SONiCPINS]
 9. [SONiC Disaggregated API for Switch Hosts][SONiCDash]
 10. [SAI spec for OCP][SAISpec]
+11. [PFC Watchdog][SONiCPFCWD]
 
 [SONiCIntro]: /posts/sonic-1-intro/
 [SONiCArch]: https://github.com/sonic-net/SONiC/wiki/Architecture
@@ -153,3 +156,4 @@ SONiC的代码都托管在[GitHub的sonic-net账号][SONiCGitHub]上，仓库数
 [SONiCZTP]: https://github.com/sonic-net/SONiC/blob/master/doc/ztp/ztp.md
 [SONiCDASH]: https://github.com/sonic-net/DASH/blob/main/documentation/general/dash-high-level-design.md
 [SAISpec]: https://www.opencompute.org/documents/switch-abstraction-interface-ocp-specification-v0-2-pdf
+[SONiCPFCWD]: https://github.com/sonic-net/SONiC/wiki/PFC-Watchdog
