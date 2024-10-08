@@ -1,4 +1,4 @@
-# Build Environment
+# Build
 
 To ensure that we can successfully build SONiC on any platform as well, SONiC leverages docker to build its build environment. It installs all tools and dependencies in a docker container of the corresponding Debian version, mounts its code into the container, and then start the build process inside the container. This way, we can easily build SONiC on any platform without worrying about dependency mismatches. For example, some packages in Debian have higher versions than in Ubuntu, which might cause unexpected errors during build time or runtime.
 
@@ -127,6 +127,16 @@ make SONIC_BUILD_JOBS=4 all
 For daily development, we can also add SONIC_BUILD_JOBS and other variables above to `~/.bashrc`:
 
         export SONIC_BUILD_JOBS=<number of cores>
+```
+
+### Build Debug Image
+
+To improve the debug experience, SONiC also supports building debug image. During build, SONiC will make sure the symbols are kept and debug tools are installed inside all the containers, such as gdb. This will help us debug the code more easily.
+
+To build the debug image, we can use `INSTALL_DEBUG_TOOLS` build option:
+
+```bash
+INSTALL_DEBUG_TOOLS=y make all
 ```
 
 ### Build Specific Package
