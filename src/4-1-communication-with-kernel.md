@@ -1,1 +1,1 @@
-# 与内核的通信
+# Communication with Kernel
