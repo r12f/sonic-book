@@ -1,6 +1,8 @@
-# BGP命令实现
+# BGP Commands
 
-由于BGP是使用FRR来实现的，所以自然而然的，`show`命令会将直接请求转发给FRR的`vtysh`，核心代码如下：
+## `show` Command
+
+Since BGP is implemented using FRR, naturally, the `show` command will forward the direct request to FRR's `vtysh`. The key code is as follows:
 
 ```python
 # file: src/sonic-utilities/show/bgp_frr_v4.py
@@ -14,7 +16,7 @@ def summary(namespace, display):
 
 # file: src/sonic-utilities/utilities_common/bgp_util.py
 def get_bgp_summary_from_all_bgp_instances(af, namespace, display):
-    # IPv6 case is omitted here for simplicity
+    # The IPv6 case is omitted here for simplicity
     vtysh_cmd = "show ip bgp summary json"
     
     for ns in device.get_ns_list_based_on_options():
@@ -25,7 +27,7 @@ def run_bgp_command(vtysh_cmd, bgp_namespace=multi_asic.DEFAULT_NAMESPACE, vtysh
     output, ret = clicommon.run_command(cmd, return_cmd=True)
 ```
 
-这里，我们也可以通过直接运行`vtysh`来进行验证：
+We can also verify by running `vtysh` directly:
 
 ```bash
 root@7260cx3:/etc/sonic/frr# which vtysh
@@ -54,7 +56,11 @@ Neighbor        V         AS   MsgRcvd   MsgSent   TblVer  InQ OutQ  Up/Down Sta
 Total number of neighbors 4
 ```
 
-而`config`命令则是通过直接操作CONFIG_DB来实现的，核心代码如下：
+## `config` Command
+
+Meanwhile, the `config` command directly operates on `CONFIG_DB` to achieve configuration changes. 
+
+Take remove neighbor as an example. The key code is shown as follows:
 
 ```python
 # file: src/sonic-utilities/config/main.py
@@ -67,33 +73,29 @@ def remove():
 @remove.command('neighbor')
 @click.argument('neighbor_ip_or_hostname', metavar='<neighbor_ip_or_hostname>', required=True)
 def remove_neighbor(neighbor_ip_or_hostname):
-    """Deletes BGP neighbor configuration of given hostname or ip from devices
-       User can specify either internal or external BGP neighbor to remove
-    """
+    """Removes BGP neighbor configuration (internal or external) from the device"""
     namespaces = [DEFAULT_NAMESPACE]
     removed_neighbor = False
-    ...
+    // ...existing code...
 
-    # Connect to CONFIG_DB in linux host (in case of single ASIC) or CONFIG_DB in all the
-    # namespaces (in case of multi ASIC) and do the sepcified "action" on the BGP neighbor(s)
     for namespace in namespaces:
         config_db = ConfigDBConnector(use_unix_socket_path=True, namespace=namespace)
         config_db.connect()
         if _remove_bgp_neighbor_config(config_db, neighbor_ip_or_hostname):
             removed_neighbor = True
-    ...
+    // ...existing code...
 ```
 
-# 参考资料
+# References
 
-1. [SONiC Architecture][SONiCArch]
-2. [Github repo: sonic-frr][SONiCFRR]
-3. [Github repo: sonic-utilities][SONiCUtil]
-4. [RFC 4271: A Border Gateway Protocol 4 (BGP-4)][BGP]
-5. [FRRouting][FRRouting]
+1. [SONiC Architecture][SONiCArch]  
+2. [Github repo: sonic-frr][SONiCFRR]  
+3. [Github repo: sonic-utilities][SONiCUtil]  
+4. [RFC 4271: A Border Gateway Protocol 4 (BGP-4)][BGP]  
+5. [FRRouting][FRRouting]  
 
-[SONiCArch]: https://github.com/sonic-net/SONiC/wiki/Architecture
-[SONiCFRR]: https://github.com/sonic-net/sonic-frr
-[SONiCUtil]: https://github.com/sonic-net/sonic-utilities
-[BGP]: https://datatracker.ietf.org/doc/html/rfc4271
+[SONiCArch]: https://github.com/sonic-net/SONiC/wiki/Architecture  
+[SONiCFRR]: https://github.com/sonic-net/sonic-frr  
+[SONiCUtil]: https://github.com/sonic-net/sonic-utilities  
+[BGP]: https://datatracker.ietf.org/doc/html/rfc4271  
 [FRRouting]: https://frrouting.org/

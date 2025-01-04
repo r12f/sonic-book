@@ -31,7 +31,7 @@
 - [Core Components](./5-core-components.md)
   - [Syncd and SAI](./5-1-syncd-and-sai.md)
   - [BGP](./5-2-bgp.md)
-    - [BGP Command Implementation](./5-2-1-bgp-command-impl.md)
+    - [BGP Command Implementation](./5-2-1-bgp-commands.md)
     - [BGP Route Update Workflow](./5-2-2-bgp-route-update-workflow.md)
 - [Boot Process (WIP)](./6-boot.md)
   - [Cold Boot (WIP)](./6-1-cold-boot.md)
