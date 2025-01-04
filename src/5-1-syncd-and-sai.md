@@ -1,14 +1,14 @@
-# Syncd和SAI
+# Syncd and SAI
 
-[Syncd容器](./2-3-key-containers.html#asic管理容器syncd)是SONiC中专门负责管理ASIC的容器，其中核心进程`syncd`负责与Redis数据库沟通，加载SAI并与其交互，以完成ASIC的初始化，配置和状态上报的处理等等。
+[Syncd Container](./2-3-key-containers.html#asic-management-container-syncd) is the container in SONiC dedicated to managing the ASIC. The key process `syncd` is responsible for communicating with the Redis database, loading SAI implementation, and interacting with it to handle ASIC initialization, configuration, status reporting, and so on.
 
-由于SONiC中大量的工作流最后都需要通过Syncd和SAI来和ASIC进行交互，所以这一部分也就成为了这些工作流的公共部分，所以，在展开其他工作流之前，我们先来看一下Syncd和SAI是如何工作的。
+Since many SONiC workflows ultimately need to interact with the ASIC through Syncd and SAI, this part becomes common to all those workflows. Therefore, before diving into other workflows, let's take a look at how Syncd and SAI work first.
 
-## Syncd启动流程
+## Syncd Startup Flow
 
-`syncd`进程的入口在`syncd_main.cpp`中的`syncd_main`函数，其启动的整体流程大致分为两部分。
+The entry point of the `syncd` process is the `syncd_main` function in `syncd_main.cpp`. The startup flow can be roughly divided into two parts.
 
-第一部分是创建各个对象，并进行初始化：
+The first part creates and initializes various objects:
 
 ```mermaid
 sequenceDiagram
@@ -17,55 +17,55 @@ sequenceDiagram
     participant SD as Syncd
     participant SAI as VendorSai
 
-    SDM->>+SD: 调用构造函数
-    SD->>SD: 加载和解析命令行参数和配置文件
-    SD->>SD: 创建数据库相关对象，如：<br/>ASIC_DB Connector和FlexCounterManager
-    SD->>SD: 创建MDIO IPC服务器
-    SD->>SD: 创建SAI上报处理逻辑
-    SD->>SD: 创建RedisSelectableChannel用于接收Redis通知
-    SD->>-SAI: 初始化SAI
+    SDM->>+SD: Call constructor
+    SD->>SD: Load and parse command line<br/>arguments and config files
+    SD->>SD: Create database objects, e.g.:<br/>ASIC_DB Connector and FlexCounterManager
+    SD->>SD: Create MDIO IPC server
+    SD->>SD: Create SAI event reporting logic
+    SD->>SD: Create RedisSelectableChannel<br/>to receive Redis notifications
+    SD->>-SAI: Initialize SAI
 ```
 
-第二个部分是启动主循环，并且处理初始化事件：
+The second part starts the main loop and handles initialization events:
 
 ```mermaid
 sequenceDiagram
     autonumber
-    box purple 主线程
+    box purple Main Thread
     participant SDM as syncd_main
     participant SD as Syncd
     participant SAI as VendorSai
     end
-    box darkblue 通知处理线程
+    box darkblue Notification Handler Thread
     participant NP as NotificationProcessor
     end
-    box darkgreen MDIO IPC服务器线程
+    box darkgreen MDIO IPC Server Thread
     participant MIS as MdioIpcServer
     end
 
-    SDM->>+SD: 启动主线程循环
-    SD->>NP: 启动SAI上报处理线程
-    NP->>NP: 开始通知处理循环
-    SD->>MIS: 启动MDIO IPC服务器线程
-    MIS->>MIS: 开始MDIO IPC服务器事件循环
-    SD->>SD: 初始化并启动事件分发机制，开始主循环
+    SDM->>+SD: Start main thread loop
+    SD->>NP: Start SAI event reporting thread
+    NP->>NP: Begin notification processing loop
+    SD->>MIS: Start MDIO IPC server thread
+    MIS->>MIS: Begin MDIO IPC server event loop
+    SD->>SD: Initialize and start event dispatching,<br/>then begin main loop
 
-    loop 处理事件
-        alt 如果是创建Switch的事件或者是WarmBoot
-            SD->>SAI: 创建Switch对象，设置通知回调
-        else 如果是其他事件
-            SD->>SD: 处理事件
+    loop Process events
+        alt If it's the create-Switch event or WarmBoot
+            SD->>SAI: Create Switch object, set notification callbacks
+        else If it's other events
+            SD->>SD: Handle events
         end
     end
 
-    SD->>-SDM: 退出主循环返回
+    SD->>-SDM: Exit main loop and return
 ```
 
-然后我们再从代码的角度来更加仔细的看一下这个流程。
+Now, let's dive into the code to see how Syncd and SAI are implemented.
 
-### syncd_main函数
+### The syncd_main Function
 
-`syncd_main`函数本身非常简单，主要逻辑就是创建Syncd对象，然后调用其`run`方法：
+The `syncd_main` function itself is straightforward: it creates a `Syncd` object and then calls its `run` method:
 
 ```cpp
 // File: src/sonic-sairedis/syncd/syncd_main.cpp
@@ -78,11 +78,11 @@ int syncd_main(int argc, char **argv)
 }
 ```
 
-其中，`Syncd`对象的构造函数负责初始化`Syncd`中的各个功能，而`run`方法则负责启动Syncd的主循环。
+The Syncd constructor initializes each feature in Syncd, while the run method starts the Syncd main loop.
 
-### Syncd构造函数
+### The Syncd Constructor
 
-`Syncd`对象的构造函数负责创建或初始化`Syncd`中的各个功能，比如用于连接数据库的对象，统计管理，和ASIC通知的处理逻辑等等，其主要代码如下：
+The `Syncd` constructor creates or initializes the key components in `Syncd`, such as database connection objects, statistics management, and ASIC notification handler. The key code looks like below:
 
 ```cpp
 // File: src/sonic-sairedis/syncd/Syncd.cpp
@@ -126,11 +126,11 @@ Syncd::Syncd(
 }
 ```
 
-### SAI的初始化与VendorSai
+### SAI Initialization and VendorSai
 
-`Syncd`初始化的最后也是最重要的一步，就是对SAI进行初始化。[在核心组件的SAI介绍中，我们简单的展示了SAI的初始化，实现，以及它是如何为SONiC提供不同平台的支持](./2-4-sai-intro.html)，所以这里我们主要来看看`Syncd`是如何对SAI进行封装和调用的。
+The last and most important step in `Syncd` initialization is to initialize SAI. [In the core component introduction to SAI](./2-4-sai-intro.html), we briefly described how SAI is initialized and implemented, and how it provides support for different platforms in SONiC. And here, we will focus more on how Syncd wraps SAI and uses it.
 
-`Syncd`使用`VendorSai`来对SAI的所有API进行封装，方便上层调用。其初始化过程也非常直接，基本就是对上面两个函数的直接调用和错误处理，如下：
+`Syncd` uses `VendorSai` to wrap all SAI APIs to simplify upper-level calls. The initialization looks like below, essentially just calling the sai initialize and api query functions, and handling errors:
 
 ```cpp
 // File: src/sonic-sairedis/syncd/VendorSai.cpp
@@ -158,70 +158,72 @@ sai_status_t VendorSai::initialize(
 }
 ```
 
-当获取好所有的SAI API之后，我们就可以通过`VendorSai`对象来调用SAI的API了。当前调用SAI的API方式主要有两种。
+Once all the SAI APIs have been acquired, we can call into the SAI implementation using the `VendorSai` object.
 
-第一种是通过`sai_object_type_into_t`来调用，它类似于为所有的SAI Object实现了一个虚表，如下：
+Currently, `VendorSai` internally has two different ways to call the SAI APIs:
 
-```cpp
-// File: src/sonic-sairedis/syncd/VendorSai.cpp
-sai_status_t VendorSai::set(
-        _In_ sai_object_type_t objectType,
-        _In_ sai_object_id_t objectId,
-        _In_ const sai_attribute_t *attr)
-{
-    ...
+1. Using `sai_object_type_info_t` from SAI metadata, which essentially acts like a virtual table for all SAI Objects:
 
-    auto info = sai_metadata_get_object_type_info(objectType);
-    sai_object_meta_key_t mk = { .objecttype = objectType, .objectkey = { .key = { .object_id = objectId } } };
-    return info->set(&mk, attr);
-}
-```
+   ```cpp
+   // File: src/sonic-sairedis/syncd/VendorSai.cpp
+   sai_status_t VendorSai::set(
+           _In_ sai_object_type_t objectType,
+           _In_ sai_object_id_t objectId,
+           _In_ const sai_attribute_t *attr)
+   {
+       ...
+   
+       auto info = sai_metadata_get_object_type_info(objectType);
+       sai_object_meta_key_t mk = { .objecttype = objectType, .objectkey = { .key = { .object_id = objectId } } };
+       return info->set(&mk, attr);
+   }
+   ```
 
-另外一种是通过保存在`VendorSai`对象中的`m_apis`来调用，这种方式更加直接，但是调用前需要先根据SAI Object的类型来调用不同的API。
+2. Using `m_apis` stored in the `VendorSai` object. This approach needs us to check the object type and then call the corresponding APIs, so the code becomes more verbose:
 
-```cpp
-sai_status_t VendorSai::getStatsExt(
-        _In_ sai_object_type_t object_type,
-        _In_ sai_object_id_t object_id,
-        _In_ uint32_t number_of_counters,
-        _In_ const sai_stat_id_t *counter_ids,
-        _In_ sai_stats_mode_t mode,
-        _Out_ uint64_t *counters)
-{
-    sai_status_t (*ptr)(
-            _In_ sai_object_id_t port_id,
-            _In_ uint32_t number_of_counters,
-            _In_ const sai_stat_id_t *counter_ids,
-            _In_ sai_stats_mode_t mode,
-            _Out_ uint64_t *counters);
+   ```cpp
+   sai_status_t VendorSai::getStatsExt(
+           _In_ sai_object_type_t object_type,
+           _In_ sai_object_id_t object_id,
+           _In_ uint32_t number_of_counters,
+           _In_ const sai_stat_id_t *counter_ids,
+           _In_ sai_stats_mode_t mode,
+           _Out_ uint64_t *counters)
+   {
+       sai_status_t (*ptr)(
+               _In_ sai_object_id_t port_id,
+               _In_ uint32_t number_of_counters,
+               _In_ const sai_stat_id_t *counter_ids,
+               _In_ sai_stats_mode_t mode,
+               _Out_ uint64_t *counters);
+   
+       switch ((int)object_type)
+       {
+           case SAI_OBJECT_TYPE_PORT:
+               ptr = m_apis.port_api->get_port_stats_ext;
+               break;
+           case SAI_OBJECT_TYPE_ROUTER_INTERFACE:
+               ptr = m_apis.router_interface_api->get_router_interface_stats_ext;
+               break;
+           case SAI_OBJECT_TYPE_POLICER:
+               ptr = m_apis.policer_api->get_policer_stats_ext;
+               break;
+           ...
+   
+           default:
+               SWSS_LOG_ERROR("not implemented, FIXME");
+               return SAI_STATUS_FAILURE;
+       }
+   
+       return ptr(object_id, number_of_counters, counter_ids, mode, counters);
+   }
+   ```
 
-    switch ((int)object_type)
-    {
-        case SAI_OBJECT_TYPE_PORT:
-            ptr = m_apis.port_api->get_port_stats_ext;
-            break;
-        case SAI_OBJECT_TYPE_ROUTER_INTERFACE:
-            ptr = m_apis.router_interface_api->get_router_interface_stats_ext;
-            break;
-        case SAI_OBJECT_TYPE_POLICER:
-            ptr = m_apis.policer_api->get_policer_stats_ext;
-            break;
-        ...
+The first approach is more succinct.
 
-        default:
-            SWSS_LOG_ERROR("not implemented, FIXME");
-            return SAI_STATUS_FAILURE;
-    }
+### Main Event Loop
 
-    return ptr(object_id, number_of_counters, counter_ids, mode, counters);
-}
-```
-
-可以明显看出，第一种调用方式代码要精炼和直观许多。
-
-### Syncd主循环
-
-`Syncd`的主循环也是使用的SONiC中标准的[事件分发](./4-3-event-polling-and-error-handling.html)机制：在启动时，`Syncd`会将所有用于事件处理的`Selectable`对象注册到用于获取事件的`Select`对象中，然后在主循环中调用`Select`的`select`方法，等待事件的发生。核心代码如下：
+`Syncd`'s main event loop follows SONiC's standard [event dispatching](./4-5-event-polling-and-error-handling.html) pattern. On startup, Syncd registers all Selectable objects handling events with a Select object that waits for events. The main loop calls "select" to wait for events:
 
 ```c
 // File: src/sonic-sairedis/syncd/Syncd.cpp
@@ -269,7 +271,7 @@ void Syncd::run()
 }
 ```
 
-其中，`m_selectableChannel`就是主要负责处理Redis数据库中的事件的对象。它使用[ProducerTable / ConsumerTable](./4-2-2-redis-messaging-layer.md#producertable--consumertable)的方式与Redis数据库进行交互，所以，所有`orchagent`发送过来的操作都会以三元组的形式保存在Redis中的list中，等待`Syncd`的处理。其核心定义如下：
+Here, `m_selectableChannel` handles Redis database events. It interacts with Redis [ProducerTable / ConsumerTable](./4-2-4-producer-consumer-table.html). Hence, all operations from `orchagent` will be stored in Redis lists, waiting for `Syncd` to consume.
 
 ```cpp
 // File: src/sonic-sairedis/meta/RedisSelectableChannel.h
@@ -300,18 +302,18 @@ class RedisSelectableChannel: public SelectableChannel
 };
 ```
 
-另外，在主循环启动时，`Syncd`还会额外启动两个线程：
+During the main loop startup, `Syncd` also launches two threads:  
 
-- 用于接收ASIC上报通知的通知处理线程：`m_processor->startNotificationsProcessingThread();`
-- 用于处理MDIO通信的MDIO IPC处理线程：`m_mdioIpcServer->startMdioThread();`
+- A notification processing thread for receiving ASIC-reported notifications: `m_processor->startNotificationsProcessingThread()`  
+- A thread for handling MDIO communication: `m_mdioIpcServer->startMdioThread()`  
 
-它们的细节我们在初始化的部分不做过多展开，等后面介绍相关工作流时再来详细介绍。
+We'll discuss their details more thoroughly when introducing related workflows.
 
-### 创建Switch对象，初始化通知机制
+### Initialize SAI Switch and Notifications
 
-在主循环启动后，`Syncd`就会开始调用SAI的API来创建Switch对象，这里的入口有两个，一个是ASIC_DB收到创建Switch的通知，另外一个是Warm Boot时，`Syncd`来主动调用，但是创建Switch这一步的内部流程都类似。
+Once the main event loop is started, `Syncd` will call into SAI to create the Switch object. There are two main entry points: either a create switch request from ASIC_DB (called by swss) or `Syncd` directlly calls it for the Warm Boot process. Either way, the internal flow is similar.
 
-在这一步中间，有一个很重要的步骤，就是初始化SAI内部实现中的通知回调，将我们之前已经创建好的通知处理逻辑传递给SAI的实现，比如FDB的事件等等。这些回调函数会被当做Switch的属性（Attributes）通过参数的形式传给SAI的`create_switch`方法，SAI的实现会将其保存起来，这样就可以在事件发生时调用回调函数，来通知`Syncd`了。这里的核心代码如下：
+A crucial step here is initializing the notification callbacks in the SAI implementation, such as FDB events. These callback functions are passed to SAI as Switch attributes in `create_switch`. The SAI implementation stores them so it can call back into `Syncd` whenever these events occur:
 
 ```cpp
 // File: src/sonic-sairedis/syncd/Syncd.cpp
@@ -387,7 +389,7 @@ void Syncd::onSwitchCreateInInitViewMode(_In_ sai_object_id_t switchVid, _In_ ui
 }
 ```
 
-从Mellanox的SAI实现，我们可以看到其具体的保存的方法：
+From the open-sourced Mellanox's implementation, we can see how the SAI switch is created and the notification callbacks are set:
 
 ```cpp
 // File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_switch.c
@@ -426,11 +428,11 @@ static sai_status_t mlnx_create_switch(_Out_ sai_object_id_t     * switch_id,
 }
 ```
 
-## ASIC状态更新
+## ASIC Programming Workflow
 
-ASIC状态更新是`Syncd`中最重要的工作流之一，当`orchagent`发现任何变化并开始修改ASIC_DB时，就会触发该工作流，通过SAI来对ASIC进行更新。在了解了`Syncd`的主循环之后，理解ASIC状态更新的工作流就很简单了。
+ASIC programming workflow is the most important workflow in `Syncd`. When `orchagent` discovers any configuration changes, it sends ASIC programming request via `ASIC_DB`, which triggers this workflow and uses SAI to update the ASIC. After understanding Syncd's main event loop and the communication channels, the workflow will become easier to follow.
 
-所有的步骤都发生在主线程一个线程中，顺序执行，总结成时序图如下：
+All steps happen sequentially on the main thread:
 
 ```mermaid
 sequenceDiagram
@@ -440,25 +442,25 @@ sequenceDiagram
     participant SAI as VendorSai
     participant R as Redis
 
-    loop 主线程循环
-        SD->>RSC: 收到epoll通知，通知获取所有到来的消息
-        RSC->>R: 通过ConsumerTable获取所有到来的消息
+    loop Main thread loop
+        SD->>RSC: epoll notifies arrival of new messages
+        RSC->>R: Fetch all new messages from ConsumerTable
 
-        critical 给Syncd加锁
-            loop 所有收到的消息
-                SD->>RSC: 获取一个消息
-                SD->>SD: 解析消息，获取操作类型和操作对象
-                SD->>SAI: 调用对应的SAI API，更新ASIC
-                SD->>RSC: 发送调用结果给Redis
-                RSC->>R: 将调用结果写入Redis
+        critical Lock Syncd
+            loop For each message
+                SD->>RSC: Get the message
+                SD->>SD: Parse message, get operation type and object
+                SD->>SAI: Call the corresponding SAI API to update the ASIC
+                SD->>RSC: Send the operation result to Redis
+                RSC->>R: Write the result into Redis
             end
         end
     end
 ```
 
-首先，`orchagent`通过Redis发送过来的操作会被`RedisSelectableChannel`对象接收，然后在主循环中被处理。当`Syncd`处理到`m_selectableChannel`时，就会调用`processEvent`方法来处理该操作。这几步的核心代码我们上面介绍主循环时已经介绍过了，这里就不再赘述。
+First, `orchagent` sends operations through Redis, which will be received by the `RedisSelectableChannel.` When the main event loop processes `m_selectableChannel`, it calls `processEvent` to process it, just like what we have discussed in the main event loop section.
 
-然后，`processEvent`会根据其中的操作类型，调用对应的SAI的API来对ASIC进行更新。其逻辑是一个巨大的switch-case语句，如下：
+Then, `processEvent` calls the relevant SAI API to update the ASIC. The logic is a giant switch-case statement that dispatches the operations:
 
 ```cpp
 // File: src/sonic-sairedis/syncd/Syncd.cpp
@@ -547,42 +549,44 @@ sai_status_t Syncd::processEntry(_In_ sai_object_meta_key_t metaKey, _In_ sai_co
 }
 ```
 
-## ASIC状态变更上报
+## ASIC State Change Notification Workflow
 
-反过来，当ASIC状态发生任何变化，或者需要上报数据，它也会通过SAI来通知我们，此时Syncd会监听这些通知，然后通过ASIC_DB上报给orchagent。其主要工作流如下：
+On the other hand, when the ASIC state is changed or needs to report certain status, it notifies us through SAI. `Syncd` listens for these notifications, then reports them back to `orchagent` through our communication channel on top of `ASIC_DB`.
+
+The workflow shows as below:
 
 ```mermaid
 sequenceDiagram
-    box purple SAI实现事件处理线程
+    box purple SAI Implementation Event Thread
     participant SAI as SAI Impl
     end
-    box darkblue 通知处理线程
+    box darkblue Notification Processing Thread
     participant NP as NotificationProcessor
     participant SD as Syncd
     participant RNP as RedisNotificationProducer
     participant R as Redis
     end
 
-    loop SAI实现事件处理消息循环
-        SAI->>SAI: 通过ASIC SDK获取事件
-        SAI->>SAI: 解析事件，并转换成SAI通知对象
-        SAI->>NP: 将通知对象序列化，<br/>并发送给通知处理线程的队列中
+    loop SAI Implementation Event Loop
+        SAI->>SAI: Get events from ASIC SDK
+        SAI->>SAI: Parse events, convert to SAI notifications
+        SAI->>NP: Serialize notifications<br/>and add to the notification thread queue
     end
 
-    loop 通知处理线程消息循环
-        NP->>NP: 从队列中获取通知
-        NP->>SD: 获取Syncd锁
-        critical 给Syncd加锁
-            NP->>NP: 反序列化通知对象，并做一些处理
-            NP->>RNP: 重新序列化通知对象，并请求发送
-            RNP->>R: 将通知以NotificationProducer<br/>的形式写入ASIC_DB
+    loop Notification Thread Loop
+        NP->>NP: Fetch notification from queue
+        NP->>SD: Acquire Syncd lock
+        critical Lock Syncd
+            NP->>NP: Deserialize notification, handle it
+            NP->>RNP: Re-serialize notification and send to Redis
+            RNP->>R: Write the notification to ASIC_DB via NotificationProducer
         end
     end
 ```
 
-这里我们也来看一下具体的实现。为了更加深入的理解，我们还是借助开源的Mellanox的SAI实现来进行分析。
+Here, let's look into a real implementation. For better understanding, we still use Mellanox's open-sourced SAI implementation as an example.
 
-最开始，SAI的实现需要接受到ASIC的通知，这一步是通过ASIC的SDK来实现的，Mellanox的SAI会创建一个事件处理线程（event_thread），然后使用`select`函数来获取并处理ASIC发送过来的通知，核心代码如下：
+First of all, SAI implementation needs to be able to receive notification from ASIC. This is done by calling into the ASIC SDK. In Mellanox's SAI, it sets up an event thread to hook into ASIC, then use `select` to handle the events from ASIC SDK:
 
 ```cpp
 // File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_switch.c
@@ -688,7 +692,11 @@ out:
 }
 ```
 
-接下来，我们用FDB事件来举例，当ASIC收到FDB事件，就会被上面的事件处理循环获取到，并调用`g_notification_callbacks.on_fdb_event`函数来处理。这个函数接下来就会调用到`Syncd`初始化时设置好的`NotificationHandler::onFdbEvent`函数，这个函数会将该事件序列化后，通过消息队列转发给通知处理线程来进行处理：
+Using FDB event as an example:
+
+1. When ASIC sends the FDB events, it will be received by the event loop above. 
+2. The callback `g_notification_callbacks.on_fdb_event` stored in SAI implementation will be called to handle this event.
+3. It then calls `NotificationHandler::onFdbEvent` in Syncd to serialize the event and put it into the notification queue:
 
 ```cpp
 // File: src/sonic-sairedis/syncd/NotificationHandler.cpp
@@ -699,7 +707,7 @@ void NotificationHandler::onFdbEvent(_In_ uint32_t count, _In_ const sai_fdb_eve
 }
 ```
 
-而此时通知处理线程会被唤醒，从消息队列中取出该事件，然后通过`Syncd`获取到`Syncd`的锁，再开始处理该通知：
+Then the notification thread is signaled to pick up this event from the queue, then process it under the syncd lock:
 
 ```cpp
 // File: src/sonic-sairedis/syncd/NotificationProcessor.cpp
@@ -729,7 +737,7 @@ void Syncd::syncProcessNotification(_In_ const swss::KeyOpFieldsValuesTuple& ite
 }
 ```
 
-接下来就是事件的分发和处理了，`syncProcessNotification`函数是一系列的`if-else`语句，根据事件的类型，调用不同的处理函数来处理该事件：
+Now, it goes into the event dispatching and handling logic. `syncProcessNotification` function is essentially a series of `if-else` statements, which calls the corresponding handling function based on the event type:
 
 ```cpp
 // File: src/sonic-sairedis/syncd/NotificationProcessor.cpp
@@ -749,7 +757,7 @@ void NotificationProcessor::syncProcessNotification( _In_ const swss::KeyOpField
 }
 ```
 
-而每个事件处理函数都类似，他们会对发送过来的事件进行反序列化，然后调用真正的处理逻辑发送通知，比如，fdb事件对应的`handle_fdb_event`函数和`process_on_fdb_event`：
+For each event, the handling function deserializes the event and processes it, such as `handle_fdb_event` and `process_on_fdb_event`:
 
 ```cpp
 // File: src/sonic-sairedis/syncd/NotificationProcessor.cpp
@@ -783,7 +791,7 @@ void NotificationProcessor::process_on_fdb_event( _In_ uint32_t count, _In_ sai_
 }
 ```
 
-具体发送事件的逻辑就非常直接了，最终就是通过[NotificationProducer](./4-2-2-redis-messaging-layer.html#notificationproducer--notificationconsumer)来发送通知到ASIC_DB中：
+Finally, it's written to ASIC_DB via [NotificationProducer](./4-2-3-notification-producer-consumer.md) to notify `orchagent`:
 
 ```cpp
 // File: src/sonic-sairedis/syncd/NotificationProcessor.cpp
@@ -809,9 +817,9 @@ void RedisNotificationProducer::send(_In_ const std::string& op, _In_ const std:
 }
 ```
 
-到此，`Syncd`中的通知上报的流程就结束了。
+That's it! This is basically how things work in high level in `Syncd`!
 
-# 参考资料
+# References
 
 1. [SONiC Architecture][SONiCArch]
 2. [Github repo: sonic-sairedis][SONiCSAIRedis]
