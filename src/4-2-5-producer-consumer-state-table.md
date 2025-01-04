@@ -1,17 +1,28 @@
 # ProducerStateTable / ConsumerStateTable
 
-Although Producer/ConsumerTable is straightforward and maintains order, each message can only handle one Key and requires JSON serialization. Often we don’t need strict ordering but need higher throughput. To optimize performance, SONiC introduces the fourth, and most frequently used, communication method: [ProducerStateTable](https://github.com/sonic-net/sonic-swss-common/blob/master/common/producerstatetable.h) and [ConsumerStateTable](https://github.com/sonic-net/sonic-swss-common/blob/master/common/consumerstatetable.h).
+Although `Producer/ConsumerTable` is straightforward and maintains the order of the messages, each message can only update one table key and requires JSON serialization. However, in many cases, we don't need strict ordering but need higher throughput. To optimize performance, SONiC introduces the fourth, and most frequently used, communication channel: [ProducerStateTable](https://github.com/sonic-net/sonic-swss-common/blob/master/common/producerstatetable.h) and [ConsumerStateTable](https://github.com/sonic-net/sonic-swss-common/blob/master/common/consumerstatetable.h).
 
-Unlike ProducerTable, ProducerStateTable uses a Hash to store messages instead of a List. This does not guarantee the order of messages but significantly boosts performance. First, JSON serialization overhead is saved. Second, if the same Field under the same Key is changed multiple times, only the latest change is preserved, merging all changes related to that Key into a single message and reducing unnecessary handling.
+## Overview
 
-Producer/ConsumerStateTable is more complex under the hood than Producer/ConsumerTable. Its associated classes are shown in the diagram below, where `m_shaSet` and `m_shaDel` store the scripts for modifying and sending messages, while `m_shaPop` is used to retrieve messages:
+Unlike `ProducerTable`, `ProducerStateTable` uses a Hash to store messages instead of a List. This means the order of messages will not be guranteed, but it can significantly boosts performance:
+
+- First, no more JSON serialization, hence its overhead is gone.
+- Second, batch processing:
+  - Multiple table updates can be merged into one (single pending update key set per table). 
+  - If the same Field under the same Key is changed multiple times, only the latest change is preserved, merging all changes related to that Key into a single message and reducing unnecessary handling.
+
+`Producer/ConsumerStateTable` is more complex under the hood than `Producer/ConsumerTable`. The related classes are shown in the diagram below, where `m_shaSet` and `m_shaDel` store the Lua scripts for modifying and sending messages, while `m_shaPop` is used to retrieve messages:
 
 ![](assets/chapter-4/producer-consumer-state-table.png)
 
-When transmitting messages:
+## Sending messages
 
-1. Each message is stored in two parts: KEY_SET, which keeps track of which Keys have been modified (stored as a Set at `<table-name_KEY_SET>`), and a Hash for each modified Key (stored at `_<redis-key-name>`).  
-2. After storing a message, if the Producer sees it’s a new Key, it calls `PUBLISH` to notify `<table-name>_CHANNEL@<db-id>` that a new Key has appeared.
+When sending messages:
+
+1. Each message is stored in two parts:
+   1. KEY_SET: keeps track of which Keys have been modified (stored as a Set at `<table-name_KEY_SET>`)
+   2. A series of Hash: One Hash for each modified Key (stored at `_<redis-key-name>`).  
+2. After storing a message, if the Producer finds out it's a new Key, it calls `PUBLISH` to notify `<table-name>_CHANNEL@<db-id>` that a new Key has appeared.
 
    ```cpp
    // File: sonic-swss-common - common/producerstatetable.cpp
@@ -33,75 +44,81 @@ When transmitting messages:
    }
    ```
 
-3. Finally, the Consumer uses `SUBSCRIBE` to listen on `<table-name>_CHANNEL@<db-id>`. Once a new message arrives, it calls a Lua script to run `HGETALL`, fetch all Keys, and write them into the database.
+## Receiving messages
 
-   ```cpp
-   ConsumerStateTable::ConsumerStateTable(DBConnector *db, const std::string &tableName, int popBatchSize, int pri)
-       : ConsumerTableBase(db, tableName, popBatchSize, pri)
-       , TableName_KeySet(tableName)
-   {
-       std::string luaScript = loadLuaScript("consumer_state_table_pops.lua");
-       m_shaPop = loadRedisScript(db, luaScript);
-       // ...
-   
-       subscribe(m_db, getChannelName(m_db->getDbId()));
-       // ...
-   }
-   ```
+When receiving messages:
+
+The consumer uses `SUBSCRIBE` to listen on `<table-name>_CHANNEL@<db-id>`. Once a new message arrives, it calls a Lua script to run `HGETALL`, fetch all Keys, and write them into the database.
+
+```cpp
+ConsumerStateTable::ConsumerStateTable(DBConnector *db, const std::string &tableName, int popBatchSize, int pri)
+    : ConsumerTableBase(db, tableName, popBatchSize, pri)
+    , TableName_KeySet(tableName)
+{
+    std::string luaScript = loadLuaScript("consumer_state_table_pops.lua");
+    m_shaPop = loadRedisScript(db, luaScript);
+    // ...
+
+    subscribe(m_db, getChannelName(m_db->getDbId()));
+    // ...
+}
+```
+
+## Example
 
 To illustrate, here is an example of enabling Port Ethernet0:
 
-• First, we call `config interface startup Ethernet0` from the command line to enable Ethernet0. This causes `portmgrd` to send a status update to APP_DB via ProducerStateTable, as shown below:
+1. First, we call `config interface startup Ethernet0` from the command line to enable Ethernet0. This causes `portmgrd` to send a status update to APP_DB via ProducerStateTable, as shown below:
 
-  ```redis
-  EVALSHA "<hash-of-set-lua>" "6" "PORT_TABLE_CHANNEL@0" "PORT_TABLE_KEY_SET" 
-      "_PORT_TABLE:Ethernet0" "_PORT_TABLE:Ethernet0" "_PORT_TABLE:Ethernet0" "_PORT_TABLE:Ethernet0" "G"
-      "Ethernet0" "alias" "Ethernet5/1" "index" "5" "lanes" "9,10,11,12" "speed" "40000"
-  ```
+   ```redis
+   EVALSHA "<hash-of-set-lua>" "6" "PORT_TABLE_CHANNEL@0" "PORT_TABLE_KEY_SET" 
+       "_PORT_TABLE:Ethernet0" "_PORT_TABLE:Ethernet0" "_PORT_TABLE:Ethernet0" "_PORT_TABLE:Ethernet0" "G"
+       "Ethernet0" "alias" "Ethernet5/1" "index" "5" "lanes" "9,10,11,12" "speed" "40000"
+   ```
 
-  This command triggers the following creation and broadcast:
+   This command triggers the following creation and broadcast:
 
-  ```redis
-  SADD "PORT_TABLE_KEY_SET" "_PORT_TABLE:Ethernet0"
-  HSET "_PORT_TABLE:Ethernet0" "alias" "Ethernet5/1"
-  HSET "_PORT_TABLE:Ethernet0" "index" "5"
-  HSET "_PORT_TABLE:Ethernet0" "lanes" "9,10,11,12"
-  HSET "_PORT_TABLE:Ethernet0" "speed" "40000"
-  PUBLISH "PORT_TABLE_CHANNEL@0" "_PORT_TABLE:Ethernet0"
-  ```
+   ```redis
+   SADD "PORT_TABLE_KEY_SET" "_PORT_TABLE:Ethernet0"
+   HSET "_PORT_TABLE:Ethernet0" "alias" "Ethernet5/1"
+   HSET "_PORT_TABLE:Ethernet0" "index" "5"
+   HSET "_PORT_TABLE:Ethernet0" "lanes" "9,10,11,12"
+   HSET "_PORT_TABLE:Ethernet0" "speed" "40000"
+   PUBLISH "PORT_TABLE_CHANNEL@0" "_PORT_TABLE:Ethernet0"
+   ```
 
-  Thus, the message is ultimately stored in APPL_DB as follows:
+   Thus, the message is ultimately stored in APPL_DB as follows:
 
-  ```redis
-  PORT_TABLE_KEY_SET:
-    _PORT_TABLE:Ethernet0
+   ```redis
+   PORT_TABLE_KEY_SET:
+     _PORT_TABLE:Ethernet0
 
-  _PORT_TABLE:Ethernet0:
-    alias: Ethernet5/1
-    index: 5
-    lanes: 9,10,11,12
-    speed: 40000
-  ```
+   _PORT_TABLE:Ethernet0:
+     alias: Ethernet5/1
+     index: 5
+     lanes: 9,10,11,12
+     speed: 40000
+   ```
 
-• When ConsumerStateTable receives the message, it also calls `EVALSHA` to execute a Lua script, such as:
+2. When ConsumerStateTable receives the message, it also calls `EVALSHA` to execute a Lua script, such as:
 
-  ```redis
-  EVALSHA "<hash-of-pop-lua>" "3" "PORT_TABLE_KEY_SET" "PORT_TABLE:" "PORT_TABLE_DEL_SET" "8192" "_"
-  ```
+   ```redis
+   EVALSHA "<hash-of-pop-lua>" "3" "PORT_TABLE_KEY_SET" "PORT_TABLE:" "PORT_TABLE_DEL_SET" "8192" "_"
+   ```
 
-  Similar to the Producer side, this script runs:
+   Similar to the Producer side, this script runs:
 
-  ```redis
-  SPOP "PORT_TABLE_KEY_SET" "_PORT_TABLE:Ethernet0"
-  HGETALL "_PORT_TABLE:Ethernet0"
-  HSET "PORT_TABLE:Ethernet0" "alias" "Ethernet5/1"
-  HSET "PORT_TABLE:Ethernet0" "index" "5"
-  HSET "PORT_TABLE:Ethernet0" "lanes" "9,10,11,12"
-  HSET "PORT_TABLE:Ethernet0" "speed" "40000"
-  DEL "_PORT_TABLE:Ethernet0"
-  ```
+   ```redis
+   SPOP "PORT_TABLE_KEY_SET" "_PORT_TABLE:Ethernet0"
+   HGETALL "_PORT_TABLE:Ethernet0"
+   HSET "PORT_TABLE:Ethernet0" "alias" "Ethernet5/1"
+   HSET "PORT_TABLE:Ethernet0" "index" "5"
+   HSET "PORT_TABLE:Ethernet0" "lanes" "9,10,11,12"
+   HSET "PORT_TABLE:Ethernet0" "speed" "40000"
+   DEL "_PORT_TABLE:Ethernet0"
+   ```
 
-  At this point, the data update is complete.
+   At this point, the data update is complete.
 
 # References
 
