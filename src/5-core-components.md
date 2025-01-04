@@ -1,9 +1,9 @@
-# 核心组件解析
+# Core Components
 
-这一章，我们会从代码的层面上来深入的分析一下SONiC中一些比较有代表性的核心组件和它们的工作流。
+In this chapter, we take a deeper look at some of the representative core components in SONiC and their workflows from a code perspective.
 
 ```admonish note
-为了方便阅读和理解，所有的代码都只是列出了最核心的代码来展现流程，并不是完整的代码，如果需要查看完整代码，请参考[仓库中的原始代码](./3-1-code-repos.html)。
+For helping us to read and understand, all the code shown here will be simplified to its core part to illustrate the process. If you would like to read the full code, please refer to [the original code in the repository](./3-1-code-repos.html).
 
-另外，每个代码块的开头都给出了相关文件的路径，其使用的是仓库均为SONiC的主仓库：[sonic-buildimage](https://github.com/sonic-net/sonic-buildimage)。
+Additionally, the relevant file path of the code will be shared in the beginning of each code block. All of them comes from the SONiC's main repository: [sonic-buildimage](https://github.com/sonic-net/sonic-buildimage).
 ```
