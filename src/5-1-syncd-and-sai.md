@@ -390,6 +390,7 @@ void Syncd::onSwitchCreateInInitViewMode(_In_ sai_object_id_t switchVid, _In_ ui
 从Mellanox的SAI实现，我们可以看到其具体的保存的方法：
 
 ```cpp
+// File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_switch.c
 static sai_status_t mlnx_create_switch(_Out_ sai_object_id_t     * switch_id,
                                        _In_ uint32_t               attr_count,
                                        _In_ const sai_attribute_t *attr_list)
@@ -584,7 +585,7 @@ sequenceDiagram
 最开始，SAI的实现需要接受到ASIC的通知，这一步是通过ASIC的SDK来实现的，Mellanox的SAI会创建一个事件处理线程（event_thread），然后使用`select`函数来获取并处理ASIC发送过来的通知，核心代码如下：
 
 ```cpp
-// File: platform/mellanox/mlnx-sai/SAI-Implementation/mlnx_sai/src/mlnx_sai_switch.c
+// File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_switch.c
 static void event_thread_func(void *context)
 {
 #define MAX_PACKET_SIZE MAX(g_resource_limits.port_mtu_max, SX_HOST_EVENT_BUFFER_SIZE_MAX)
