@@ -41,6 +41,7 @@ install-gh-bin GITHUB_PATH BIN_NAME:
 build:
     @just _log-head "Building book ..."
     mdbook build
+    just po-build cn
 
 serve:
     @just _log-head "Starting mdbook server ..."
