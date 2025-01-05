@@ -1,18 +1,24 @@
 # Netlink
 
-Netlink是Linux内核中用于内核与用户空间进程之间的一种基于消息的通信机制。它通过套接字接口和自定义的协议族来实现，可以用来传递各种类型的内核消息，包括网络设备状态、路由表更新、防火墙规则变化、系统资源使用情况等等。而SONiC的`*sync`服务就大量使用了Netlink的机制来监听系统中网络设备的变化，并将最新的状态同步到Redis中，并通知其他服务进行相应的修改。
+Netlinkis the message-based communication mechanism provided by Linux kernel and used between the kernel and user-space processes. It is implemented via socket and custom protocol families. It can be used to deliver various types of kernel messages, including network device status, routing table updates, firewall rule changes, and system resource usage. SONiC's `*sync` services heavily utilize Netlink to monitor changes of network devices in the system, synchronize the latest status to Redis, and notify other services to make corresponding updates.
 
-Netlink的实现主要在这几个文件中：[common/netmsg.*](https://github.com/sonic-net/sonic-swss-common/blob/master/common/netmsg.h)、[common/netlink.*](https://github.com/sonic-net/sonic-swss-common/blob/master/common/netlink.h) 和 [common/netdispatcher.*](https://github.com/sonic-net/sonic-swss-common/blob/master/common/netdispatcher.h)，具体类图如下：
+The main implementation of netlink communication channel is done by these files:
+
+- [common/netmsg.*](https://github.com/sonic-net/sonic-swss-common/blob/master/common/netmsg.h)
+- [common/netlink.*](https://github.com/sonic-net/sonic-swss-common/blob/master/common/netlink.h)
+- [common/netdispatcher.*](https://github.com/sonic-net/sonic-swss-common/blob/master/common/netdispatcher.h).
+
+The class diagram is as follows:
 
 ![](assets/chapter-4/netlink.png)
 
-其中：
+In this diagram:
 
-- **Netlink**：封装了Netlink的套接字接口，提供了Netlink消息的接口和接收消息的回调。
-- **NetDispatcher**：它是一个单例，提供了Handler注册的接口。当Netlink类接收到原始的消息后，就会调用NetDispatcher将其解析成nl_onject，并根据消息的类型调用相应的Handler。
-- **NetMsg**：Netlink消息Handler的基类，仅提供了onMsg的接口，其中没有实现。
+- **Netlink**: Wraps the netlink socket interface and provides an interface for sending netlink messages and a callback for receiving messages.
+- **NetDispatcher**: A singleton that provides an interface for registering handlers. When a raw netlink message is received, it calls NetDispatcher to parse them into `nl_object` objects and then dispatches them to the corresponding handler based on the message type.
+- **NetMsg**: The base class for netlink message handlers, which only provides the `onMsg` interface without a default implementation.
 
-举一个例子，当`portsyncd`启动的时候，它会创建一个Netlink对象，用来监听Link相关的状态变化，并且会实现NetMsg的接口，对Link相关的消息进行处理。具体的实现如下：
+For example, when `portsyncd` starts, it creates a `Netlink` object to listen for link-related status changes and implements the `NetMsg` interface to handle the link messages. The specific implementation is as follows:
 
 ```cpp
 // File: sonic-swss - portsyncd/portsyncd.cpp
@@ -24,8 +30,8 @@ int main(int argc, char **argv)
     NetLink netlink;
     netlink.registerGroup(RTNLGRP_LINK);
 
-    // Here SONiC request a fulldump of current state, so that it can get the current state of all links
-    netlink.dumpRequest(RTM_GETLINK);      
+    // Here SONiC requests a full dump of the current state to get the status of all links
+    netlink.dumpRequest(RTM_GETLINK);
     cout << "Listen to link messages..." << endl;
     // ...
 
@@ -38,7 +44,7 @@ int main(int argc, char **argv)
 }
 ```
 
-上面的LinkSync，就是一个NetMsg的实现，它实现了onMsg接口，用来处理Link相关的消息：
+The `LinkSync` class above is an implementation of `NetMsg`, providing the `onMsg` interface for handling link messages:
 
 ```cpp
 // File: sonic-swss - portsyncd/linksync.h
@@ -67,7 +73,7 @@ void LinkSync::onMsg(int nlmsg_type, struct nl_object *obj)
 }
 ```
 
-# 参考资料
+# References
 
 1. [Github repo: sonic-swss-common][SONiCSWSSCommon]
 

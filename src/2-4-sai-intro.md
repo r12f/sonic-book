@@ -1,12 +1,12 @@
 # SAI
 
-SAI（Switch Abstraction Interface，交换机抽象接口）是SONiC的基石，正因为有了它，SONiC才能支持多种硬件平台。我们在[这个SAI API的文档][SAIAPI]中，可以看到它定义的所有接口。
+SAI (Switch Abstraction Interface) is the cornerstone of SONiC, while enables it to support multiple hardware platforms. In [this SAI API document][SAIAPI], we can see all the interfaces it defines.
 
-[在核心容器一节中我们提到，SAI运行在`syncd`容器中](./2-3-key-containers.html)。不过和其他组件不同，它并不是一个服务，而是一组公共的头文件和动态链接库（.so）。其中，所有的抽象接口都以c语言头文件的方式定义在了[OCP的SAI仓库][OCPSAI]中，而.so文件则由各个硬件厂商提供，用于实现SAI的接口。
+[In the core container section, we mentioned that SAI runs in the `syncd` container](./2-3-key-containers.html). However, unlike other components, it is not a service but a set of common header files and dynamic link libraries (.so). All abstract interfaces are defined as C language header files in the [OCP SAI repository][OCPSAI], and the hardware vendors provides the .so files that implement the SAI interfaces.
 
-## SAI接口
+## SAI Interface
 
-为了有一个更加直观的理解，我们拿一小部分代码来展示一下SAI的接口定义和初始化的方法，如下：
+To make things more intuitive, let's take a small portion of the code to show how SAI interfaces look like and how it works, as follows:
 
 ```cpp
 // File: meta/saimetadata.h
@@ -37,23 +37,23 @@ typedef struct _sai_port_api_t
 } sai_port_api_t;
 ```
 
-其中，`sai_apis_t`结构体是SAI所有模块的接口的集合，其中每个成员都是一个特定模块的接口列表的指针。我们用`sai_switch_api_t`来举例，它定义了SAI Switch模块的所有接口，我们在`inc/saiswitch.h`中可以看到它的定义。同样的，我们在`inc/saiport.h`中可以看到SAI Port模块的接口定义。
+The `sai_apis_t` structure is a collection of interfaces for all SAI modules, with each member being a pointer to a specific module's interface list. For example, `sai_switch_api_t` defines all the interfaces for the SAI Switch module, and its definition can be found in `inc/saiswitch.h`. Similarly, the interface definitions for the SAI Port module can be found in `inc/saiport.h`.
 
-## SAI初始化
+## SAI Initialization
 
-SAI的初始化其实就是想办法获取上面这些函数指针，这样我们就可以通过SAI的接口来操作ASIC了。
+SAI initialization is essentially about obtaining these function pointers so that we can operate the ASIC through the SAI interfaces.
 
-参与SAI初始化的主要函数有两个，他们都定义在`inc/sai.h`中：
+The main functions involved in SAI initialization are defined in `inc/sai.h`:
 
-- `sai_api_initialize`：初始化SAI
-- `sai_api_query`：传入SAI的API的类型，获取对应的接口列表
+- `sai_api_initialize`: Initialize SAI
+- `sai_api_query`: Pass in the type of SAI API to get the corresponding interface list
 
-虽然大部分厂商的SAI实现是闭源的，但是mellanox却开源了自己的SAI实现，所以这里我们可以借助其更加深入的理解SAI是如何工作的。
+Although most vendors' SAI implementations are closed-source, Mellanox has open-sourced its SAI implementation, allowing us to gain a deeper understanding of how SAI works.
 
-比如，`sai_api_initialize`函数其实就是简单的设置设置两个全局变量，然后返回`SAI_STATUS_SUCCESS`：
+For example, the `sai_api_initialize` function simply sets two global variables and returns `SAI_STATUS_SUCCESS`:
 
 ```cpp
-// File: platform/mellanox/mlnx-sai/SAI-Implementation/mlnx_sai/src/mlnx_sai_interfacequery.c
+// File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_interfacequery.c
 sai_status_t sai_api_initialize(_In_ uint64_t flags, _In_ const sai_service_method_table_t* services)
 {
     if (g_initialized) {
@@ -67,10 +67,10 @@ sai_status_t sai_api_initialize(_In_ uint64_t flags, _In_ const sai_service_meth
 }
 ```
 
-初始化完成后，我们就可以使用`sai_api_query`函数，通过传入API的类型来查询对应的接口列表，而每一个接口列表其实都是一个全局变量：
+After initialization, we can use the `sai_api_query` function to query the corresponding interface list by passing in the type of API, where each interface list is actually a global variable:
 
 ```cpp
-// File: platform/mellanox/mlnx-sai/SAI-Implementation/mlnx_sai/src/mlnx_sai_interfacequery.c
+// File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_interfacequery.c
 sai_status_t sai_api_query(_In_ sai_api_t sai_api_id, _Out_ void** api_method_table)
 {
     if (!g_initialized) {
@@ -81,7 +81,7 @@ sai_status_t sai_api_query(_In_ sai_api_t sai_api_id, _Out_ void** api_method_ta
     return sai_api_query_eth(sai_api_id, api_method_table);
 }
 
-// File: platform/mellanox/mlnx-sai/SAI-Implementation/mlnx_sai/src/mlnx_sai_interfacequery_eth.c
+// File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_interfacequery_eth.c
 sai_status_t sai_api_query_eth(_In_ sai_api_t sai_api_id, _Out_ void** api_method_table)
 {
     switch (sai_api_id) {
@@ -101,7 +101,7 @@ sai_status_t sai_api_query_eth(_In_ sai_api_t sai_api_id, _Out_ void** api_metho
     }
 }
 
-// File: platform/mellanox/mlnx-sai/SAI-Implementation/mlnx_sai/src/mlnx_sai_bridge.c
+// File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_bridge.c
 const sai_bridge_api_t mlnx_bridge_api = {
     mlnx_create_bridge,
     mlnx_remove_bridge,
@@ -111,7 +111,7 @@ const sai_bridge_api_t mlnx_bridge_api = {
 };
 
 
-// File: platform/mellanox/mlnx-sai/SAI-Implementation/mlnx_sai/src/mlnx_sai_switch.c
+// File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_switch.c
 const sai_switch_api_t mlnx_switch_api = {
     mlnx_create_switch,
     mlnx_remove_switch,
@@ -121,11 +121,11 @@ const sai_switch_api_t mlnx_switch_api = {
 };
 ```
 
-## SAI的使用
+## Using SAI
 
-在`syncd`容器中，SONiC会在启动时启动`syncd`服务，而`syncd`服务会加载当前系统中的SAI组件。这个组件由各个厂商提供，它们会根据自己的硬件平台来实现上面展现的SAI的接口，从而让SONiC使用统一的上层逻辑来控制多种不同的硬件平台。
+In the `syncd` container, SONiC starts the `syncd` service at startup, which loads the SAI component present in the system. This component is provided by various vendors, who implement the SAI interfaces based on their hardware platforms, allowing SONiC to use a unified upper-layer logic to control various hardware platforms.
 
-我们可以通过`ps`, `ls`和`nm`命令来简单的对这个进行验证：
+We can verify this using the `ps`, `ls`, and `nm` commands:
 
 ```bash
 # Enter into syncd container
@@ -161,7 +161,7 @@ $ vim sai-exports.txt
 ...
 ```
 
-# 参考资料
+# References
 
 1. [SONiC Architecture][SONiCArch]
 2. [SAI API][SAIAPI]

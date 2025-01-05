@@ -1,8 +1,8 @@
-# Redis数据库
+# Redis database
 
-首先，在SONiC里面最核心的服务，自然是当之无愧的中心数据库Redis了！它的主要目的有两个：存储所有服务的配置和状态，并且为各个服务提供通信的媒介。
+First and foremost, the core service in SONiC is undoubtedly the central database - Redis! It has two major purposes: storing the configuration and state of all services, and providing a communication channel for these services.
 
-为了提供这些功能，SONiC会在Redis中创建一个名为`sonic-db`的数据库实例，其配置和分库信息我们可以在`/var/run/redis/sonic-db/database_config.json`中找到：
+To provide these functionalities, SONiC creates a database instance in Redis named `sonic-db`. The configuration and database partitioning information can be found in `/var/run/redis/sonic-db/database_config.json`:
 
 ```bash
 admin@sonic:~$ cat /var/run/redis/sonic-db/database_config.json
@@ -35,16 +35,18 @@ admin@sonic:~$ cat /var/run/redis/sonic-db/database_config.json
 }
 ```
 
-虽然我们可以看到SONiC中的数据库有十来个，但是我们大部分时候只需要关注以下几个最重要的数据库就可以了：
+Although we can see that there are about a dozen databases in SONiC, most of the time we only need to focus on the following most important ones:
 
-- **CONFIG_DB（ID = 4）**：存储所有服务的**配置信息**，比如端口配置，VLAN配置等等。它代表着**用户想要交换机达到的状态**的数据模型，这也是所有CLI和外部应用程序修改配置时的主要操作对象。
-- **APPL_DB（Application DB, ID = 0）**：存储**所有服务的内部状态信息**。这些信息有两种：一种是各个服务在读取了CONFIG_DB的配置信息后，自己计算出来的。我们可以理解为**各个服务想要交换机达到的状态**（Goal State），还有一种是当最终硬件状态发生变化被写回时，有些服务会直接写回到APPL_DB，而不是我们下面马上要介绍的STATE_DB。这些信息我们可以理解为**各个服务认为交换机当前的状态**（Current State）。
-- **STATE_DB（ID = 6）**：存储着交换机**各个部件当前的状态**（Current State）。当SONiC中的服务收到了STATE_DB的状态变化，但是发现和Goal State不一致的时候，SONiC就会重新下发配置，直到两者一致。（当然，对于那些回写到APPL_DB状态，服务就会监听APPL_DB的变化，而不是STATE_DB了。）
-- **ASIC_DB（ID = 1）**：存储着**SONiC想要交换机ASIC达到状态信息**，比如，ACL，路由等等。和APPL_DB不同，这个数据库里面的数据模型是面向ASIC设计的，而不是面向服务抽象的。这样做的目的是为了方便各个厂商进行SAI和ASIC驱动的开发。
+- **CONFIG_DB (ID = 4)**: Stores the **configuration** of all services, such as port configuration, VLAN configuration, etc. It represents the data model of the **desired state of the switch** as intended by the user. This is also the main object of operation when all CLI and external applications modify the configuration.
+- **APPL_DB (Application DB, ID = 0)**: Stores **internal state information of all services**. It contains two types of information:
+  - One is calculated by each service after reading the configuration information from CONFIG_DB, which can be understood as the **desired state of the switch** (Goal State) but from the perspective of each service.
+  - The other is when the ASIC state changes and is written back, some services write directly to APPL_DB instead of the STATE_DB we will introduce next. This information can be understood as the **current state of the switch** as perceived by each service.
+- **STATE_DB (ID = 6)**: Stores the **current state** of various components of the switch. When a service in SONiC receives a state change from STATE_DB and finds it inconsistent with the Goal State, SONiC will reapply the configuration until the two states are consistent. (Of course, for those states written back to APPL_DB, the service will monitor changes in APPL_DB instead of STATE_DB.)
+- **ASIC_DB (ID = 1)**: Stores the **desired state information** of the switch ASIC in SONiC, such as ACL, routing, etc. Unlike APPL_DB, the data model in this database is designed for ASIC rather than service abstraction. This design facilitates the development of SAI and ASIC drivers by various vendors.
 
-这里，我们会发现一个很直观的问题：交换机里面这么多服务，难道所有的配置和状态都放在一个数据库里面没有隔离的么？如果两个服务用了同一个Redis Key怎么办呢？这个问题非常的好，SONiC的解决也很直接，那就是在每个数据库里面继续分表！
+Now, we have an intuitive question: with so many services in the switch, are all configurations and states stored in a single database without isolation? What if two services use the same Redis Key? This is a very good question, and SONiC's solution is straightforward: continue to partition each database into tables!
 
-我们知道Redis在每个数据库里面并没有表的概念，而是使用key-value的方式来存储数据。所以，为了进一步分表，SONiC的解决方法是将表的名字放入key中，并且使用分隔符将表和key隔开。上面的配置文件中`separator`字段就是做这个了。比如：`APPL_DB`中的`PORT_TABLE`表中的`Ethernet4`端口的状态，我们可以通过`PORT_TABLE:Ethernet4`来获取，如下：
+We know that Redis does not have the concept of tables within each database but uses key-value pairs to store data. Therefore, to further partition tables, SONiC's solution is to include the table name in the key and separate the table and key with a delimiter. The `separator` field in the configuration file above serves this purpose. For example, the state of the `Ethernet4` port in the `PORT_TABLE` table in `APPL_DB` can be accessed using `PORT_TABLE:Ethernet4` as follows:
 
 ```bash
 127.0.0.1:6379> select 0
@@ -60,18 +62,18 @@ OK
  7) "lanes"
  8) "13,14,15,16"
  9) "mtu"
-10) "9100"
-11) "speed"
-12) "40000"
-13) "description"
-14) ""
-15) "oper_status"
-16) "up"
+1)  "9100"
+2)  "speed"
+3)  "40000"
+4)  "description"
+5)  ""
+6)  "oper_status"
+7)  "up"
 ```
 
-当然在SONiC中，不仅仅是数据模型，包括通信机制，都是使用类似的方法来实现“表”级别的隔离的。
+Of course, in SONiC, not only the data model but also the communication mechanism uses a similar method to achieve "table" level isolation.
 
-# 参考资料
+# References
 
 1. [SONiC Architecture][SONiCArch]
 

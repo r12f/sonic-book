@@ -41,7 +41,7 @@ install-gh-bin GITHUB_PATH BIN_NAME:
 build:
     @just _log-head "Building book ..."
     mdbook build
-    just po-build en
+    just po-build cn
 
 serve:
     @just _log-head "Starting mdbook server ..."
@@ -51,19 +51,19 @@ po-extract:
     @just _log-head "Extracting messages.pot file from source  ..."
     $env:MDBOOK_OUTPUT='{"xgettext": {"pot-file": "messages.pot"}}'; mdbook build -d po; $env:MDBOOK_OUTPUT=$null
 
-po-update PO='en':
+po-update PO='cn':
     @just _log-head "Updating po files for language {{PO}} ..."
     msgmerge --update po/{{PO}}.po po/messages.pot
 
-po-build PO='en':
+po-build PO='cn':
     @just _log-head "Building book for language {{PO}} ..."
     $env:MDBOOK_BOOK__LANGUAGE="{{PO}}"; mdbook build -d book/{{PO}}; $env:MDBOOK_BOOK__LANGUAGE=$null
 
-po-serve PO='en':
+po-serve PO='cn':
     @just _log-head "Starting mdbook server with translated {{PO}} book ..."
     $env:MDBOOK_BOOK__LANGUAGE="{{PO}}"; mdbook serve -d book/{{PO}} -n 0.0.0.0; $env:MDBOOK_BOOK__LANGUAGE=$null
 
-po-tr PO='en':
+po-tr PO='cn':
     @just _log-head "Starting translating {{PO}} book ..."
     potr -p ./po/{{PO}}.po -e deepl -t {{PO}}
 

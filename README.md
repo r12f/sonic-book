@@ -2,7 +2,7 @@
 
 ![Build Pipeline](https://img.shields.io/github/actions/workflow/status/r12f/sonic-book/mdbook.yml)
 
-Version: [Chinese](https://r12f.com/sonic-book) | [English (Machine Translated, WIP)](https://r12f.com/sonic-book/en/)
+Version: [English](https://r12f.com/sonic-book/en/) | [Chinese, WIP](https://r12f.com/sonic-book/cn/)
 
 > What is SONiC?
 > 
@@ -14,16 +14,16 @@ You might be interested in SONiC because it is powerful enough to suite your nee
 
 If you are in this situation, then this book is for you.
 
-"Getting Started with SONiC" / "SONiC入门指南" is a book that intended to help people actually getting started on [SONiC](https://sonicfoundation.dev/). It contains a series of tutorials that will guide you through the process of building a SONiC image, deploying it on a switch or virtually, and using it to do some basic network operations to get hands on, as well as introducing the high level architecture, code base, and typical workflows to help you understand how it works internally and get started on development.
+"Getting Started with SONiC" is a book that intended to help people actually getting started on [SONiC](https://sonicfoundation.dev/). It contains a series of tutorials that will guide you through the process of building a SONiC image, deploying it on a switch or virtually, and using it to do some basic network operations to get hands on, as well as introducing the high level architecture, code base, and typical workflows to help you understand how it works internally and get started on development.
 
-The book is currently in [Chinese（中文）](https://r12f.com/sonic-book) and English version is still working in progress. If you like this books, please give it a star, or join the effort of authoring, bug fixing or translations by submitting PRs.
+If you like this book, please help give it a star, or join the effort of authoring, bug fixing or translations by submitting PRs.
 
 ## How to build
 
 ### Prerequisites
 
 1. Install `just` by following the [installation guide](https://github.com/casey/just#installation). We use `just` instead of `make`, because it is easier to manage and use.
-2. Install powershell by following the [installation guide](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-linux?view=powershell-7.3). This is because we use powershell as our make file script engine, so we can run our book on any platform. 
+2. Install powershell by following the [installation guide](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-linux?view=powershell-7.3). This is because we use powershell as our make file script engine, so we can run our book on any platform.
 3. Run `just init` for installing mdbook and related pluins. This is one time initialization.
 
 ### Build

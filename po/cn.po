@@ -1,386 +1,171 @@
-
 msgid ""
 msgstr ""
-"Project-Id-Version: Getting Started with SONiC\n"
-"POT-Creation-Date: 2025-01-05T12:40:49-08:00\n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"Project-Id-Version: SONiC入门指南\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2023-06-25 20:04-0700\n"
+"Last-Translator: r12f <r12f.code@gmail.com>\n"
+"Language-Team: Chinese\n"
+"Language: cn\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: en\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src\SUMMARY.md:1
 msgid "Summary"
-msgstr ""
+msgstr "总结"
 
 #: src\SUMMARY.md:3 src\1-intro.md:1
 msgid "Getting Started with SONiC"
-msgstr ""
+msgstr "SONiC入门指南"
 
 #: src\SUMMARY.md:4 src\1-1-install.md:1
 msgid "Installation"
-msgstr ""
+msgstr "安装"
 
 #: src\SUMMARY.md:5
 msgid "Hello World! Virtually"
-msgstr ""
+msgstr "虚拟环境中的Hello World!"
 
 #: src\SUMMARY.md:6
 msgid "Commands Cheatsheet (WIP)"
-msgstr ""
+msgstr "命令速查表 (WIP)"
 
 #: src\SUMMARY.md:7
 msgid "Core Components Introduction"
-msgstr ""
+msgstr "核心组件介绍"
 
 #: src\SUMMARY.md:8
 msgid "Redis Database"
-msgstr ""
+msgstr "Redis数据库"
 
 #: src\SUMMARY.md:9
 msgid "Services and Workflows"
-msgstr ""
+msgstr "服务和工作流"
 
 #: src\SUMMARY.md:10
 msgid "Key Containers"
-msgstr ""
+msgstr "关键容器"
 
 #: src\SUMMARY.md:11 src\2-4-sai-intro.md:1
 msgid "SAI"
-msgstr ""
+msgstr "SAI"
 
 #: src\SUMMARY.md:12 src\3-dev-guide.md:1
 msgid "Developer Guide"
-msgstr ""
+msgstr "开发者指南"
 
 #: src\SUMMARY.md:13 src\3-1-code-repos.md:1
 msgid "Code Repositories"
-msgstr ""
+msgstr "代码仓库"
 
 #: src\SUMMARY.md:14 src\3-2-build.md:1
 msgid "Build"
-msgstr ""
+msgstr "编译"
 
 #: src\SUMMARY.md:15
 msgid "Testing (WIP)"
-msgstr ""
+msgstr "测试 (WIP)"
 
 #: src\SUMMARY.md:16
 msgid "Debugging (WIP)"
-msgstr ""
+msgstr "调试 (WIP)"
 
 #: src\SUMMARY.md:17
 msgid "SAI Debugging (WIP)"
-msgstr ""
+msgstr "SAI调试 (WIP)"
 
 #: src\SUMMARY.md:18
 msgid "Service Communication"
-msgstr ""
+msgstr "服务间通信"
 
 #: src\SUMMARY.md:19 src\4-1-communicate-via-kernel.md:1
 msgid "Communicate via Kernel"
-msgstr ""
+msgstr "通过内核通信"
 
 #: src\SUMMARY.md:20 src\4-1-1-exec.md:1
 msgid "Command Line Invocation"
-msgstr ""
+msgstr "命令行调用"
 
 #: src\SUMMARY.md:21 src\4-1-2-netlink.md:1
 msgid "Netlink"
-msgstr ""
+msgstr "Netlink"
 
 #: src\SUMMARY.md:22 src\4-2-redis-based-channels.md:1
 msgid "Redis-based Channels"
-msgstr ""
+msgstr "基于Redis的通道"
 
 #: src\SUMMARY.md:23 src\4-2-1-redis-wrappers.md:1
 msgid "Redis Wrappers"
-msgstr ""
+msgstr "Redis封装"
 
 #: src\SUMMARY.md:24 src\4-2-2-subscribe-state-table.md:1
 msgid "SubscribeStateTable"
-msgstr ""
+msgstr "SubscribeStateTable"
 
 #: src\SUMMARY.md:25
 msgid "NotificationProducer/Consumer"
-msgstr ""
+msgstr "NotificationProducer/Consumer"
 
 #: src\SUMMARY.md:26
 msgid "Producer/ConsumerTable"
-msgstr ""
+msgstr "Producer/ConsumerTable"
 
 #: src\SUMMARY.md:27
 msgid "Producer/ConsumerStateTable"
-msgstr ""
+msgstr "Producer/ConsumerStateTable"
 
 #: src\SUMMARY.md:28
 msgid "ZMQ-based Channels (WIP)"
-msgstr ""
+msgstr "基于ZMQ的通道 (WIP)"
 
 #: src\SUMMARY.md:29
 msgid "Orch Layer"
-msgstr ""
+msgstr "Orch层"
 
 #: src\SUMMARY.md:30
 msgid "Event Polling and Error Handling"
-msgstr ""
+msgstr "事件轮询和错误处理"
 
 #: src\SUMMARY.md:31
 msgid "Core Components Deep Dive"
-msgstr ""
+msgstr "深入核心组件"
 
 #: src\SUMMARY.md:32 src\5-1-syncd-and-sai.md:1
 msgid "Syncd and SAI"
-msgstr ""
+msgstr "Syncd和SAI"
 
 #: src\SUMMARY.md:33 src\5-2-bgp.md:1
 msgid "BGP"
-msgstr ""
+msgstr "BGP"
 
 #: src\SUMMARY.md:34 src\5-2-1-bgp-cli.md:1
 msgid "BGP CLI and vtysh"
-msgstr ""
+msgstr "BGP CLI和vtysh"
 
 #: src\SUMMARY.md:35 src\5-2-2-route-update-in-frr.md:1
 msgid "Route Update in FRR"
-msgstr ""
+msgstr "FRR中的路由更新"
 
 #: src\SUMMARY.md:36 src\5-2-3-route-update-in-sonic.md:1
 msgid "Route Update in SONiC"
-msgstr ""
+msgstr "SONiC中的路由更新"
 
 #: src\SUMMARY.md:37
 msgid "Boot Process (WIP)"
-msgstr ""
+msgstr "启动过程 (WIP)"
 
 #: src\SUMMARY.md:38
 msgid "Cold Boot (WIP)"
-msgstr ""
+msgstr "冷启动 (WIP)"
 
 #: src\SUMMARY.md:39
 msgid "Fast Boot (WIP)"
-msgstr ""
+msgstr "快速启动 (WIP)"
 
 #: src\SUMMARY.md:40
 msgid "Warm Boot (WIP)"
-msgstr ""
-
-#: src\1-intro.md:3
-msgid "Why SONiC?"
-msgstr ""
-
-#: src\1-intro.md:5
-msgid ""
-"We know that switches have their own operating systems for configuration, "
-"monitoring and so on. However, since the first switch was introduced in "
-"1986, despite ongoing development by various vendors, there are still some "
-"issues, such as:"
-msgstr ""
-
-#: src\1-intro.md:7
-msgid ""
-"Closed ecosystem: Non-open source systems primarily support proprietary "
-"hardware and are not compatible with devices from other vendors."
-msgstr ""
-
-#: src\1-intro.md:8
-msgid ""
-"Limited use cases: It is difficult to use the same system to support complex "
-"and diverse scenarios in large-scale data centers."
-msgstr ""
-
-#: src\1-intro.md:9
-msgid ""
-"Disruptive upgrades: Upgrades can cause network interruptions, which can be "
-"fatal for cloud providers."
-msgstr ""
-
-#: src\1-intro.md:10
-msgid ""
-"Slow feature upgrades: It is challenging to support rapid product iterations "
-"due to slow device feature upgrades."
-msgstr ""
-
-#: src\1-intro.md:12
-msgid ""
-"To address these issues, Microsoft initiated the SONiC open-source project "
-"in 2016. The goal was to create a universal network operating system that "
-"solves the aforementioned problems. Additionally, Microsoft's extensive use "
-"of SONiC in Azure ensures its suitability for large-scale production "
-"environments, which is another significant advantage."
-msgstr ""
-
-#: src\1-intro.md:14
-msgid "Architecture"
-msgstr ""
-
-#: src\1-intro.md:16
-msgid ""
-"SONiC is an open-source network operating system (NOS) developed by "
-"Microsoft based on Debian. It is designed with three core principles:"
-msgstr ""
-
-#: src\1-intro.md:18
-msgid ""
-"**Hardware and software decoupling**: SONiC abstracts hardware operations "
-"through the Switch Abstraction Interface (SAI), enabling SONiC to support "
-"multiple hardware platforms. SAI defines this abstraction layer, which is "
-"implemented by various vendors."
-msgstr ""
-
-#: src\1-intro.md:19
-msgid ""
-"**Microservices with Docker containers**: The main functionalities of SONiC "
-"are divided into individual Docker containers. Unlike traditional network "
-"operating systems, upgrading the system can be done by upgrading specific "
-"containers without the need for a complete system upgrade or restart. This "
-"allows for easy upgrades, maintenance, and supports rapid development and "
-"iteration."
-msgstr ""
-
-#: src\1-intro.md:20
-msgid ""
-"**Redis as a central database for service decoupling**: The configuration "
-"and status of most services are stored in a central Redis database. This "
-"enables seamless collaboration between services (data storage and pub/sub) "
-"and provides a unified method for operating and querying various services "
-"without concerns about data loss or protocol compatibility. It also "
-"facilitates easy backup and recovery of states."
-msgstr ""
-
-#: src\1-intro.md:22
-msgid ""
-"These design choices gives SONiC a great open ecosystem "
-"([Community](https://sonic-net.github.io/SONiC/index.html), "
-"[Workgroups](https://sonic-net.github.io/SONiC/workgroups.html), "
-"[Devices](https://sonic-net.github.io/SONiC/Supported-Devices-and-Platforms.html)). "
-"Overall, the architecture of SONiC is illustrated in the following diagram:"
-msgstr ""
-
-#: src\1-intro.md:24
-msgid "![](assets/chapter-1/sonic-arch.png)"
-msgstr ""
-
-#: src\1-intro.md:26 src\2-core-components-intro.md:17
-msgid ""
-"_(Source: [SONiC Wiki - "
-"Architecture](https://github.com/sonic-net/SONiC/wiki/Architecture))_"
-msgstr ""
-
-#: src\1-intro.md:28
-msgid ""
-"Of course, this design has some drawbacks, such as relative large disk "
-"usage. However, with the availability of storage space and various methods "
-"to address this issue, it is not a significant concern."
-msgstr ""
-
-#: src\1-intro.md:30
-msgid "Future Direction"
-msgstr ""
-
-#: src\1-intro.md:32
-msgid ""
-"Although switches have been around for many years, the development of cloud "
-"has raised higher demands and challenges for networks. These include "
-"intuitive requirements like increased bandwidth and capacity, as well as "
-"cutting-edge research such as in-band computing and edge-network "
-"convergence. These factors drive innovation among major vendors and research "
-"institutions. SONiC is no exception and continues to evolve to meet the "
-"growing demands."
-msgstr ""
-
-#: src\1-intro.md:34
-msgid ""
-"To learn more about the future direction of SONiC, you can refer to its "
-"[Roadmap](https://github.com/sonic-net/SONiC/wiki/Sonic-Roadmap-Planning). "
-"If you are interested in the latest updates, you can also follow its "
-"workshops, such as the recent [OCP Global Summit 2022 - SONiC "
-"Workshop](https://www.youtube.com/playlist?list=PLAG-eekRQBSjwK0DpyHJs76gOz1619KqW). "
-"However, I won't go into detail here."
-msgstr ""
-
-#: src\1-intro.md:36
-msgid "Acknowledgments"
-msgstr ""
-
-#: src\1-intro.md:38
-msgid ""
-"Special thanks to the following individuals for their help and "
-"contributions. Without them, this introductory guide would not have been "
-"possible!"
-msgstr ""
-
-#: src\1-intro.md:40
-msgid "[@bingwang-ms](https://github.com/bingwang-ms)"
-msgstr ""
-
-#: src\1-intro.md:42
-msgid "License"
-msgstr ""
-
-#: src\1-intro.md:44
-msgid ""
-"This book is licensed under the [Creative Commons "
-"Attribution-NonCommercial-ShareAlike 4.0 International "
-"License](https://creativecommons.org/licenses/by-nc-sa/4.0/)."
-msgstr ""
-
-#: src\1-intro.md:46 src\1-1-install.md:164
-#: src\1-2-hello-world-virtually.md:188 src\1-3-command-cheatsheet.md:195
-#: src\2-core-components-intro.md:19 src\2-1-database.md:76
-#: src\2-2-services-intro.md:74 src\2-3-key-containers.md:181
-#: src\2-4-sai-intro.md:164 src\3-1-code-repos.md:133 src\3-2-build.md:211
-#: src\4-communications.md:19 src\4-1-1-exec.md:36 src\4-1-2-netlink.md:76
-#: src\4-2-1-redis-wrappers.md:32 src\4-2-2-subscribe-state-table.md:71
-#: src\4-2-3-notification-producer-consumer.md:52
-#: src\4-2-4-producer-consumer-table.md:128
-#: src\4-2-5-producer-consumer-state-table.md:123 src\4-4-orch-layer.md:34
-#: src\4-5-event-polling-and-error-handling.md:121 src\5-1-syncd-and-sai.md:822
-#: src\5-2-bgp.md:32 src\5-2-1-bgp-cli.md:89
-#: src\5-2-2-route-update-in-frr.md:735 src\5-2-3-route-update-in-sonic.md:734
-msgid "References"
-msgstr ""
-
-#: src\1-intro.md:48
-msgid ""
-"[SONiC Wiki - "
-"Architecture](https://github.com/sonic-net/SONiC/wiki/Architecture)"
-msgstr ""
-
-#: src\1-intro.md:49
-msgid ""
-"[SONiC Wiki - Roadmap "
-"Planning](https://github.com/sonic-net/SONiC/wiki/Sonic-Roadmap-Planning)"
-msgstr ""
-
-#: src\1-intro.md:50
-msgid "[SONiC Landing Page](https://sonic-net.github.io/SONiC/index.html)"
-msgstr ""
-
-#: src\1-intro.md:51
-msgid "[SONiC Workgroups](https://sonic-net.github.io/SONiC/workgroups.html)"
-msgstr ""
-
-#: src\1-intro.md:52 src\1-1-install.md:166 src\3-2-build.md:216
-msgid ""
-"[SONiC Supported Devices and "
-"Platforms](https://sonic-net.github.io/SONiC/Supported-Devices-and-Platforms.html)"
-msgstr ""
-
-#: src\1-intro.md:53
-msgid ""
-"[SONiC User "
-"Manual](https://github.com/sonic-net/SONiC/blob/master/doc/SONiC-User-Manual.md)"
-msgstr ""
-
-#: src\1-intro.md:54
-msgid ""
-"[OCP Global Summit 2022 - SONiC "
-"Workshop](https://www.youtube.com/playlist?list=PLAG-eekRQBSjwK0DpyHJs76gOz1619KqW)"
-msgstr ""
+msgstr "热启动 (WIP)"
 
 #: src\1-1-install.md:3
 msgid ""
@@ -396,11 +181,11 @@ msgstr ""
 #: src\1-1-install.md:7
 msgid ""
 "First, please confirm if your switch supports SONiC. The list of currently "
-"supported switch models can be found "
-"[here](https://sonic-net.github.io/SONiC/Supported-Devices-and-Platforms.html). "
-"If your switch model is not on the list, you will need to contact the "
-"manufacturer to see if they have plans to support SONiC. There are many "
-"switches that do not support SONiC, such as:"
+"supported switch models can be found [here](https://sonic-net.github.io/"
+"SONiC/Supported-Devices-and-Platforms.html). If your switch model is not on "
+"the list, you will need to contact the manufacturer to see if they have "
+"plans to support SONiC. There are many switches that do not support SONiC, "
+"such as:"
 msgstr ""
 
 #: src\1-1-install.md:9
@@ -427,13 +212,13 @@ msgstr ""
 
 #: src\1-1-install.md:14
 msgid ""
-"Each manufacturer will have their own [SONiC "
-"Build](https://sonic-net.github.io/SONiC/Supported-Devices-and-Platforms.html), "
-"and some manufacturers will extend development on top of SONiC to support "
-"more features for their switches, such as [Dell Enterprise "
-"SONiC](https://www.dell.com/en-us/shop/povw/sonic) and [EdgeCore Enterprise "
-"SONiC](https://www.edge-core.com/sonic.php). Therefore, you need to choose "
-"the corresponding version based on your switch model."
+"Each manufacturer will have their own [SONiC Build](https://sonic-net.github."
+"io/SONiC/Supported-Devices-and-Platforms.html), and some manufacturers will "
+"extend development on top of SONiC to support more features for their "
+"switches, such as [Dell Enterprise SONiC](https://www.dell.com/en-us/shop/"
+"povw/sonic) and [EdgeCore Enterprise SONiC](https://www.edge-core.com/sonic."
+"php). Therefore, you need to choose the corresponding version based on your "
+"switch model."
 msgstr ""
 
 #: src\1-1-install.md:15
@@ -487,10 +272,10 @@ msgstr ""
 
 #: src\1-1-install.md:35
 msgid ""
-"Unfortunately, [SONiC does not have CLI control over fan "
-"speed](https://github.com/sonic-net/SONiC/blob/master/thermal-control-design.md), "
-"so we need to manually modify the configuration file in the pmon container "
-"to adjust the fan speed."
+"Unfortunately, [SONiC does not have CLI control over fan speed](https://"
+"github.com/sonic-net/SONiC/blob/master/thermal-control-design.md), so we "
+"need to manually modify the configuration file in the pmon container to "
+"adjust the fan speed."
 msgstr ""
 
 #: src\1-1-install.md:38
@@ -601,7 +386,8 @@ msgid "'{print \"sudo config vlan member add -u 2\", $1}'"
 msgstr ""
 
 #: src\1-1-install.md:98
-msgid "# Enable proxy ARP, so the switch can respond to ARP requests from hosts"
+msgid ""
+"# Enable proxy ARP, so the switch can respond to ARP requests from hosts"
 msgstr ""
 
 #: src\1-1-install.md:101
@@ -652,7 +438,8 @@ msgid "# Setting up IP and default routes"
 msgstr ""
 
 #: src\1-1-install.md:140
-msgid "That's it! We can start testing it using iperf and confirm on the switch:"
+msgid ""
+"That's it! We can start testing it using iperf and confirm on the switch:"
 msgstr ""
 
 #: src\1-1-install.md:143
@@ -669,20 +456,20 @@ msgstr ""
 
 #: src\1-1-install.md:167
 msgid ""
-"[SONiC Thermal Control "
-"Design](https://github.com/sonic-net/SONiC/blob/master/thermal-control-design.md)"
+"[SONiC Thermal Control Design](https://github.com/sonic-net/SONiC/blob/"
+"master/thermal-control-design.md)"
 msgstr ""
 
 #: src\1-1-install.md:168
 msgid ""
-"[Dell Enterprise SONiC "
-"Distribution](https://www.dell.com/en-us/shop/povw/sonic)"
+"[Dell Enterprise SONiC Distribution](https://www.dell.com/en-us/shop/povw/"
+"sonic)"
 msgstr ""
 
 #: src\1-1-install.md:169
 msgid ""
-"[Edgecore Enterprise SONiC  "
-"Distribution](https://www.edge-core.com/sonic.php)"
+"[Edgecore Enterprise SONiC  Distribution](https://www.edge-core.com/sonic."
+"php)"
 msgstr ""
 
 #: src\1-1-install.md:170
@@ -744,8 +531,8 @@ msgstr ""
 #: src\1-2-hello-world-virtually.md:17
 msgid ""
 "First is Docker. You can install it by following the instructions in this "
-"link: "
-"[https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)"
+"link: [https://docs.docker.com/engine/install/](https://docs.docker.com/"
+"engine/install/)"
 msgstr ""
 
 #: src\1-2-hello-world-virtually.md:19
@@ -778,9 +565,9 @@ msgstr ""
 
 #: src\1-2-hello-world-virtually.md:46
 msgid ""
-"If you are not using Ubuntu, you can refer to [their official "
-"documentation](https://docs.gns3.com/docs/getting-started/installation/linux/) "
-"for more detailed installation instructions."
+"If you are not using Ubuntu, you can refer to [their official documentation]"
+"(https://docs.gns3.com/docs/getting-started/installation/linux/) for more "
+"detailed installation instructions."
 msgstr ""
 
 #: src\1-2-hello-world-virtually.md:48
@@ -797,13 +584,12 @@ msgstr ""
 
 #: src\1-2-hello-world-virtually.md:52
 msgid ""
-"[The SONiC image project is located "
-"here](https://github.com/sonic-net/sonic-buildimage). Although we can "
-"compile it ourselves, the process can be slow. To save time, we can directly "
-"[download the latest image from "
-"here](https://sonic-build.azurewebsites.net/ui/sonic/pipelines/142/builds?branchName=master). "
-"Just find the latest successful build and download the sonic-vs.img.gz file "
-"from the Artifacts section."
+"[The SONiC image project is located here](https://github.com/sonic-net/sonic-"
+"buildimage). Although we can compile it ourselves, the process can be slow. "
+"To save time, we can directly [download the latest image from here](https://"
+"sonic-build.azurewebsites.net/ui/sonic/pipelines/142/builds?"
+"branchName=master). Just find the latest successful build and download the "
+"sonic-vs.img.gz file from the Artifacts section."
 msgstr ""
 
 #: src\1-2-hello-world-virtually.md:54
@@ -817,7 +603,8 @@ msgid ""
 msgstr ""
 
 #: src\1-2-hello-world-virtually.md:62
-msgid "# The following command will generate the GNS3 image configuration file."
+msgid ""
+"# The following command will generate the GNS3 image configuration file."
 msgstr ""
 
 #: src\1-2-hello-world-virtually.md:67
@@ -970,7 +757,8 @@ msgstr ""
 
 #: src\1-2-hello-world-virtually.md:152
 msgid ""
-"==========+==============+===========+================+=============+=======================+"
+"==========+==============+===========+================+============="
+"+=======================+"
 msgstr ""
 
 #: src\1-2-hello-world-virtually.md:158
@@ -1033,8 +821,9 @@ msgid ""
 "actually use GNS3 to build much more complex networks for testing, such as "
 "multi-layer ECMP + eBGP, and more. XFlow Research has published a very "
 "detailed document that covers these topics. Interested folks can refer to "
-"the document: [SONiC Deployment and Testing Using "
-"GNS3](https://xflowresearch.com/wp-content/uploads/2023/05/SONiC-Deployment-and-Testing-Using-GNS3.pdf)."
+"the document: [SONiC Deployment and Testing Using GNS3](https://"
+"xflowresearch.com/wp-content/uploads/2023/05/SONiC-Deployment-and-Testing-"
+"Using-GNS3.pdf)."
 msgstr ""
 
 #: src\1-2-hello-world-virtually.md:190
@@ -1043,14 +832,14 @@ msgstr ""
 
 #: src\1-2-hello-world-virtually.md:191
 msgid ""
-"[GNS3 Linux "
-"Install](https://docs.gns3.com/docs/getting-started/installation/linux/)"
+"[GNS3 Linux Install](https://docs.gns3.com/docs/getting-started/installation/"
+"linux/)"
 msgstr ""
 
 #: src\1-2-hello-world-virtually.md:192
 msgid ""
-"[SONiC Deployment and Testing Using "
-"GNS3](https://xflowresearch.com/wp-content/uploads/2023/05/SONiC-Deployment-and-Testing-Using-GNS3.pdf)"
+"[SONiC Deployment and Testing Using GNS3](https://xflowresearch.com/wp-"
+"content/uploads/2023/05/SONiC-Deployment-and-Testing-Using-GNS3.pdf)"
 msgstr ""
 
 #: src\1-3-command-cheatsheet.md:2
@@ -1068,11 +857,10 @@ msgstr ""
 #: src\1-3-command-cheatsheet.md:11
 msgid ""
 "The SONiC documentation provides a very detailed list of commands: [SONiC "
-"Command Line Interface "
-"Guide](https://github.com/sonic-net/sonic-utilities/blob/master/doc/Command-Reference.md), "
-"but due to the large number of commands, it is not very convenient for us to "
-"ramp up, so we listed some of the most commonly used commands and "
-"explanations for reference."
+"Command Line Interface Guide](https://github.com/sonic-net/sonic-utilities/"
+"blob/master/doc/Command-Reference.md), but due to the large number of "
+"commands, it is not very convenient for us to ramp up, so we listed some of "
+"the most commonly used commands and explanations for reference."
 msgstr ""
 
 #: src\1-3-command-cheatsheet.md:34
@@ -1225,8 +1013,8 @@ msgstr ""
 
 #: src\1-3-command-cheatsheet.md:197
 msgid ""
-"[SONiC Command Line Interface "
-"Guide](https://github.com/sonic-net/sonic-utilities/blob/master/doc/Command-Reference.md)"
+"[SONiC Command Line Interface Guide](https://github.com/sonic-net/sonic-"
+"utilities/blob/master/doc/Command-Reference.md)"
 msgstr ""
 
 #: src\2-core-components-intro.md:1
@@ -1243,10 +1031,10 @@ msgstr ""
 msgid ""
 "Since SONiC decoupled all its services using Redis, it can be difficult to "
 "understand the relationships between services by simpling tracking the code. "
-"To get started on SONiC quickly, it is better to first establish a "
-"high-level model, and then delve into the details of each component. "
-"Therefore, before diving into other parts, we will first give a brief "
-"introduction to each component to help everyone build a rough overall model."
+"To get started on SONiC quickly, it is better to first establish a high-"
+"level model, and then delve into the details of each component. Therefore, "
+"before diving into other parts, we will first give a brief introduction to "
+"each component to help everyone build a rough overall model."
 msgstr ""
 
 #: src\2-core-components-intro.md:13
@@ -1267,8 +1055,8 @@ msgstr ""
 #: src\4-2-3-notification-producer-consumer.md:54
 #: src\4-2-4-producer-consumer-table.md:130
 #: src\4-2-5-producer-consumer-state-table.md:125 src\4-4-orch-layer.md:36
-#: src\4-5-event-polling-and-error-handling.md:123 src\5-1-syncd-and-sai.md:824
-#: src\5-2-bgp.md:34 src\5-2-1-bgp-cli.md:91
+#: src\4-5-event-polling-and-error-handling.md:123
+#: src\5-1-syncd-and-sai.md:824 src\5-2-bgp.md:34 src\5-2-1-bgp-cli.md:91
 #: src\5-2-2-route-update-in-frr.md:737 src\5-2-3-route-update-in-sonic.md:736
 msgid ""
 "[SONiC Architecture](https://github.com/sonic-net/SONiC/wiki/Architecture)"
@@ -1282,8 +1070,8 @@ msgstr ""
 #: src\2-core-components-intro.md:23 src\2-4-sai-intro.md:168
 msgid ""
 "[Forwarding Metamorphosis: Fast Programmable Match-Action Processing in "
-"Hardware for "
-"SDN](http://yuba.stanford.edu/~grg/docs/sdn-chip-sigcomm-2013.pdf)"
+"Hardware for SDN](http://yuba.stanford.edu/~grg/docs/sdn-chip-sigcomm-2013."
+"pdf)"
 msgstr ""
 
 #: src\2-1-database.md:1
@@ -1720,8 +1508,8 @@ msgid ""
 "Then, as `*syncd`, if the ASIC sends any notifications to SONiC, it will "
 "send these notifications to Redis as messages, allowing `orchagent` and "
 "`*mgrd` services to obtain these changes and process them. The types of "
-"these notifications can be found in "
-"[SwitchNotifications.h](https://github.com/sonic-net/sonic-sairedis/blob/master/syncd/SwitchNotifications.h)."
+"these notifications can be found in [SwitchNotifications.h](https://github."
+"com/sonic-net/sonic-sairedis/blob/master/syncd/SwitchNotifications.h)."
 msgstr ""
 
 #: src\2-2-services-intro.md:42
@@ -1829,9 +1617,10 @@ msgstr ""
 #: src\2-2-services-intro.md:67
 msgid ""
 "**Detect State Changes**: These state changes mainly come from `*syncd` "
-"services (netlink, etc.) and `syncd` services ([SAI Switch "
-"Notification](https://github.com/sonic-net/sonic-sairedis/blob/master/syncd/SwitchNotifications.h)). "
-"After detecting changes, these services send them to STATE_DB or APPL_DB."
+"services (netlink, etc.) and `syncd` services ([SAI Switch Notification]"
+"(https://github.com/sonic-net/sonic-sairedis/blob/master/syncd/"
+"SwitchNotifications.h)). After detecting changes, these services send them "
+"to STATE_DB or APPL_DB."
 msgstr ""
 
 #: src\2-2-services-intro.md:68
@@ -1849,9 +1638,10 @@ msgstr ""
 #: src\2-2-services-intro.md:72
 msgid ""
 "The official SONiC documentation provides several typical examples of "
-"control flow. Interested readers can refer to [SONiC Subsystem "
-"Interactions](https://github.com/sonic-net/SONiC/wiki/Architecture#sonic-subsystems-interactions). "
-"In the workflow chapter, we will also expand on some very common workflows."
+"control flow. Interested readers can refer to [SONiC Subsystem Interactions]"
+"(https://github.com/sonic-net/SONiC/wiki/Architecture#sonic-subsystems-"
+"interactions). In the workflow chapter, we will also expand on some very "
+"common workflows."
 msgstr ""
 
 #: src\2-3-key-containers.md:1
@@ -1873,23 +1663,23 @@ msgstr ""
 #: src\2-3-key-containers.md:10 src\2-3-key-containers.md:11
 #: src\2-3-key-containers.md:16 src\2-3-key-containers.md:17
 #: src\2-3-key-containers.md:19
-msgid "\"/usr/local/bin/supe…\""
+msgid "\"/usr/local/bin/supe\""
 msgstr ""
 
 #: src\2-3-key-containers.md:12
-msgid "\"/usr/bin/docker-lld…\""
+msgid "\"/usr/bin/docker-lld\""
 msgstr ""
 
 #: src\2-3-key-containers.md:13 src\2-3-key-containers.md:15
-msgid "\"/usr/bin/docker_ini…\""
+msgid "\"/usr/bin/docker_ini\""
 msgstr ""
 
 #: src\2-3-key-containers.md:14 src\2-3-key-containers.md:18
-msgid "\"/usr/bin/docker-ini…\""
+msgid "\"/usr/bin/docker-ini\""
 msgstr ""
 
 #: src\2-3-key-containers.md:20
-msgid "\"/usr/local/bin/dock…\""
+msgid "\"/usr/local/bin/dock\""
 msgstr ""
 
 #: src\2-3-key-containers.md:23
@@ -1980,9 +1770,9 @@ msgid ""
 "This container is mainly used for managing the ASIC on the switch, running "
 "the `syncd` service. The SAI (Switch Abstraction Interface) implementation "
 "and ASIC Driver provided by various vendors are placed in this container. It "
-"allows SONiC to support multiple different ASICs without modifying the "
-"upper-layer services. In other words, without this container, SONiC would be "
-"a brain in a jar, capable of only thinking but nothing else."
+"allows SONiC to support multiple different ASICs without modifying the upper-"
+"layer services. In other words, without this container, SONiC would be a "
+"brain in a jar, capable of only thinking but nothing else."
 msgstr ""
 
 #: src\2-3-key-containers.md:105
@@ -2067,8 +1857,8 @@ msgstr ""
 msgid ""
 "In addition to the REST API, SONiC can also be managed through other methods "
 "such as gNMI, all of which run in this container. The overall architecture "
-"is shown in the figure below "
-"[\\[2\\]](https://github.com/sonic-net/SONiC/blob/master/doc/mgmt/Management%20Framework.md):"
+"is shown in the figure below [\\[2\\]](https://github.com/sonic-net/SONiC/"
+"blob/master/doc/mgmt/Management%20Framework.md):"
 msgstr ""
 
 #: src\2-3-key-containers.md:155
@@ -2102,16 +1892,16 @@ msgstr ""
 
 #: src\2-3-key-containers.md:184 src\3-1-code-repos.md:137
 msgid ""
-"[SONiC Management "
-"Framework](https://github.com/sonic-net/SONiC/blob/master/doc/mgmt/Management%20Framework.md)"
+"[SONiC Management Framework](https://github.com/sonic-net/SONiC/blob/master/"
+"doc/mgmt/Management%20Framework.md)"
 msgstr ""
 
 #: src\2-4-sai-intro.md:3
 msgid ""
 "SAI (Switch Abstraction Interface) is the cornerstone of SONiC, while "
-"enables it to support multiple hardware platforms. In [this SAI API "
-"document](https://github.com/opencomputeproject/SAI/wiki/SAI-APIs), we can "
-"see all the interfaces it defines."
+"enables it to support multiple hardware platforms. In [this SAI API document]"
+"(https://github.com/opencomputeproject/SAI/wiki/SAI-APIs), we can see all "
+"the interfaces it defines."
 msgstr ""
 
 #: src\2-4-sai-intro.md:5
@@ -2196,8 +1986,8 @@ msgstr ""
 
 #: src\2-4-sai-intro.md:56 src\2-4-sai-intro.md:73
 msgid ""
-"// File: "
-"https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_interfacequery.c"
+"// File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/"
+"src/mlnx_sai_interfacequery.c"
 msgstr ""
 
 #: src\2-4-sai-intro.md:62
@@ -2213,21 +2003,21 @@ msgstr ""
 
 #: src\2-4-sai-intro.md:83
 msgid ""
-"// File: "
-"https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_interfacequery_eth.c"
+"// File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/"
+"src/mlnx_sai_interfacequery_eth.c"
 msgstr ""
 
 #: src\2-4-sai-intro.md:103
 msgid ""
-"// File: "
-"https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_bridge.c"
+"// File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/"
+"src/mlnx_sai_bridge.c"
 msgstr ""
 
 #: src\2-4-sai-intro.md:113 src\5-1-syncd-and-sai.md:395
 #: src\5-1-syncd-and-sai.md:592
 msgid ""
-"// File: "
-"https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/src/mlnx_sai_switch.c"
+"// File: https://github.com/Mellanox/SAI-Implementation/blob/master/mlnx_sai/"
+"src/mlnx_sai_switch.c"
 msgstr ""
 
 #: src\2-4-sai-intro.md:124
@@ -2270,8 +2060,8 @@ msgstr ""
 
 #: src\2-4-sai-intro.md:169
 msgid ""
-"[Github: "
-"sonic-net/sonic-sairedis](https://github.com/sonic-net/sonic-sairedis/)"
+"[Github: sonic-net/sonic-sairedis](https://github.com/sonic-net/sonic-"
+"sairedis/)"
 msgstr ""
 
 #: src\2-4-sai-intro.md:170
@@ -2281,22 +2071,21 @@ msgstr ""
 
 #: src\2-4-sai-intro.md:171
 msgid ""
-"[Arista 7050QX Series 10/40G Data Center Switches Data "
-"Sheet](https://www.arista.com/assets/data/pdf/Datasheets/7050QX-32_32S_Datasheet_S.pdf)"
+"[Arista 7050QX Series 10/40G Data Center Switches Data Sheet](https://www."
+"arista.com/assets/data/pdf/Datasheets/7050QX-32_32S_Datasheet_S.pdf)"
 msgstr ""
 
 #: src\2-4-sai-intro.md:172 src\5-1-syncd-and-sai.md:826
 msgid ""
-"[Github repo: Nvidia (Mellanox) SAI "
-"implementation](https://github.com/Mellanox/SAI-Implementation/tree/master)"
+"[Github repo: Nvidia (Mellanox) SAI implementation](https://github.com/"
+"Mellanox/SAI-Implementation/tree/master)"
 msgstr ""
 
 #: src\3-1-code-repos.md:3
 msgid ""
-"The code of SONiC is hosted on the [sonic-net account on "
-"GitHub](https://github.com/sonic-net), with over 30 repositories. It can be "
-"a bit overwhelming at first, but don't worry, we'll go through them together "
-"here."
+"The code of SONiC is hosted on the [sonic-net account on GitHub](https://"
+"github.com/sonic-net), with over 30 repositories. It can be a bit "
+"overwhelming at first, but don't worry, we'll go through them together here."
 msgstr ""
 
 #: src\3-1-code-repos.md:5
@@ -2379,8 +2168,8 @@ msgstr ""
 
 #: src\3-1-code-repos.md:26
 msgid ""
-"Dockerfiles for the build containers used for building (in the "
-"`sonic-slave-*` directories)."
+"Dockerfiles for the build containers used for building (in the `sonic-slave-"
+"*` directories)."
 msgstr ""
 
 #: src\3-1-code-repos.md:27
@@ -2415,9 +2204,9 @@ msgstr ""
 #: src\3-1-code-repos.md:37
 msgid ""
 "As introduced in the previous section, the SWSS container is the brain of "
-"SONiC. In SONiC, it consists of two repositories: "
-"[sonic-swss-common](https://github.com/sonic-net/sonic-swss-common) and "
-"[sonic-swss](https://github.com/sonic-net/sonic-swss)."
+"SONiC. In SONiC, it consists of two repositories: [sonic-swss-common]"
+"(https://github.com/sonic-net/sonic-swss-common) and [sonic-swss](https://"
+"github.com/sonic-net/sonic-swss)."
 msgstr ""
 
 #: src\3-1-code-repos.md:39
@@ -2426,8 +2215,8 @@ msgstr ""
 
 #: src\3-1-code-repos.md:41
 msgid ""
-"The first one is the common library: `sonic-swss-common` "
-"(<https://github.com/sonic-net/sonic-swss-common>)."
+"The first one is the common library: `sonic-swss-common` (<https://github."
+"com/sonic-net/sonic-swss-common>)."
 msgstr ""
 
 #: src\3-1-code-repos.md:43
@@ -2446,8 +2235,8 @@ msgstr ""
 
 #: src\3-1-code-repos.md:47
 msgid ""
-"Next is the main SWSS repository: `sonic-swss` "
-"(<https://github.com/sonic-net/sonic-swss>)."
+"Next is the main SWSS repository: `sonic-swss` (<https://github.com/sonic-"
+"net/sonic-swss>)."
 msgstr ""
 
 #: src\3-1-code-repos.md:49
@@ -2456,10 +2245,10 @@ msgstr ""
 
 #: src\3-1-code-repos.md:51
 msgid ""
-"Most of the `*mgrd` and `*syncd` services: `orchagent`, "
-"`portsyncd/portmgrd/intfmgrd`, `neighsyncd/nbrmgrd`, `natsyncd/natmgrd`, "
-"`buffermgrd`, `coppmgrd`, `macsecmgrd`, `sflowmgrd`, `tunnelmgrd`, "
-"`vlanmgrd`, `vrfmgrd`, `vxlanmgrd`, and more."
+"Most of the `*mgrd` and `*syncd` services: `orchagent`, `portsyncd/portmgrd/"
+"intfmgrd`, `neighsyncd/nbrmgrd`, `natsyncd/natmgrd`, `buffermgrd`, "
+"`coppmgrd`, `macsecmgrd`, `sflowmgrd`, `tunnelmgrd`, `vlanmgrd`, `vrfmgrd`, "
+"`vxlanmgrd`, and more."
 msgstr ""
 
 #: src\3-1-code-repos.md:52
@@ -2488,13 +2277,13 @@ msgstr ""
 #: src\3-1-code-repos.md:58
 msgid ""
 "Next is the Switch Abstraction Interface (SAI). [Although SAI was proposed "
-"by Microsoft and released version 0.1 in March "
-"2015](https://www.opencompute.org/documents/switch-abstraction-interface-ocp-specification-v0-2-pdf), "
-"[by September 2015, before SONiC had even released its first version, it was "
-"already accepted by OCP as a public "
-"standard](https://azure.microsoft.com/en-us/blog/switch-abstraction-interface-sai-officially-accepted-by-the-open-compute-project-ocp/). "
-"This shows how quickly SONiC and SAI was getting supports from the community "
-"and vendors."
+"by Microsoft and released version 0.1 in March 2015](https://www.opencompute."
+"org/documents/switch-abstraction-interface-ocp-specification-v0-2-pdf), [by "
+"September 2015, before SONiC had even released its first version, it was "
+"already accepted by OCP as a public standard](https://azure.microsoft.com/en-"
+"us/blog/switch-abstraction-interface-sai-officially-accepted-by-the-open-"
+"compute-project-ocp/). This shows how quickly SONiC and SAI was getting "
+"supports from the community and vendors."
 msgstr ""
 
 #: src\3-1-code-repos.md:60
@@ -2503,10 +2292,10 @@ msgstr ""
 
 #: src\3-1-code-repos.md:62
 msgid ""
-"OpenComputeProject/SAI under OCP: "
-"<https://github.com/opencomputeproject/SAI>. This repository contains all "
-"the code related to the SAI standard, including SAI header files, behavior "
-"models, test cases, documentation, and more."
+"OpenComputeProject/SAI under OCP: <https://github.com/opencomputeproject/"
+"SAI>. This repository contains all the code related to the SAI standard, "
+"including SAI header files, behavior models, test cases, documentation, and "
+"more."
 msgstr ""
 
 #: src\3-1-code-repos.md:63
@@ -2520,12 +2309,11 @@ msgstr ""
 #: src\3-1-code-repos.md:65
 msgid ""
 "In addition to these two repositories, there is another platform-related "
-"repository, such as "
-"[sonic-platform-vpp](https://github.com/sonic-net/sonic-platform-vpp), which "
-"uses SAI interfaces to implement data plane functionalities through VPP, "
-"essentially acting as a high-performance soft switch. I personally feel it "
-"might be merged into the buildimage repository in the future as part of the "
-"platform directory."
+"repository, such as [sonic-platform-vpp](https://github.com/sonic-net/sonic-"
+"platform-vpp), which uses SAI interfaces to implement data plane "
+"functionalities through VPP, essentially acting as a high-performance soft "
+"switch. I personally feel it might be merged into the buildimage repository "
+"in the future as part of the platform directory."
 msgstr ""
 
 #: src\3-1-code-repos.md:67
@@ -2534,8 +2322,8 @@ msgstr ""
 
 #: src\3-1-code-repos.md:69
 msgid ""
-"Next are all the repositories related to [management "
-"services](https://github.com/sonic-net/SONiC/blob/master/doc/mgmt/Management%20Framework.md) "
+"Next are all the repositories related to [management services](https://"
+"github.com/sonic-net/SONiC/blob/master/doc/mgmt/Management%20Framework.md) "
 "in SONiC:"
 msgstr ""
 
@@ -2553,12 +2341,13 @@ msgstr ""
 
 #: src\3-1-code-repos.md:73
 msgid ""
-"Base library for management services, containing `translib`, YANG "
-"model-related code"
+"Base library for management services, containing `translib`, YANG model-"
+"related code"
 msgstr ""
 
 #: src\3-1-code-repos.md:74
-msgid "[sonic-mgmt-framework](https://github.com/sonic-net/sonic-mgmt-framework)"
+msgid ""
+"[sonic-mgmt-framework](https://github.com/sonic-net/sonic-mgmt-framework)"
 msgstr ""
 
 #: src\3-1-code-repos.md:74
@@ -2583,8 +2372,8 @@ msgstr ""
 
 #: src\3-1-code-repos.md:76
 msgid ""
-"Another configuration management REST Server implemented in Go. Unlike "
-"mgmt-framework, this server directly operates on CONFIG_DB upon receiving "
+"Another configuration management REST Server implemented in Go. Unlike mgmt-"
+"framework, this server directly operates on CONFIG_DB upon receiving "
 "messages, instead of using translib (not shown in the diagram, process name: "
 "`go-server-server`)"
 msgstr ""
@@ -2603,7 +2392,8 @@ msgstr ""
 #: src\3-1-code-repos.md:79
 msgid ""
 "Here is the architecture diagram of SONiC management services for reference "
-"[\\[4\\]](https://github.com/sonic-net/SONiC/blob/master/doc/mgmt/Management%20Framework.md):"
+"[\\[4\\]](https://github.com/sonic-net/SONiC/blob/master/doc/mgmt/Management%"
+"20Framework.md):"
 msgstr ""
 
 #: src\3-1-code-repos.md:81
@@ -2612,8 +2402,8 @@ msgstr ""
 
 #: src\3-1-code-repos.md:83
 msgid ""
-"Platform Monitoring Related Repositories: `sonic-platform-common` and "
-"`sonic-platform-daemons`"
+"Platform Monitoring Related Repositories: `sonic-platform-common` and `sonic-"
+"platform-daemons`"
 msgstr ""
 
 #: src\3-1-code-repos.md:85
@@ -2730,8 +2520,8 @@ msgstr ""
 #: src\3-1-code-repos.md:104
 msgid ""
 "Google's P4-based network stack support (P4 Integrated Network Stack, PINS). "
-"More information can be found on the [PINS "
-"website](https://opennetworking.org/pins/)"
+"More information can be found on the [PINS website](https://opennetworking."
+"org/pins/)"
 msgstr ""
 
 #: src\3-1-code-repos.md:105
@@ -2748,8 +2538,8 @@ msgstr ""
 
 #: src\3-1-code-repos.md:106
 msgid ""
-"[Zero Touch "
-"Provisioning](https://github.com/sonic-net/SONiC/blob/master/doc/ztp/ztp.md)"
+"[Zero Touch Provisioning](https://github.com/sonic-net/SONiC/blob/master/doc/"
+"ztp/ztp.md)"
 msgstr ""
 
 #: src\3-1-code-repos.md:107
@@ -2758,8 +2548,8 @@ msgstr ""
 
 #: src\3-1-code-repos.md:107
 msgid ""
-"[Disaggregated API for SONiC "
-"Hosts](https://github.com/sonic-net/DASH/blob/main/documentation/general/dash-high-level-design.md)"
+"[Disaggregated API for SONiC Hosts](https://github.com/sonic-net/DASH/blob/"
+"main/documentation/general/dash-high-level-design.md)"
 msgstr ""
 
 #: src\3-1-code-repos.md:108
@@ -2784,7 +2574,8 @@ msgid ""
 msgstr ""
 
 #: src\3-1-code-repos.md:110
-msgid "[sonic-wpa-supplicant](https://github.com/sonic-net/sonic-wpa-supplicant)"
+msgid ""
+"[sonic-wpa-supplicant](https://github.com/sonic-net/sonic-wpa-supplicant)"
 msgstr ""
 
 #: src\3-1-code-repos.md:110
@@ -2845,9 +2636,9 @@ msgstr ""
 #: src\3-1-code-repos.md:123
 msgid ""
 "`crm` directory: Used to configure and view [CRM (Critical Resource "
-"Monitoring)](https://github.com/sonic-net/SONiC/wiki/Critical-Resource-Monitoring-High-Level-Design) "
-"in SONiC. This command is not included in the `config` and `show` commands, "
-"so users can use it directly."
+"Monitoring)](https://github.com/sonic-net/SONiC/wiki/Critical-Resource-"
+"Monitoring-High-Level-Design) in SONiC. This command is not included in the "
+"`config` and `show` commands, so users can use it directly."
 msgstr ""
 
 #: src\3-1-code-repos.md:124
@@ -2858,9 +2649,9 @@ msgstr ""
 
 #: src\3-1-code-repos.md:125
 msgid ""
-"`pfcwd` directory: Used to configure and view [PFC Watch "
-"Dog](https://github.com/sonic-net/SONiC/wiki/PFC-Watchdog) in SONiC, such as "
-"starting, stopping, modifying polling intervals, and more."
+"`pfcwd` directory: Used to configure and view [PFC Watch Dog](https://github."
+"com/sonic-net/SONiC/wiki/PFC-Watchdog) in SONiC, such as starting, stopping, "
+"modifying polling intervals, and more."
 msgstr ""
 
 #: src\3-1-code-repos.md:127
@@ -2881,20 +2672,20 @@ msgstr ""
 
 #: src\3-1-code-repos.md:136
 msgid ""
-"[SONiC Source "
-"Repositories](https://github.com/sonic-net/SONiC/blob/master/sourcecode.md)"
+"[SONiC Source Repositories](https://github.com/sonic-net/SONiC/blob/master/"
+"sourcecode.md)"
 msgstr ""
 
 #: src\3-1-code-repos.md:139 src\3-1-code-repos.md:141
 msgid ""
-"[SONiC Critical Resource "
-"Monitoring](https://github.com/sonic-net/SONiC/wiki/Critical-Resource-Monitoring-High-Level-Design)"
+"[SONiC Critical Resource Monitoring](https://github.com/sonic-net/SONiC/wiki/"
+"Critical-Resource-Monitoring-High-Level-Design)"
 msgstr ""
 
 #: src\3-1-code-repos.md:140
 msgid ""
-"[SONiC Zero Touch "
-"Provisioning](https://github.com/sonic-net/SONiC/blob/master/doc/ztp/ztp.md)"
+"[SONiC Zero Touch Provisioning](https://github.com/sonic-net/SONiC/blob/"
+"master/doc/ztp/ztp.md)"
 msgstr ""
 
 #: src\3-1-code-repos.md:142
@@ -2903,14 +2694,14 @@ msgstr ""
 
 #: src\3-1-code-repos.md:143
 msgid ""
-"[SONiC Disaggregated API for Switch "
-"Hosts](https://github.com/sonic-net/DASH/blob/main/documentation/general/dash-high-level-design.md)"
+"[SONiC Disaggregated API for Switch Hosts](https://github.com/sonic-net/DASH/"
+"blob/main/documentation/general/dash-high-level-design.md)"
 msgstr ""
 
 #: src\3-1-code-repos.md:144
 msgid ""
-"[SAI spec for "
-"OCP](https://www.opencompute.org/documents/switch-abstraction-interface-ocp-specification-v0-2-pdf)"
+"[SAI spec for OCP](https://www.opencompute.org/documents/switch-abstraction-"
+"interface-ocp-specification-v0-2-pdf)"
 msgstr ""
 
 #: src\3-1-code-repos.md:145
@@ -2945,10 +2736,9 @@ msgstr ""
 
 #: src\3-2-build.md:11
 msgid ""
-"You can refer to the [official "
-"documentation](https://docs.docker.com/engine/install/) for Docker "
-"installation methods. Here, we briefly introduce the installation method for "
-"Ubuntu."
+"You can refer to the [official documentation](https://docs.docker.com/engine/"
+"install/) for Docker installation methods. Here, we briefly introduce the "
+"installation method for Ubuntu."
 msgstr ""
 
 #: src\3-2-build.md:13
@@ -2962,8 +2752,8 @@ msgstr ""
 
 #: src\3-2-build.md:24
 msgid ""
-"\" signed-by=/etc/apt/keyrings/docker.gpg] "
-"https://download.docker.com/linux/ubuntu \\"
+"\" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/"
+"ubuntu \\"
 msgstr ""
 
 #: src\3-2-build.md:25
@@ -3003,9 +2793,8 @@ msgstr ""
 #: src\3-2-build.md:57
 msgid ""
 "In [Chapter 3.1 Code Repositories](./3-1-code-repos), we mentioned that the "
-"main repository of SONiC is "
-"[sonic-buildimage](https://github.com/sonic-net/sonic-buildimage). It is "
-"also the only repo we need to focus on for now."
+"main repository of SONiC is [sonic-buildimage](https://github.com/sonic-net/"
+"sonic-buildimage). It is also the only repo we need to focus on for now."
 msgstr ""
 
 #: src\3-2-build.md:59
@@ -3034,13 +2823,13 @@ msgstr ""
 
 #: src\3-2-build.md:80
 msgid ""
-"[Although SONiC supports many different types of "
-"switches](https://sonic-net.github.io/SONiC/Supported-Devices-and-Platforms.html), "
-"different models of switches use different ASICs, which means different "
-"drivers and SDKs. Although SONiC uses SAI to hide these differences and "
-"provide a unified interface for the upper layers. However, we need to set "
-"target platform correctly to ensure that the right SAI will be used, so the "
-"SONiC we build can run on our target devices."
+"[Although SONiC supports many different types of switches](https://sonic-net."
+"github.io/SONiC/Supported-Devices-and-Platforms.html), different models of "
+"switches use different ASICs, which means different drivers and SDKs. "
+"Although SONiC uses SAI to hide these differences and provide a unified "
+"interface for the upper layers. However, we need to set target platform "
+"correctly to ensure that the right SAI will be used, so the SONiC we build "
+"can run on our target devices."
 msgstr ""
 
 #: src\3-2-build.md:82
@@ -3128,7 +2917,8 @@ msgid ""
 msgstr ""
 
 #: src\3-2-build.md:136
-msgid "To build the debug image, we can use `INSTALL_DEBUG_TOOLS` build option:"
+msgid ""
+"To build the debug image, we can use `INSTALL_DEBUG_TOOLS` build option:"
 msgstr ""
 
 #: src\3-2-build.md:139
@@ -3156,14 +2946,14 @@ msgstr ""
 
 #: src\3-2-build.md:148
 msgid ""
-"Docker containers: target/<docker-image>.gz, e.g., "
-"`target/docker-orchagent.gz`"
+"Docker containers: target/<docker-image>.gz, e.g., `target/docker-orchagent."
+"gz`"
 msgstr ""
 
 #: src\3-2-build.md:149
 msgid ""
-"Deb packages: target/debs/<debian-version>/<package>.deb, e.g., "
-"`target/debs/bullseye/libswsscommon_1.0.0_amd64.deb`"
+"Deb packages: target/debs/<debian-version>/<package>.deb, e.g., `target/debs/"
+"bullseye/libswsscommon_1.0.0_amd64.deb`"
 msgstr ""
 
 #: src\3-2-build.md:150
@@ -3222,8 +3012,8 @@ msgid ""
 "Some parts of the code in some repositories will not be build during full "
 "build. For example, gtest in `sonic-swss-common`. So, when using this way to "
 "recompile, please make sure to check the original repository's build "
-"guidance to avoid errors, such as: "
-"<https://github.com/sonic-net/sonic-swss-common#build-from-source>.\n"
+"guidance to avoid errors, such as: <https://github.com/sonic-net/sonic-swss-"
+"common#build-from-source>.\n"
 "```"
 msgstr ""
 
@@ -3301,8 +3091,8 @@ msgstr ""
 
 #: src\3-2-build.md:213
 msgid ""
-"[SONiC Build "
-"Guide](https://github.com/sonic-net/sonic-buildimage/blob/master/README.md)"
+"[SONiC Build Guide](https://github.com/sonic-net/sonic-buildimage/blob/"
+"master/README.md)"
 msgstr ""
 
 #: src\3-2-build.md:214
@@ -3311,14 +3101,14 @@ msgstr ""
 
 #: src\3-2-build.md:215
 msgid ""
-"[Github repo: "
-"sonic-buildimage](https://github.com/sonic-net/sonic-buildimage)"
+"[Github repo: sonic-buildimage](https://github.com/sonic-net/sonic-"
+"buildimage)"
 msgstr ""
 
 #: src\3-2-build.md:217
 msgid ""
-"[Wrapper for starting make inside sonic-slave "
-"container](https://github.com/sonic-net/sonic-buildimage/blob/master/Makefile.work)"
+"[Wrapper for starting make inside sonic-slave container](https://github.com/"
+"sonic-net/sonic-buildimage/blob/master/Makefile.work)"
 msgstr ""
 
 #: src\3-3-testing.md:1
@@ -3353,10 +3143,9 @@ msgstr ""
 #: src\4-communications.md:6
 msgid ""
 "Redis-based inter-service communication: There are 4 different communication "
-"channel based on Redis - SubscriberStateTable, "
-"NotificationProducer/Consumer, Producer/ConsumerTable, and "
-"Producer/ConsumerStateTable. Although they are all based on Redis, their use "
-"case can be very different."
+"channel based on Redis - SubscriberStateTable, NotificationProducer/"
+"Consumer, Producer/ConsumerTable, and Producer/ConsumerStateTable. Although "
+"they are all based on Redis, their use case can be very different."
 msgstr ""
 
 #: src\4-communications.md:7
@@ -3368,12 +3157,11 @@ msgstr ""
 #: src\4-communications.md:15
 msgid ""
 "The implementation of all these basic communication mechanisms is in the "
-"`common` directory of the "
-"[sonic-swss-common](https://github.com/sonic-net/sonic-swss-common) repo. "
-"Additionally, to facilitate the use of various services, SONiC has build a "
-"wrapper layer called Orch in "
-"[sonic-swss](https://github.com/sonic-net/sonic-swss), which helps simplify "
-"the upper-layer services."
+"`common` directory of the [sonic-swss-common](https://github.com/sonic-net/"
+"sonic-swss-common) repo. Additionally, to facilitate the use of various "
+"services, SONiC has build a wrapper layer called Orch in [sonic-swss]"
+"(https://github.com/sonic-net/sonic-swss), which helps simplify the upper-"
+"layer services."
 msgstr ""
 
 #: src\4-communications.md:17
@@ -3400,16 +3188,16 @@ msgstr ""
 #: src\4-5-event-polling-and-error-handling.md:125
 #: src\5-2-2-route-update-in-frr.md:739 src\5-2-3-route-update-in-sonic.md:738
 msgid ""
-"[Github repo: "
-"sonic-swss-common](https://github.com/sonic-net/sonic-swss-common)"
+"[Github repo: sonic-swss-common](https://github.com/sonic-net/sonic-swss-"
+"common)"
 msgstr ""
 
 #: src\4-1-1-exec.md:3
 msgid ""
 "The simplest way SONiC communicates with the kernel is through command-line "
-"calls, which are implemented in "
-"[common/exec.h](https://github.com/sonic-net/sonic-swss-common/blob/master/common/exec.h). "
-"The interface is straight-forward:"
+"calls, which are implemented in [common/exec.h](https://github.com/sonic-net/"
+"sonic-swss-common/blob/master/common/exec.h). The interface is straight-"
+"forward:"
 msgstr ""
 
 #: src\4-1-1-exec.md:6
@@ -3499,17 +3287,20 @@ msgstr ""
 
 #: src\4-1-2-netlink.md:7
 msgid ""
-"[common/netmsg.\\*](https://github.com/sonic-net/sonic-swss-common/blob/master/common/netmsg.h)"
+"[common/netmsg.\\*](https://github.com/sonic-net/sonic-swss-common/blob/"
+"master/common/netmsg.h)"
 msgstr ""
 
 #: src\4-1-2-netlink.md:8
 msgid ""
-"[common/netlink.\\*](https://github.com/sonic-net/sonic-swss-common/blob/master/common/netlink.h)"
+"[common/netlink.\\*](https://github.com/sonic-net/sonic-swss-common/blob/"
+"master/common/netlink.h)"
 msgstr ""
 
 #: src\4-1-2-netlink.md:9
 msgid ""
-"[common/netdispatcher.\\*](https://github.com/sonic-net/sonic-swss-common/blob/master/common/netdispatcher.h)."
+"[common/netdispatcher.\\*](https://github.com/sonic-net/sonic-swss-common/"
+"blob/master/common/netdispatcher.h)."
 msgstr ""
 
 #: src\4-1-2-netlink.md:11
@@ -3643,51 +3434,53 @@ msgstr ""
 
 #: src\4-2-1-redis-wrappers.md:11
 msgid ""
-"**[RedisContext](https://github.com/sonic-net/sonic-swss-common/blob/master/common/dbconnector.h)**: "
-"Wraps and maintains the connection to Redis, and closes the connection when "
-"it is destroyed."
+"**[RedisContext](https://github.com/sonic-net/sonic-swss-common/blob/master/"
+"common/dbconnector.h)**: Wraps and maintains the connection to Redis, and "
+"closes the connection when it is destroyed."
 msgstr ""
 
 #: src\4-2-1-redis-wrappers.md:12
 msgid ""
-"**[DBConnector](https://github.com/sonic-net/sonic-swss-common/blob/master/common/dbconnector.h)**: "
-"Wraps all the underlying Redis commands used, such as `SET`, `GET`, `DEL`, "
-"etc."
+"**[DBConnector](https://github.com/sonic-net/sonic-swss-common/blob/master/"
+"common/dbconnector.h)**: Wraps all the underlying Redis commands used, such "
+"as `SET`, `GET`, `DEL`, etc."
 msgstr ""
 
 #: src\4-2-1-redis-wrappers.md:13
 msgid ""
-"**[RedisTransactioner](https://github.com/sonic-net/sonic-swss-common/blob/master/common/redistran.h)**: "
-"Wraps Redis transaction operations, used to execute multiple commands in a "
-"transaction, such as `MULTI`, `EXEC`, etc."
+"**[RedisTransactioner](https://github.com/sonic-net/sonic-swss-common/blob/"
+"master/common/redistran.h)**: Wraps Redis transaction operations, used to "
+"execute multiple commands in a transaction, such as `MULTI`, `EXEC`, etc."
 msgstr ""
 
 #: src\4-2-1-redis-wrappers.md:14
 msgid ""
-"**[RedisPipeline](https://github.com/sonic-net/sonic-swss-common/blob/master/common/redispipeline.h)**: "
-"Wraps the hiredis redisAppendFormattedCommand API, providing an asynchronous "
-"interface for executing Redis commands similar to a queue (although most "
-"usage methods are still synchronous). It is also one of the few classes that "
-"wraps the `SCRIPT LOAD` command, used to load Lua scripts in Redis to "
-"implement stored procedures. Most classes in SONiC that need to execute Lua "
-"scripts will use this class for loading and calling."
+"**[RedisPipeline](https://github.com/sonic-net/sonic-swss-common/blob/master/"
+"common/redispipeline.h)**: Wraps the hiredis redisAppendFormattedCommand "
+"API, providing an asynchronous interface for executing Redis commands "
+"similar to a queue (although most usage methods are still synchronous). It "
+"is also one of the few classes that wraps the `SCRIPT LOAD` command, used to "
+"load Lua scripts in Redis to implement stored procedures. Most classes in "
+"SONiC that need to execute Lua scripts will use this class for loading and "
+"calling."
 msgstr ""
 
 #: src\4-2-1-redis-wrappers.md:15
 msgid ""
-"**[RedisSelect](https://github.com/sonic-net/sonic-swss-common/blob/master/common/redisselect.h)**: "
-"Implements the Selectable interface to support the epoll-based event "
-"notification mechanism (Event Polling). Mainly used to trigger epoll "
-"callbacks when we receive a reply from Redis (we will introduce this in more "
-"detail later)."
+"**[RedisSelect](https://github.com/sonic-net/sonic-swss-common/blob/master/"
+"common/redisselect.h)**: Implements the Selectable interface to support the "
+"epoll-based event notification mechanism (Event Polling). Mainly used to "
+"trigger epoll callbacks when we receive a reply from Redis (we will "
+"introduce this in more detail later)."
 msgstr ""
 
 #: src\4-2-1-redis-wrappers.md:16
 msgid ""
-"**[SonicDBConfig](https://github.com/sonic-net/sonic-swss-common/blob/master/common/dbconnector.h)**: "
-"This class is a \"static class\" that mainly implements the reading and "
-"parsing of the SONiC DB configuration file. Other database operation classes "
-"will use this class to obtain any configuration information if needed."
+"**[SonicDBConfig](https://github.com/sonic-net/sonic-swss-common/blob/master/"
+"common/dbconnector.h)**: This class is a \"static class\" that mainly "
+"implements the reading and parsing of the SONiC DB configuration file. Other "
+"database operation classes will use this class to obtain any configuration "
+"information if needed."
 msgstr ""
 
 #: src\4-2-1-redis-wrappers.md:18
@@ -3700,8 +3493,8 @@ msgid ""
 "established by SONiC using the keys in Redis. Since the format of each Redis "
 "key is `<table-name><separator><key-name>`, SONiC needs to craft or parse "
 "it, when accessing the database. For more details on how the database is "
-"designed, please refer to [the database section for more "
-"information](/posts/sonic-2-key-components/#database)."
+"designed, please refer to [the database section for more information](/posts/"
+"sonic-2-key-components/#database)."
 msgstr ""
 
 #: src\4-2-1-redis-wrappers.md:22
@@ -3718,31 +3511,35 @@ msgstr ""
 
 #: src\4-2-1-redis-wrappers.md:28
 msgid ""
-"**[TableBase](https://github.com/sonic-net/sonic-swss-common/blob/master/common/table.h)**: "
-"This class is the base class for all tables. It mainly wraps the basic "
-"information of the table, such as the table name, Redis key packaging, the "
-"name of the channel used for communication when each table is modified, etc."
+"**[TableBase](https://github.com/sonic-net/sonic-swss-common/blob/master/"
+"common/table.h)**: This class is the base class for all tables. It mainly "
+"wraps the basic information of the table, such as the table name, Redis key "
+"packaging, the name of the channel used for communication when each table is "
+"modified, etc."
 msgstr ""
 
 #: src\4-2-1-redis-wrappers.md:29
 msgid ""
-"**[Table](https://github.com/sonic-net/sonic-swss-common/blob/master/common/table.h)**: "
-"This class wraps the CRUD operations for each table. It contains the table "
-"name and separator, so the final key can be constructed when called."
+"**[Table](https://github.com/sonic-net/sonic-swss-common/blob/master/common/"
+"table.h)**: This class wraps the CRUD operations for each table. It contains "
+"the table name and separator, so the final key can be constructed when "
+"called."
 msgstr ""
 
 #: src\4-2-1-redis-wrappers.md:30
 msgid ""
-"**[ConsumerTableBase](https://github.com/sonic-net/sonic-swss-common/blob/master/common/consumertablebase.h)**: "
-"This class is the base class for various SubscriptionTables. It mainly wraps "
-"a simple queue and its pop operation (yes, only pop, no push, because it is "
-"for consumers only), for upper layer calls."
+"**[ConsumerTableBase](https://github.com/sonic-net/sonic-swss-common/blob/"
+"master/common/consumertablebase.h)**: This class is the base class for "
+"various SubscriptionTables. It mainly wraps a simple queue and its pop "
+"operation (yes, only pop, no push, because it is for consumers only), for "
+"upper layer calls."
 msgstr ""
 
 #: src\4-2-2-subscribe-state-table.md:3
 msgid ""
 "The most straight-forward redis-based communication channel is "
-"[SubscriberStateTable](https://github.com/sonic-net/sonic-swss-common/blob/master/common/subscriberstatetable.h)."
+"[SubscriberStateTable](https://github.com/sonic-net/sonic-swss-common/blob/"
+"master/common/subscriberstatetable.h)."
 msgstr ""
 
 #: src\4-2-2-subscribe-state-table.md:5
@@ -3832,8 +3629,8 @@ msgstr ""
 #: src\4-2-4-producer-consumer-table.md:133
 #: src\4-2-5-producer-consumer-state-table.md:128
 msgid ""
-"[Redis keyspace "
-"notifications](https://redis.io/docs/manual/keyspace-notifications/)"
+"[Redis keyspace notifications](https://redis.io/docs/manual/keyspace-"
+"notifications/)"
 msgstr ""
 
 #: src\4-2-3-notification-producer-consumer.md:1
@@ -3844,9 +3641,10 @@ msgstr ""
 msgid ""
 "When it comes to message communication, there is no way we can bypass "
 "message queues. And this is the second communication channel in SONiC - "
-"[NotificationProducer](https://github.com/sonic-net/sonic-swss-common/blob/master/common/notificationproducer.h) "
-"and "
-"[NotificationConsumer](https://github.com/sonic-net/sonic-swss-common/blob/master/common/notificationconsumer.h)."
+"[NotificationProducer](https://github.com/sonic-net/sonic-swss-common/blob/"
+"master/common/notificationproducer.h) and [NotificationConsumer](https://"
+"github.com/sonic-net/sonic-swss-common/blob/master/common/"
+"notificationconsumer.h)."
 msgstr ""
 
 #: src\4-2-3-notification-producer-consumer.md:5
@@ -3866,7 +3664,8 @@ msgid "![](assets/chapter-4/notification-producer-consumer.png)"
 msgstr ""
 
 #: src\4-2-3-notification-producer-consumer.md:9
-msgid "In this communication channel, the producer side performs two main tasks:"
+msgid ""
+"In this communication channel, the producer side performs two main tasks:"
 msgstr ""
 
 #: src\4-2-3-notification-producer-consumer.md:11
@@ -3923,13 +3722,12 @@ msgstr ""
 
 #: src\4-2-4-producer-consumer-table.md:3
 msgid ""
-"Although `NotificationProducer` and `NotificationConsumer` is "
-"straight-forward, but they are not suitable for passing large data. "
-"Therefore, SONiC provides another message-queue-based communication "
-"mechanism that works in similar way - "
-"[ProducerTable](https://github.com/sonic-net/sonic-swss-common/blob/master/common/producertable.h) "
-"and "
-"[ConsumerTable](https://github.com/sonic-net/sonic-swss-common/blob/master/common/consumertable.h)."
+"Although `NotificationProducer` and `NotificationConsumer` is straight-"
+"forward, but they are not suitable for passing large data. Therefore, SONiC "
+"provides another message-queue-based communication mechanism that works in "
+"similar way - [ProducerTable](https://github.com/sonic-net/sonic-swss-common/"
+"blob/master/common/producertable.h) and [ConsumerTable](https://github.com/"
+"sonic-net/sonic-swss-common/blob/master/common/consumertable.h)."
 msgstr ""
 
 #: src\4-2-4-producer-consumer-table.md:5
@@ -3954,15 +3752,15 @@ msgstr ""
 
 #: src\4-2-4-producer-consumer-table.md:11
 msgid ""
-"`Key` is table name and key (e.g., "
-"`SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000`)."
+"`Key` is table name and key (e.g., `SAI_OBJECT_TYPE_SWITCH:"
+"oid:0x21000000000000`)."
 msgstr ""
 
 #: src\4-2-4-producer-consumer-table.md:12
 msgid ""
 "`FieldValuePairs` are the field that needs to be updated in the database and "
-"their values, which is serialized into a JSON string: `\"[\\\"Field1\\\", "
-"\\\"Value1\\\", \\\"Field2\\\", \\\"Value2\\\", ...]\"`."
+"their values, which is serialized into a JSON string: `\"[\\\"Field1\\\", \\"
+"\"Value1\\\", \\\"Field2\\\", \\\"Value2\\\", ...]\"`."
 msgstr ""
 
 #: src\4-2-4-producer-consumer-table.md:13
@@ -4073,9 +3871,8 @@ msgstr ""
 #: src\4-2-4-producer-consumer-table.md:79
 msgid ""
 "On the other side, ConsumerTable is slightly more complicated because it "
-"supports many types of ops. The logic is written in a separate file "
-"(`common/consumer_table_pops.lua`). Interested readers can explore it "
-"further:"
+"supports many types of ops. The logic is written in a separate file (`common/"
+"consumer_table_pops.lua`). Interested readers can explore it further:"
 msgstr ""
 
 #: src\4-2-4-producer-consumer-table.md:82
@@ -4128,9 +3925,9 @@ msgstr ""
 msgid ""
 "```text\n"
 "1735966216.139741 [1 lua] \"LPUSH\" \"ASIC_STATE_KEY_VALUE_OP_QUEUE\" "
-"\"SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000\" "
-"\"[\\\"SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEXTHOP_ENTRY\\\",\\\"1\\\"]\" "
-"\"Sget\"               \n"
+"\"SAI_OBJECT_TYPE_SWITCH:oid:0x21000000000000\" \"[\\"
+"\"SAI_SWITCH_ATTR_AVAILABLE_IPV4_NEXTHOP_ENTRY\\\",\\\"1\\\"]\" \"Sget"
+"\"               \n"
 "1735966216.139774 [1 lua] \"PUBLISH\" \"ASIC_STATE_CHANNEL@1\" \"G\" \n"
 "```"
 msgstr ""
@@ -4143,8 +3940,8 @@ msgstr ""
 #: src\4-2-4-producer-consumer-table.md:135
 #: src\4-2-5-producer-consumer-state-table.md:130
 msgid ""
-"[Redis Atomicity with "
-"Lua](https://developer.redis.com/develop/java/spring/rate-limiting/fixed-window/reactive-lua/)"
+"[Redis Atomicity with Lua](https://developer.redis.com/develop/java/spring/"
+"rate-limiting/fixed-window/reactive-lua/)"
 msgstr ""
 
 #: src\4-2-4-producer-consumer-table.md:136
@@ -4162,10 +3959,10 @@ msgid ""
 "of the messages, each message can only update one table key and requires "
 "JSON serialization. However, in many cases, we don't need strict ordering "
 "but need higher throughput. To optimize performance, SONiC introduces the "
-"fourth, and most frequently used, communication channel: "
-"[ProducerStateTable](https://github.com/sonic-net/sonic-swss-common/blob/master/common/producerstatetable.h) "
-"and "
-"[ConsumerStateTable](https://github.com/sonic-net/sonic-swss-common/blob/master/common/consumerstatetable.h)."
+"fourth, and most frequently used, communication channel: [ProducerStateTable]"
+"(https://github.com/sonic-net/sonic-swss-common/blob/master/common/"
+"producerstatetable.h) and [ConsumerStateTable](https://github.com/sonic-net/"
+"sonic-swss-common/blob/master/common/consumerstatetable.h)."
 msgstr ""
 
 #: src\4-2-5-producer-consumer-state-table.md:5
@@ -4202,10 +3999,10 @@ msgstr ""
 
 #: src\4-2-5-producer-consumer-state-table.md:14
 msgid ""
-"`Producer/ConsumerStateTable` is more complex under the hood than "
-"`Producer/ConsumerTable`. The related classes are shown in the diagram "
-"below, where `m_shaSet` and `m_shaDel` store the Lua scripts for modifying "
-"and sending messages, while `m_shaPop` is used to retrieve messages:"
+"`Producer/ConsumerStateTable` is more complex under the hood than `Producer/"
+"ConsumerTable`. The related classes are shown in the diagram below, where "
+"`m_shaSet` and `m_shaDel` store the Lua scripts for modifying and sending "
+"messages, while `m_shaPop` is used to retrieve messages:"
 msgstr ""
 
 #: src\4-2-5-producer-consumer-state-table.md:16
@@ -4232,8 +4029,8 @@ msgstr ""
 
 #: src\4-2-5-producer-consumer-state-table.md:24
 msgid ""
-"A series of Hash: One Hash for each modified Key (stored at "
-"`_<redis-key-name>`)."
+"A series of Hash: One Hash for each modified Key (stored at `_<redis-key-"
+"name>`)."
 msgstr ""
 
 #: src\4-2-5-producer-consumer-state-table.md:25
@@ -4257,8 +4054,7 @@ msgstr ""
 
 #: src\4-2-5-producer-consumer-state-table.md:37
 msgid ""
-"\"    redis.call('HSET', KEYS[3 + i], ARGV[3 + i * 2], ARGV[4 + i * 2])\\n"
-"\""
+"\"    redis.call('HSET', KEYS[3 + i], ARGV[3 + i * 2], ARGV[4 + i * 2])\\n\""
 msgstr ""
 
 #: src\4-2-5-producer-consumer-state-table.md:38
@@ -4313,8 +4109,8 @@ msgid ""
 "```redis\n"
 "EVALSHA \"<hash-of-set-lua>\" \"6\" \"PORT_TABLE_CHANNEL@0\" "
 "\"PORT_TABLE_KEY_SET\" \n"
-"    \"_PORT_TABLE:Ethernet0\" \"_PORT_TABLE:Ethernet0\" "
-"\"_PORT_TABLE:Ethernet0\" \"_PORT_TABLE:Ethernet0\" \"G\"\n"
+"    \"_PORT_TABLE:Ethernet0\" \"_PORT_TABLE:Ethernet0\" \"_PORT_TABLE:"
+"Ethernet0\" \"_PORT_TABLE:Ethernet0\" \"G\"\n"
 "    \"Ethernet0\" \"alias\" \"Ethernet5/1\" \"index\" \"5\" \"lanes\" "
 "\"9,10,11,12\" \"speed\" \"40000\"\n"
 "```"
@@ -4387,8 +4183,8 @@ msgstr ""
 msgid ""
 "Finally, to make it more convenient for building services, SONiC provides "
 "another layer of abstraction on top of the communication layer, offering a "
-"base class for services: "
-"[Orch](https://github.com/sonic-net/sonic-swss/blob/master/src/orchagent/orch.h)."
+"base class for services: [Orch](https://github.com/sonic-net/sonic-swss/blob/"
+"master/src/orchagent/orch.h)."
 msgstr ""
 
 #: src\4-4-orch-layer.md:5
@@ -4564,8 +4360,8 @@ msgid ""
 "```admonish note\n"
 "For helping us to read and understand, all the code shown here will be "
 "simplified to its core part to illustrate the process. If you would like to "
-"read the full code, please refer to [the original code in the "
-"repository](./3-1-code-repos.html).\n"
+"read the full code, please refer to [the original code in the repository]"
+"(./3-1-code-repos.html).\n"
 "\n"
 "Additionally, the relevant file path of the code will be shared in the "
 "beginning of each code block, which is based on the SONiC's main repository: "
@@ -4753,11 +4549,10 @@ msgstr ""
 
 #: src\5-1-syncd-and-sai.md:226
 msgid ""
-"`Syncd`'s main event loop follows SONiC's standard [event "
-"dispatching](./4-5-event-polling-and-error-handling.html) pattern. On "
-"startup, Syncd registers all Selectable objects handling events with a "
-"Select object that waits for events. The main loop calls \"select\" to wait "
-"for events:"
+"`Syncd`'s main event loop follows SONiC's standard [event dispatching](./4-5-"
+"event-polling-and-error-handling.html) pattern. On startup, Syncd registers "
+"all Selectable objects handling events with a Select object that waits for "
+"events. The main loop calls \"select\" to wait for events:"
 msgstr ""
 
 #: src\5-1-syncd-and-sai.md:236
@@ -4820,8 +4615,8 @@ msgstr ""
 
 #: src\5-1-syncd-and-sai.md:308
 msgid ""
-"A thread for handling MDIO communication: "
-"`m_mdioIpcServer->startMdioThread()`"
+"A thread for handling MDIO communication: `m_mdioIpcServer->startMdioThread()"
+"`"
 msgstr ""
 
 #: src\5-1-syncd-and-sai.md:310
@@ -5092,9 +4887,8 @@ msgstr ""
 
 #: src\5-1-syncd-and-sai.md:794
 msgid ""
-"Finally, it's written to ASIC_DB via "
-"[NotificationProducer](./4-2-3-notification-producer-consumer.md) to notify "
-"`orchagent`:"
+"Finally, it's written to ASIC_DB via [NotificationProducer](./4-2-3-"
+"notification-producer-consumer.md) to notify `orchagent`:"
 msgstr ""
 
 #: src\5-1-syncd-and-sai.md:808
@@ -5109,9 +4903,8 @@ msgstr ""
 
 #: src\5-1-syncd-and-sai.md:815
 msgid ""
-"// m_notificationProducer = "
-"std::make_shared<swss::NotificationProducer>(m_db.get(), "
-"REDIS_TABLE_NOTIFICATIONS_PER_DB(dbName));"
+"// m_notificationProducer = std::make_shared<swss::NotificationProducer>"
+"(m_db.get(), REDIS_TABLE_NOTIFICATIONS_PER_DB(dbName));"
 msgstr ""
 
 #: src\5-1-syncd-and-sai.md:820
@@ -5141,9 +4934,9 @@ msgid ""
 "responsible for handling the BGP protocol. FRRouting is an open-source "
 "routing software that supports multiple routing protocols, including BGP, "
 "OSPF, IS-IS, RIP, PIM, LDP, etc. When a new version of FRR is released, "
-"SONiC synchronizes it to the [SONiC FRR repository: "
-"sonic-frr](https://github.com/sonic-net/sonic-frr), with each version "
-"corresponding to a branch such as `frr/8.2`."
+"SONiC synchronizes it to the [SONiC FRR repository: sonic-frr](https://"
+"github.com/sonic-net/sonic-frr), with each version corresponding to a branch "
+"such as `frr/8.2`."
 msgstr ""
 
 #: src\5-2-bgp.md:9
@@ -5174,8 +4967,8 @@ msgstr ""
 #: src\5-2-bgp.md:37 src\5-2-1-bgp-cli.md:94
 #: src\5-2-2-route-update-in-frr.md:743 src\5-2-3-route-update-in-sonic.md:742
 msgid ""
-"[RFC 4271: A Border Gateway Protocol 4 "
-"(BGP-4)](https://datatracker.ietf.org/doc/html/rfc4271)"
+"[RFC 4271: A Border Gateway Protocol 4 (BGP-4)](https://datatracker.ietf.org/"
+"doc/html/rfc4271)"
 msgstr ""
 
 #: src\5-2-bgp.md:38 src\5-2-1-bgp-cli.md:95
@@ -5299,8 +5092,8 @@ msgid ""
 "Regarding the implementation of FRR, this section focuses more on explaining "
 "its workflow from the code perspective rather than the details of its BGP "
 "implementation. If you want to learn about the details of FRR's BGP "
-"implementation, you can refer to the [official "
-"documentation](https://docs.frrouting.org/en/latest/bgp.html).\n"
+"implementation, you can refer to the [official documentation](https://docs."
+"frrouting.org/en/latest/bgp.html).\n"
 "```"
 msgstr ""
 
@@ -5332,7 +5125,8 @@ msgid "// Read packets here"
 msgstr ""
 
 #: src\5-2-2-route-update-in-frr.md:58
-msgid "// If we have more than 1 complete packet, mark it and process it later."
+msgid ""
+"// If we have more than 1 complete packet, mark it and process it later."
 msgstr ""
 
 #: src\5-2-2-route-update-in-frr.md:73
@@ -5729,9 +5523,9 @@ msgstr ""
 #: src\5-2-2-route-update-in-frr.md:655
 msgid ""
 "FPM (Forwarding Plane Manager) is the protocol in FRR used to notify other "
-"processes of route changes. Its main logic code is in "
-"`src/sonic-frr/frr/zebra/zebra_fpm.c`. It supports two protocols by default: "
-"`protobuf` and `netlink`. The one used in SONiC is the `netlink` protocol."
+"processes of route changes. Its main logic code is in `src/sonic-frr/frr/"
+"zebra/zebra_fpm.c`. It supports two protocols by default: `protobuf` and "
+"`netlink`. The one used in SONiC is the `netlink` protocol."
 msgstr ""
 
 #: src\5-2-2-route-update-in-frr.md:657
@@ -5793,14 +5587,15 @@ msgstr ""
 
 #: src\5-2-2-route-update-in-frr.md:746 src\5-2-3-route-update-in-sonic.md:745
 msgid ""
-"[FRRouting - "
-"FPM](https://docs.frrouting.org/projects/dev-guide/en/latest/fpm.html)"
+"[FRRouting - FPM](https://docs.frrouting.org/projects/dev-guide/en/latest/"
+"fpm.html)"
 msgstr ""
 
 #: src\5-2-2-route-update-in-frr.md:747 src\5-2-3-route-update-in-sonic.md:746
 msgid ""
-"[Understanding EVPN Pure Type 5 "
-"Routes](https://www.juniper.net/documentation/us/en/software/junos/evpn-vxlan/topics/concept/evpn-route-type5-understanding.html)"
+"[Understanding EVPN Pure Type 5 Routes](https://www.juniper.net/"
+"documentation/us/en/software/junos/evpn-vxlan/topics/concept/evpn-route-"
+"type5-understanding.html)"
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:3
@@ -5852,8 +5647,8 @@ msgid ""
 "In `FpmLink`, the FPM events will be converted into Netlink messages. This "
 "unifies the message that being sent to `RouteSync` to Netlink. And "
 "`RouteSync::onMsg` will be called for processing them (for how Netlink "
-"receives and processes messages, please refer to [4.1.2 "
-"Netlink](./4-1-2-netlink.html)):"
+"receives and processes messages, please refer to [4.1.2 Netlink](./4-1-2-"
+"netlink.html)):"
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:85
@@ -5874,7 +5669,8 @@ msgstr ""
 msgid "/* Read all netlink messages inside FPM message */"
 msgstr ""
 
-#: src\5-2-3-route-update-in-sonic.md:99 src\5-2-3-route-update-in-sonic.md:341
+#: src\5-2-3-route-update-in-sonic.md:99
+#: src\5-2-3-route-update-in-sonic.md:341
 msgid "/*"
 msgstr ""
 
@@ -5906,7 +5702,8 @@ msgid "// Refill Netlink cache here"
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:158
-msgid "/* If the master device name starts with VNET_PREFIX, it is a VNET route."
+msgid ""
+"/* If the master device name starts with VNET_PREFIX, it is a VNET route."
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:165
@@ -5917,8 +5714,8 @@ msgstr ""
 msgid ""
 "From the code above, we can see that there are four different route "
 "processing entry points. These different routes will be finally written to "
-"different tables in `APPL_DB` through their respective "
-"[ProducerStateTable](./4-2-5-producer-consumer-state-table.md):"
+"different tables in `APPL_DB` through their respective [ProducerStateTable]"
+"(./4-2-5-producer-consumer-state-table.md):"
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:177
@@ -6119,8 +5916,8 @@ msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:280
 msgid ""
-"// - When routeorch receives 'resync' message (key = \"resync\", op = "
-"\"SET\"), it marks all current routes as dirty"
+"// - When routeorch receives 'resync' message (key = \"resync\", op = \"SET"
+"\"), it marks all current routes as dirty"
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:281
@@ -6214,7 +6011,8 @@ msgid "/* Remove next hop group if the reference count decreases to zero */"
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:374
-msgid "Here we take `addRoute` as an example. It mainly does a few things below:"
+msgid ""
+"Here we take `addRoute` as an example. It mainly does a few things below:"
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:376
@@ -6398,9 +6196,9 @@ msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:589
 msgid ""
-"Here, the sending end is called `ClientSai`, implemented in "
-"`src/sonic-sairedis/lib/ClientSai.*`. Serialization and deserialization are "
-"implemented in SAI metadata: `src/sonic-sairedis/meta/sai_serialize.h`:"
+"Here, the sending end is called `ClientSai`, implemented in `src/sonic-"
+"sairedis/lib/ClientSai.*`. Serialization and deserialization are implemented "
+"in SAI metadata: `src/sonic-sairedis/meta/sai_serialize.h`:"
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:592
@@ -6431,8 +6229,8 @@ msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:616
 msgid ""
-"$(LDFLAGS_ASAN) -lnl-3 -lnl-route-3 -lpthread -lsairedis -lsaimeta "
-"-lsaimetadata -lswsscommon -lzmq"
+"$(LDFLAGS_ASAN) -lnl-3 -lnl-route-3 -lpthread -lsairedis -lsaimeta -"
+"lsaimetadata -lswsscommon -lzmq"
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:619
@@ -6452,7 +6250,8 @@ msgid ""
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:639
-msgid "// to be sent to server as well, so instead of sending empty oids we will"
+msgid ""
+"// to be sent to server as well, so instead of sending empty oids we will"
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:640
@@ -6485,24 +6284,24 @@ msgstr ""
 msgid ""
 "Finally, `ClientSai` calls `m_communicationChannel->set()` to send the "
 "serialized SAI objects to `syncd`. This channel, before the 202106 version, "
-"was the [ProducerTable based on "
-"Redis](https://github.com/sonic-net/sonic-sairedis/blob/202106/lib/inc/RedisChannel.h). "
-"Possibly for efficiency reasons, starting from the 202111 version, this "
-"channel has been changed to "
-"[ZMQ](https://github.com/sonic-net/sonic-sairedis/blob/202111/lib/ZeroMQChannel.h)."
+"was the [ProducerTable based on Redis](https://github.com/sonic-net/sonic-"
+"sairedis/blob/202106/lib/inc/RedisChannel.h). Possibly for efficiency "
+"reasons, starting from the 202111 version, this channel has been changed to "
+"[ZMQ](https://github.com/sonic-net/sonic-sairedis/blob/202111/lib/"
+"ZeroMQChannel.h)."
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:695
 msgid ""
-"// File: "
-"https://github.com/sonic-net/sonic-sairedis/blob/202106/lib/inc/RedisChannel.h"
+"// File: https://github.com/sonic-net/sonic-sairedis/blob/202106/lib/inc/"
+"RedisChannel.h"
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:728
 msgid ""
 "For the inter-process communication, we are going to skip the details here. "
-"Please feel free to refer to the [Redis-based "
-"channels](./4-2-redis-based-channels.md) described in Chapter 4."
+"Please feel free to refer to the [Redis-based channels](./4-2-redis-based-"
+"channels.md) described in Chapter 4."
 msgstr ""
 
 #: src\5-2-3-route-update-in-sonic.md:730
@@ -6513,10 +6312,9 @@ msgstr ""
 msgid ""
 "Finally, when the SAI objects are generated and sent to `syncd`, `syncd` "
 "will receive, processa and updates `ASIC_DB`, then finally updates the ASIC. "
-"We have already described this workflow in detail in the [Syncd-SAI "
-"Workflow](./5-1-syncd-and-sai.md), so we will skip them here. For more "
-"details, please refer to the [Syncd-SAI Workflow "
-"chapter](./5-1-syncd-and-sai.md)."
+"We have already described this workflow in detail in the [Syncd-SAI Workflow]"
+"(./5-1-syncd-and-sai.md), so we will skip them here. For more details, "
+"please refer to the [Syncd-SAI Workflow chapter](./5-1-syncd-and-sai.md)."
 msgstr ""
 
 #: src\6-boot.md:1
@@ -6534,4 +6332,3 @@ msgstr ""
 #: src\6-3-warm-boot.md:1
 msgid "Warm Boot"
 msgstr ""
-

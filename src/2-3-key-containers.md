@@ -1,8 +1,8 @@
-# 核心容器
+# Key containers
 
-SONiC的设计中最具特色的地方：容器化。
+One of the most distinctive features of SONiC's design is containerization.
 
-从SONiC的上面的设计图中，我们可以看出来，SONiC中，所有的服务都是以容器的形式存在的。在登录进交换机之后，我们可以通过`docker ps`命令来查看当前运行的容器：
+From the design diagram of SONiC, we can see that all services in SONiC run in the form of containers. After logging into the switch, we can use the `docker ps` command to see all containers that are currently running:
 
 ```bash
 admin@sonic:~$ docker ps
@@ -20,13 +20,13 @@ bd20649228c8   docker-eventd:latest                 "/usr/local/bin/supe…"   2
 b2f58447febb   docker-database:latest               "/usr/local/bin/dock…"   2 days ago   Up 32 hours             database
 ```
 
-这里我们来简单介绍一下这些容器。
+Here we will briefly introduce these containers.
 
-## 数据库容器：database
+## Database Container: `database`
 
-这个容器中运行的就是我们多次提到的SONiC中的中心数据库Redis了，它里面存放着所有交换机的配置和状态信息，SONiC也是主要通过它来向各个服务提供底层的通信机制。
+This container contains the central database - Redis, which we have mentioned multiple times. It stores all the configuration and status of the switch, and SONiC also uses it to provide the underlying communication mechanism to various services.
 
-我们通过docker进入这个容器，就可以看到里面正在运行的redis进程了：
+By entering this container via Docker, we can see the running Redis process:
 
 ```bash
 admin@sonic:~$ sudo docker exec -it database bash
@@ -41,7 +41,9 @@ root@sonic:/# cat /var/run/redis/redis.pid
 82
 ```
 
-那么别的容器是如何来访问这个Redis数据库的呢？答案是通过Unix Socket。我们可以在database容器中看到这个Unix Socket，它将交换机上的`/var/run/redis`目录map进database容器，让database容器可以创建这个socket：
+How does other container access this Redis database?
+
+The answer is through Unix Socket. We can see this Unix Socket in the database container, which is mapped from the `/var/run/redis` directory on the switch.
 
 ```bash
 # In database container
@@ -53,25 +55,25 @@ admin@sonic:~$ ls /var/run/redis
 redis.pid  redis.sock  sonic-db
 ```
 
-然后再将这个socket给map到其他的容器中，这样所有容器就都可以来访问这个中心数据库啦，比如，swss容器：
+Then SONiC maps `/var/run/redis` folder into all relavent containers, allowing other services to access the central database. For example, the swss container:
 
 ```bash
 admin@sonic:~$ docker inspect swss
 ...
-        "HostConfig": {
-            "Binds": [
-                ...
-                "/var/run/redis:/var/run/redis:rw",
-                ...
-            ],
+    "HostConfig": {
+        "Binds": [
+        ...
+        "/var/run/redis:/var/run/redis:rw",
+        ...
+        ],
 ...
 ```
 
-## 交换机状态管理容器：swss（Switch State Service）
+## SWitch State Service Container: `swss`
 
-这个容器可以说是SONiC中最关键的容器了，**它是SONiC的大脑**，里面运行着大量的`*syncd`和`*mgrd`服务，用来管理交换机方方面面的配置，比如Port，neighbor，ARP，VLAN，Tunnel等等等等。另外里面还运行着上面提到的`orchagent`，用来统一处理和ASIC相关的配置和状态变化。
+This container can be considered the most critical container in SONiC. **It is the brain of SONiC**, running numerous `*syncd` and `*mgrd` services to manage various configurations of the switch, such as Port, neighbor, ARP, VLAN, Tunnel, etc. Additionally, it runs the `orchagent`, which handles many configurations and state changes related to the ASIC.
 
-这些服务大概的功能和流程我们上面已经提过了，所以就不再赘述了。这里我们可以通过`ps`命令来看一下这个容器中运行的服务：
+We have already discussed the general functions and processes of these services, so we won't repeat them here. We can use the `ps` command to see the services running in this container:
 
 ```bash
 admin@sonic:~$ docker exec -it swss bash
@@ -96,11 +98,11 @@ root         208  0.0  0.0   5772  1636 pts/0    S    Apr26   0:07 /usr/sbin/ndp
 ...
 ```
 
-## ASIC管理容器：syncd
+## ASIC Management Container: `syncd`
 
-这个容器中主要是用于管理交换机上的ASIC的，里面运行着`syncd`服务。我们之前提到的各个厂商提供的SAI（Switch Abstraction Interface）和ASIC Driver都是放在这个容器中的。正是因为这个容器的存在，才使得SONiC可以支持多种不同的ASIC，而不需要修改上层的服务。换句话说，如果没有这个容器，那SONiC就是一个缸中大脑，除了一些基本的配置，其他只能靠想的，什么都干不了。
+This container is mainly used for managing the ASIC on the switch, running the `syncd` service. The SAI (Switch Abstraction Interface) implementation and ASIC Driver provided by various vendors are placed in this container. It allows SONiC to support multiple different ASICs without modifying the upper-layer services. In other words, without this container, SONiC would be a brain in a jar, capable of only thinking but nothing else.
 
-在syncd容器中运行的服务并不多，就是syncd，我们可以通过`ps`命令来查看，而在`/usr/lib`目录下，我们也可以找到这个为了支持ASIC而编译出来的巨大无比的SAI文件：
+We don't have too many services running in the syncd container, mainly syncd. We can check them using the `ps` command, and in the `/usr/lib` directory, we can find the enormous SAI file compiled to support the ASIC:
 
 ```bash
 admin@sonic:~$ docker exec -it syncd bash
@@ -120,24 +122,24 @@ lrwxrwxrwx 1 root root   13 Apr 25 04:38 libsai.so.1 -> libsai.so.1.0
 ...
 ```
 
-## 各种实现特定功能的容器
+## Feature Containers
 
-SONiC中还有很多的容器是为了实现一些特定功能而存在的。这些容器一般都有着特殊的外部接口（非SONiC CLI和REST API）和实现（非OS或ASIC），比如：
+There are many containers in SONiC designed to implement specific features. These containers usually have special external interfaces (non-SONiC CLI and REST API) and implementations (non-OS or ASIC), such as:
 
-- bgp：用来实现BGP协议（Border Gateway Protocol，边界网关协议）的容器
-- lldp：用来实现LLDP协议（Link Layer Discovery Protocol，链路层发现协议）的容器
-- teamd：用来实现Link Aggregation（链路聚合）的容器
-- snmp：用来实现SNMP协议（Simple Network Management Protocol，简单网络管理协议）的容器
+- `bgp`: Container for implementing the BGP and other routing protocol (Border Gateway Protocol)
+- `lldp`: Container for implementing the LLDP protocol (Link Layer Discovery Protocol)
+- `teamd`: Container for implementing Link Aggregation
+- `snmp`: Container for implementing the SNMP protocol (Simple Network Management Protocol)
 
-和SWSS类似，为了适应SONiC的架构，它们中间也都会运行着上面我们提到的那几种服务：
+Similar to SWSS, these containers also run the services we mentioned earlier to adapt to SONiC's architecture:
 
-- 配置管理和下发（类似`*mgrd`）：`lldpmgrd`，`zebra`（bgp）
-- 状态同步（类似`*syncd`）：`lldpsyncd`，`fpmsyncd`（bgp），`teamsyncd`
-- 服务实现或者外部接口（`*d`）：`lldpd`，`bgpd`，`teamd`，`snmpd`
+- Configuration management and deployment (similar to `*mgrd`): `lldpmgrd`, `zebra` (bgp)
+- State synchronization (similar to `*syncd`): `lldpsyncd`, `fpmsyncd` (bgp), `teamsyncd`
+- Service implementation or external interface (`*d`): `lldpd`, `bgpd`, `teamd`, `snmpd`
 
-## 管理服务容器：mgmt-framework
+## Management Service Container: `mgmt-framework`
 
-我们在之前的章节中已经看过如何使用SONiC的CLI来进行一些交换机的配置，但是在实际生产环境中，手动登录交换机使用CLI来配置所有的交换机是不现实的，所以SONiC提供了一个REST API来解决这个问题。这个REST API的实现就是在`mgmt-framework`容器中。我们可以通过`ps`命令来查看：
+In previous chapters, we have seen how to use SONiC's CLI to configure some aspects of the switch. However, in a production environment, manually logging into the switch and using the CLI to configure all switches is unrealistic. Therefore, SONiC provides a REST API to solve this problem. This REST API is implemented in the `mgmt-framework` container. We can check it using the `ps` command:
 
 ```bash
 admin@sonic:~$ docker exec -it mgmt-framework bash
@@ -148,15 +150,15 @@ root          16  0.3  1.2 1472804 52036 pts/0   Sl   16:20   0:02 /usr/sbin/res
 ...
 ```
 
-其实除了REST API，SONiC还可以通过其他方式来进行管理，如gNMI，这些也都是运行在这个容器中的。其整体架构如下图所示 [\[2\]][SONiCMgmtFramework]：
+In addition to the REST API, SONiC can also be managed through other methods such as gNMI, all of which run in this container. The overall architecture is shown in the figure below [\[2\]][SONiCMgmtFramework]:
 
 ![](assets/chapter-2/sonic-mgmt-framework.jpg)
 
-这里我们也可以发现，其实我们使用的CLI，底层也是通过调用这个REST API来实现的～
+Here we can also see that the CLI we use can be implemented by calling this REST API at the bottom layer.
 
-## 平台监控容器：pmon（Platform Monitor）
+## Platform Monitor Container: `pmon`
 
-这个容器里面的服务基本都是用来监控交换机一些基础硬件的运行状态的，比如温度，电源，风扇，SFP事件等等。同样，我们可以用`ps`命令来查看这个容器中运行的服务：
+The services in this container are mainly used to monitor the basic hardware status of the switch, such as temperature, power supply, fans, SFP events, etc. Similarly, we can use the `ps` command to check the services running in this container:
 
 ```bash
 admin@sonic:~$ docker exec -it pmon bash
@@ -174,9 +176,9 @@ root          45  0.0  0.8  58648 32220 pts/0    S    Apr26   2:45 python3 /usr/
 ...
 ```
 
-其中大部分的服务从名字我们就能猜出来是做什么的了，中间只有xcvrd不是那么明显，这里xcvr是transceiver的缩写，它是用来监控交换机的光模块的，比如SFP，QSFP等等。
+The purpose of most of these services can be told from their names. The only one that is not so obvious is `xcvrd`, where xcv stands for transceiver. It is used to monitor the optical modules of the switch, such as SFP, QSFP, etc.
 
-# 参考资料
+# References
 
 1. [SONiC Architecture][SONiCArch]
 2. [SONiC Management Framework][SONiCMgmtFramework]

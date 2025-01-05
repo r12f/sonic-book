@@ -1,36 +1,35 @@
-# Redis封装
+# Redis Wrappers
 
-## Redis数据库操作层
+## Redis Database Operation Layer
 
-第一层，也是最底层，是Redis的数据库操作层，封装了各种基本命令，比如，DB的连接，命令的执行，事件通知的回调接口等等。具体的类图如下：
+The first layer, which is also the lowest layer, is the Redis database operation layer. It wraps various basic commands, such as DB connection, command execution, event notification callback interfaces, etc. The specific class diagram is as follows:
 
 ![](assets/chapter-4/redis-ops.png)
 
-其中：
+Among them:
 
-- **[RedisContext](https://github.com/sonic-net/sonic-swss-common/blob/master/common/dbconnector.h)**：封装并保持着与Redis的连接，当其销毁时会将其连接关闭。
-- **[DBConnector](https://github.com/sonic-net/sonic-swss-common/blob/master/common/dbconnector.h)**：封装了所有的底层使用到的Redis的命令，比如`SET`、`GET`、`DEL`等等。
-- **[RedisTransactioner](https://github.com/sonic-net/sonic-swss-common/blob/master/common/redistran.h)**：封装了Redis的事务操作，用于在一个事务中执行多个命令，比如`MULTI`、`EXEC`等等。
-- **[RedisPipeline](https://github.com/sonic-net/sonic-swss-common/blob/master/common/redispipeline.h)**：封装了hiredis的redisAppendFormattedCommand API，提供了一个类似队列的异步的执行Redis命令的接口（虽然大部分使用方法依然是同步的）。它也是少有的对`SCRIPT LOAD`命令进行了封装的类，用于在Redis中加载Lua脚本实现存储过程。SONiC中绝大部分需要执行Lua脚本的类，都会使用这个类来进行加载和调用。
-- **[RedisSelect](https://github.com/sonic-net/sonic-swss-common/blob/master/common/redisselect.h)**：它实现了Selectable的接口，用来支持基于epoll的事件通知机制（Event Polling）。主要是在我们收到了Redis的回复，用来触发epoll进行回调（我们最后会更详细的介绍）。
-- **[SonicDBConfig](https://github.com/sonic-net/sonic-swss-common/blob/master/common/dbconnector.h)**：这个类是一个“静态类”，它主要实现了SONiC DB的配置文件的读取和解析。其他的数据库操作类，如果需要任何的配置信息，都会通过这个类来获取。
+- **[RedisContext](https://github.com/sonic-net/sonic-swss-common/blob/master/common/dbconnector.h)**: Wraps and maintains the connection to Redis, and closes the connection when it is destroyed.
+- **[DBConnector](https://github.com/sonic-net/sonic-swss-common/blob/master/common/dbconnector.h)**: Wraps all the underlying Redis commands used, such as `SET`, `GET`, `DEL`, etc.
+- **[RedisTransactioner](https://github.com/sonic-net/sonic-swss-common/blob/master/common/redistran.h)**: Wraps Redis transaction operations, used to execute multiple commands in a transaction, such as `MULTI`, `EXEC`, etc.
+- **[RedisPipeline](https://github.com/sonic-net/sonic-swss-common/blob/master/common/redispipeline.h)**: Wraps the hiredis redisAppendFormattedCommand API, providing an asynchronous interface for executing Redis commands similar to a queue (although most usage methods are still synchronous). It is also one of the few classes that wraps the `SCRIPT LOAD` command, used to load Lua scripts in Redis to implement stored procedures. Most classes in SONiC that need to execute Lua scripts will use this class for loading and calling.
+- **[RedisSelect](https://github.com/sonic-net/sonic-swss-common/blob/master/common/redisselect.h)**: Implements the Selectable interface to support the epoll-based event notification mechanism (Event Polling). Mainly used to trigger epoll callbacks when we receive a reply from Redis (we will introduce this in more detail later).
+- **[SonicDBConfig](https://github.com/sonic-net/sonic-swss-common/blob/master/common/dbconnector.h)**: This class is a "static class" that mainly implements the reading and parsing of the SONiC DB configuration file. Other database operation classes will use this class to obtain any configuration information if needed.
 
+## Table Abstraction Layer
 
-## 表（Table）抽象层
+Above the Redis database operation layer is the table abstraction layer established by SONiC using the keys in Redis. Since the format of each Redis key is `<table-name><separator><key-name>`, SONiC needs to craft or parse it, when accessing the database. For more details on how the database is designed, please refer to [the database section for more information](/posts/sonic-2-key-components/#database).
 
-在Redis数据库操作层之上，便是SONiC自己利用Redis中间的Key建立的表（Table）的抽象了，因为每一个Redis的Key的格式都是`<table-name><separator><key-name>`，所以SONiC在访问数据库时需要对其进行一次转换（没有印象的小伙伴可以移步[我之前的博客了解更多的信息](/posts/sonic-2-key-components/#数据库)）。
-
-相关类的主要类图如下：
+The main class diagram of related classes is as follows:
 
 ![](assets/chapter-4/table-abstraction.png)
 
-其中关键的类有三个：
+In this diagram, we have three key classes:
 
-- **[TableBase](https://github.com/sonic-net/sonic-swss-common/blob/master/common/table.h)**：这个类是所有表的基类，它主要封装了表的基本信息，如表的名字，Redis Key的打包，每个表发生修改时用于通信的Channel的名字，等等。
-- **[Table](https://github.com/sonic-net/sonic-swss-common/blob/master/common/table.h)**：这个类就是对于每个表增删改查的封装了，里面包含了表的名称和分隔符，这样就可以在调用时构造最终的key了。
-- **[ConsumerTableBase](https://github.com/sonic-net/sonic-swss-common/blob/master/common/consumertablebase.h)**：这个类是各种SubscriptionTable的基类，里面主要是封装了一个简单的队列和其pop操作（对，只有pop，没有push），用来给上层调用。
+- **[TableBase](https://github.com/sonic-net/sonic-swss-common/blob/master/common/table.h)**: This class is the base class for all tables. It mainly wraps the basic information of the table, such as the table name, Redis key packaging, the name of the channel used for communication when each table is modified, etc.
+- **[Table](https://github.com/sonic-net/sonic-swss-common/blob/master/common/table.h)**: This class wraps the CRUD operations for each table. It contains the table name and separator, so the final key can be constructed when called.
+- **[ConsumerTableBase](https://github.com/sonic-net/sonic-swss-common/blob/master/common/consumertablebase.h)**: This class is the base class for various SubscriptionTables. It mainly wraps a simple queue and its pop operation (yes, only pop, no push, because it is for consumers only), for upper layer calls.
 
-# 参考资料
+# References
 
 1. [SONiC Architecture][SONiCArch]
 2. [Github repo: sonic-swss][SONiCSWSS]
