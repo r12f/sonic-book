@@ -1,49 +1,49 @@
-# BGP路由变更下发
+# FRR BGP Route Update Workflow
 
-路由变更几乎是SONiC中最重要的工作流，它的整个流程从`bgpd`进程开始，到最终通过SAI到达ASIC芯片，中间参与的进程较多，流程也较为复杂，但是弄清楚之后，我们就可以很好的理解SONiC的设计思想，并且举一反三的理解其他配置下发的工作流了。所以这一节，我们就一起来深入的分析一下它的整体流程。
+Route update is almost the most important workflow in SONiC. The entire process starts from the `bgpd` process and eventually reaches the ASIC chip through SAI. Many processes are involved in between, and the workflow is quite complex. However, once we understand it, we can understand the design of SONiC and many other configuration workflows much better. Therefore, in this section, we will deeply dive into its overall process.
 
-为了方便我们理解和从代码层面来展示，我们把这个流程分成两个大块来介绍，分别是FRR是如何处理路由变化的，和SONiC的路由变更工作流以及它是如何与FRR进行整合的。
+To help us understand the workflow on the code level, we divide this workflow into two major parts: how FRR handles route changes in this chapter, and how the SONiC updates the routes and integrates with FRR in the next chapter.
 
-## FRR处理路由变更
+## FRR Handling Route Changes
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant N as 邻居节点
-    box purple bgp容器
+    participant N as Neighbor Node
+    box purple BGP Container
     participant B as bgpd
-    participant ZH as zebra<br/>（请求处理线程）
-    participant ZF as zebra<br/>（路由处理线程）
-    participant ZD as zebra<br/>（数据平面处理线程）
-    participant ZFPM as zebra<br/>（FPM转发线程）
+    participant ZH as zebra<br/> (Request Handling Thread)
+    participant ZF as zebra<br/> (Route Handling Thread)
+    participant ZD as zebra<br/> (Data Plane Handling Thread)
+    participant ZFPM as zebra<br/> (FPM Forward Thread)
     participant FPM as fpmsyncd
     end
     participant K as Linux Kernel
 
-    N->>B: 建立BGP会话，<br/>发送路由变更
-    B->>B: 选路，变更本地路由表（RIB）
-    alt 如果路由发生变化
-    B->>N: 通知其他邻居节点路由变化
+    N->>B: Establish BGP session,<br/>send route update
+    B->>B: Route selection, update local routing table (RIB)
+    alt If route changes
+    B->>N: Notify other neighbor nodes of route change
     end
-    B->>ZH: 通过zlient本地Socket<br/>通知Zebra更新路由表
-    ZH->>ZH: 接受bgpd发送的请求
-    ZH->>ZF: 将路由请求放入<br/>路由处理线程的队列中
-    ZF->>ZF: 更新本地路由表（RIB）
-    ZF->>ZD: 将路由表更新请求放入<br/>数据平面处理线程<br/>的消息队列中
-    ZF->>ZFPM: 请求FPM处理线程转发路由变更
-    ZFPM->>FPM: 通过FPM协议通知<br/>fpmsyncd下发<br/>路由变更
-    ZD->>K: 发送Netlink消息更新内核路由表
+    B->>ZH: Notify Zebra to update routing table<br/>through zlient local Socket
+    ZH->>ZH: Receive request from bgpd
+    ZH->>ZF: Put route request into<br/>route handling thread's queue
+    ZF->>ZF: Update local routing table (RIB)
+    ZF->>ZD: Put route table update request into<br/>data plane handling thread's<br/>message queue
+    ZF->>ZFPM: Request FPM handling thread to forward route update
+    ZFPM->>FPM: Notify fpmsyncd to<br/>issue route update<br/>through FPM protocol
+    ZD->>K: Send Netlink message to update kernel routing table
 ```
 
 ```admonish note
-关于FRR的实现，这里更多的是从代码的角度来阐述其工作流的过程，而不是其对BGP的实现细节，如果想要了解FRR的BGP实现细节，可以参考[官方文档](https://docs.frrouting.org/en/latest/bgp.html)。
+Regarding the implementation of FRR, this section focuses more on explaining its workflow from the code perspective rather than the details of its BGP implementation. If you want to learn about the details of FRR's BGP implementation, you can refer to the [official documentation](https://docs.frrouting.org/en/latest/bgp.html).
 ```
 
-### bgpd处理路由变更
+## `bgpd` Handling Route Changes
 
-`bgpd`是FRR中专门用来处理BGP会话的进程，它会开放TCP 179端口与邻居节点建立BGP连接，并处理路由表的更新请求。当路由发生变化后，FRR也会通过它来通知其他邻居节点。
+`bgpd` is the process in FRR specifically used to handle BGP sessions. It opens TCP port 179 to establish BGP connections with neighbors and handles routing table update requests. When a route changes, FRR also uses this session to notify other neighbors.
 
-请求来到`bgpd`之后，它会首先来到它的io线程：`bgp_io`。顾名思义，`bgpd`中的网络读写工作都是在这个线程上完成的：
+When a request arrives at `bgpd`, it will land on the io thread first: `bgp_io`. As the name suggests, this thread is responsible for network read and write operations in `bgpd`:
 
 ```c
 // File: src/sonic-frr/frr/bgpd/bgp_io.c
@@ -54,7 +54,7 @@ static int bgp_process_reads(struct thread *thread)
     while (more) {
         // Read packets here
         ...
-  
+
         // If we have more than 1 complete packet, mark it and process it later.
         if (ringbuf_remain(ibw) >= pktsize) {
             ...
@@ -70,7 +70,7 @@ static int bgp_process_reads(struct thread *thread)
 }
 ```
 
-当数据包读完后，`bgpd`会将其发送到主线程进行路由处理。在这里，`bgpd`会根据数据包的类型进行分发，其中路由更新的请求会交给`bpg_update_receive`来进行解析：
+After the packet is read, `bgpd` sends it to the main thread for processing. Here, `bgpd` dispatches the packet based on its type. And the route update requests will be handed over to `bpg_update_receive` for processing:
 
 ```c
 // File: src/sonic-frr/frr/bgpd/bgp_packet.c
@@ -144,7 +144,7 @@ static int bgp_update_receive(struct peer *peer, bgp_size_t size)
 }
 ```
 
-然后，`bgpd`会开始检查是否出现更优的路径，并更新自己的本地路由表（RIB，Routing Information Base）：
+Then, `bgpd` starts checking for better paths and updates its local routing table (RIB, Routing Information Base):
 
 ```c
 // File: src/sonic-frr/frr/bgpd/bgp_route.c
@@ -214,7 +214,7 @@ static void bgp_process_main_one(struct bgp *bgp, struct bgp_dest *dest, afi_t a
 }
 ```
 
-最后，`bgp_zebra_announce`会通过`zclient`通知`zebra`更新内核路由表。
+Finally, `bgp_zebra_announce` notifies `zebra` to update the kernel routing table through `zclient`.
 
 ```c
 // File: src/sonic-frr/frr/bgpd/bgp_zebra.c
@@ -225,7 +225,7 @@ void bgp_zebra_announce(struct bgp_node *rn, struct prefix *p, struct bgp_path_i
 }
 ```
 
-`zclient`使用本地socket与`zebra`通信，并且提供一系列的回调函数用于接收`zebra`的通知，核心代码如下：
+`zclient` communicates with `zebra` using a local socket and provides a series of callback functions to receive notifications from `zebra`. The key code is shown as follows:
 
 ```c
 // File: src/sonic-frr/frr/bgpd/bgp_zebra.c
@@ -261,7 +261,7 @@ int zclient_socket_connect(struct zclient *zclient)
 }
 ```
 
-在`bgpd`容器中，我们可以在`/run/frr`目录下找到`zebra`通信使用的socket文件来进行简单的验证：
+In the `bgpd` container, we can find the socket file used for `zebra` communication in the `/run/frr` directory for simple verification:
 
 ```bash
 root@7260cx3:/run/frr# ls -l
@@ -270,13 +270,13 @@ total 12
 srwx------ 1 frr frr    0 Jun 16 09:16 zserv.api
 ```
 
-### zebra更新路由表
+## `zebra` Updating Routing Table
 
-由于FRR支持的路由协议很多，如果每个路由协议处理进程都单独的对内核进行操作则必然会产生冲突，很难协调合作，所以FRR使用一个单独的进程用于和所有的路由协议处理进程进行沟通，整合好信息之后统一的进行内核的路由表更新，这个进程就是`zebra`。
+Since FRR supports many routing protocols, if each routing protocol updates kernel independently, conflicts will inevitably arise, because it is difficult to coordinate. Therefore, FRR uses a separate process to communicate with all routing protocol handling processes, merges the information, and then update the kernel routing table. This process is `zebra`.
 
-在`zebra`中，内核的更新发生在一个独立的数据面处理线程中：`dplane_thread`。所有的请求都会通过`zclient`发送给`zebra`，经过处理之后，最后转发给`dplane_thread`来处理，这样路由的处理就是有序的了，也就不会产生冲突了。
+In `zebra`, kernel updates occur in a separate data plane handling thread: `dplane_thread`. All requests are sent to `zebra` through `zclient`, then get processed, and finally get forwarded to `dplane_thread` for handling. In whis way, the route update will always be in order, which avoids any conflicts to happen.
 
-`zebra`启动时，会将所有的请求处理函数进行注册，当请求到来时，就可以根据请求的类型调用相应的处理函数了，核心代码如下：
+When `zebra` starts, it registers all request handlers. When a request arrives, the corresponding handler will be called based on the request type. And here is the key code:
 
 ```c
 // File: src/sonic-frr/frr/zebra/zapi_msg.c
@@ -292,7 +292,7 @@ void (*zserv_handlers[])(ZAPI_HANDLER_ARGS) = {
     ...
 ```
 
-我们这里拿添加路由`zread_route_add`作为例子，来继续分析后续的流程。从以下代码我们可以看到，当新的路由到来后，`zebra`会开始查看并更新自己内部的路由表：
+Take adding a route (`zread_route_add`) as an example to explain the later workflow. From the following code, we can see that when a new route arrives, `zebra` will start checking and updating its internal routing table:
 
 ```c
 // File: src/sonic-frr/frr/zebra/zapi_msg.c
@@ -316,7 +316,7 @@ static void zread_route_add(ZAPI_HANDLER_ARGS)
     re->type = api.type;
     re->instance = api.instance;
     ...
- 
+
     // Init nexthop entry, if we have an id, then add route.
     if (!re->nhe_id) {
         zebra_nhe_init(&nhe, afi, ng->nexthop);
@@ -372,7 +372,7 @@ int rib_add_multipath_nhe(afi_t afi, safi_t safi, struct prefix *p,
 }
 ```
 
-`rib_addnode`会将这个路由添加请求转发给rib的处理线程，并由它顺序的进行处理：
+Here, `rib_addnode` will forward this route add request to the rib processing thread, where the requests are being processed sequentially:
 
 ```cpp
 static void rib_addnode(struct route_node *rn, struct route_entry *re, int process)
@@ -392,7 +392,7 @@ static void rib_link(struct route_node *rn, struct route_entry *re, int process)
 }
 ```
 
-请求会来到RIB的处理线程：`rib_process`，并由它来进行进一步的选路，然后将最优的路由添加到`zebra`的内部路由表（RIB）中：
+Then, the request arrives at the RIB processing thread: `rib_process`, which further selects the best route and adds it to `zebra`'s internal routing table (RIB):
 
 ```cpp
 /* Core function for processing routing information base. */
@@ -447,7 +447,7 @@ static void rib_process(struct route_node *rn)
 }
 ```
 
-对于新的路由，会调用`rib_process_add_fib`来将其添加到`zebra`的内部路由表中，然后通知dplane进行内核路由表的更新：
+For new routes, `rib_process_add_fib` is called to add them to `zebra`'s internal routing table and notify the dplane to update the kernel routing table:
 
 ```cpp
 static void rib_process_add_fib(struct zebra_vrf *zvrf, struct route_node *rn, struct route_entry *new)
@@ -491,11 +491,13 @@ void rib_install_kernel(struct route_node *rn, struct route_entry *re,
 }
 ```
 
-这里有两个重要的操作，一个自然是调用`dplane_route_*`函数来进行内核的路由表更新，另一个则是出现了两次的`hook_call`，fpm的钩子函数就是挂在这个地方，用来接收并转发路由表的更新通知。这里我们一个一个来看：
+There are two important operations here: one is to call the `dplane_route_*` functions to update the kernel routing table, and the other is the `hook_call` that appears twice here. The FPM hook function is hooked here to receive and forward routing table update notifications.
 
-#### dplane更新内核路由表
+Here, let's look at them one by one:
 
-首先是dplane的`dplane_route_*`函数，它们的做的事情都一样：把请求打包，然后放入`dplane_thread`的消息队列中，并不会做任何实质的操作：
+### `dplane` Updating Kernel Routing Table
+
+Let's look at the dplane `dplane_route_*` functions first. They are essentially do the same thing: simply pack the request and put it into the `dplane_thread` message queue:
 
 ```c
 // File: src/sonic-frr/frr/zebra/zebra_dplane.c
@@ -533,7 +535,7 @@ dplane_route_update_internal(struct route_node *rn, struct route_entry *re, stru
 }
 ```
 
-然后，我们就来到了数据面处理线程`dplane_thread`，其消息循环很简单，就是从队列中一个个取出消息，然后通过调用其处理函数：
+Then, on the data plane handling thread `dplane_thread`, in its message loop, it take messages from the queue one by one and call their handling functions:
 
 ```c
 // File: src/sonic-frr/frr/zebra/zebra_dplane.c
@@ -559,7 +561,7 @@ static int dplane_thread_loop(struct thread *event)
 }
 ```
 
-默认情况下，`dplane_thread`会使用`kernel_dplane_process_func`来进行消息的处理，内部会根据请求的类型对内核的操作进行分发：
+By default, `dplane_thread` uses `kernel_dplane_process_func` to process the messages. Inside this function, different kernel operations will be invoked based on the request type:
 
 ```c
 static int kernel_dplane_process_func(struct zebra_dplane_provider *prov)
@@ -603,7 +605,7 @@ kernel_dplane_route_update(struct zebra_dplane_ctx *ctx)
 }
 ```
 
-而`kernel_route_update`则是真正的内核操作了，它会通过netlink来通知内核路由更新：
+And `kernel_route_update` is the real kernel operation. It notifies the kernel of route updates through netlink:
 
 ```c
 // File: src/sonic-frr/frr/zebra/rt_netlink.c
@@ -648,11 +650,11 @@ static int netlink_route_multipath(int cmd, struct zebra_dplane_ctx *ctx)
 }
 ```
 
-#### FPM路由更新转发
+### FPM Route Update Forwarding
 
-FPM（Forwarding Plane Manager）是FRR中用于通知其他进程路由变更的协议，其主要逻辑代码在`src/sonic-frr/frr/zebra/zebra_fpm.c`中。它默认有两套协议实现：protobuf和netlink，SONiC就是使用的是netlink协议。
+FPM (Forwarding Plane Manager) is the protocol in FRR used to notify other processes of route changes. Its main logic code is in `src/sonic-frr/frr/zebra/zebra_fpm.c`. It supports two protocols by default: `protobuf` and `netlink`. The one used in SONiC is the `netlink` protocol.
 
-上面我们已经提到，它通过钩子函数实现，监听RIB中的路由变化，并通过本地Socket转发给其他的进程。这个钩子会在启动的时候就注册好，其中和我们现在看的最相关的就是`rib_update`钩子了，如下所示：
+As mentioned earlier, it is implemented through hook functions. By listening for route changes in the RIB, the updates are forwarded to other processes through a local socket. This hook is registered at startup. And the most relevant one to us is the `rib_update` hook, as shown below:
 
 ```c
 static int zebra_fpm_module_init(void)
@@ -670,7 +672,7 @@ FRR_MODULE_SETUP(.name = "zebra_fpm", .version = FRR_VERSION,
 );
 ```
 
-当`rib_update`钩子被调用时，`zfpm_trigger_update`函数会被调用，它会将路由变更信息再次放入fpm的转发队列中，并触发写操作：
+When the `rib_update` hook is called, the `zfpm_trigger_update` function will be called, which puts the route update info into the fpm forwarding queue and triggers a write operation:
 
 ```c
 static int zfpm_trigger_update(struct route_node *rn, const char *reason)
@@ -693,7 +695,7 @@ static inline void zfpm_write_on(void) {
 }
 ```
 
-这个写操作的回调就会将其从队列中取出，并转换成FPM的消息格式，然后通过本地Socket转发给其他进程：
+The write callback takes the update from the queue, converts it into the FPM message format, and forwards it to other processes through a local socket:
 
 ```c
 static int zfpm_write_cb(struct thread *thread)
@@ -728,48 +730,50 @@ static void zfpm_build_updates(void)
 }
 ```
 
-到此，FRR的工作就完成了。
+At this point, FRR's work is done.
 
-## SONiC路由变更工作流
+# SONiC Route Update Workflow
 
-当FRR变更内核路由配置后，SONiC便会收到来自Netlink和FPM的通知，然后进行一系列操作将其下发给ASIC，其主要流程如下：
+After the work of FRR is done, the route update information is forwarded to SONiC, either via Netlink or FPM. This causes a series of operations in SONiC, and eventually updates the route table in the ASIC.
+
+The main workflow is shown as below:
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant K as Linux Kernel
-    box purple bgp容器
+    box purple bgp Container
     participant Z as zebra
     participant FPM as fpmsyncd
     end
-    box darkred database容器
+    box darkred database Container
     participant R as Redis
     end
-    box darkblue swss容器
+    box darkblue swss Container
     participant OA as orchagent
     end
-    box darkgreen syncd容器
+    box darkgreen syncd Container
     participant SD as syncd
     end
     participant A as ASIC
 
-    K->>FPM: 内核路由变更时通过Netlink发送通知
-    Z->>FPM: 通过FPM接口和Netlink<br/>消息格式发送路由变更通知
+    K->>FPM: Send notification via Netlink<br/>when kernel route changes
+    Z->>FPM: Send route update notification<br/>via FPM interface and Netlink<br/>message format
 
-    FPM->>R: 通过ProducerStateTable<br/>将路由变更信息写入<br/>APPL_DB
+    FPM->>R: Write route update information<br/>to APPL_DB through ProducerStateTable
 
-    R->>OA: 通过ConsumerStateTable<br/>接收路由变更信息
-    
-    OA->>OA: 处理路由变更信息<br/>生成SAI路由对象
-    OA->>SD: 通过ProducerTable<br/>或者ZMQ将SAI路由对象<br/>发给syncd
+    R->>OA: Receive route update information<br/>through ConsumerStateTable
 
-    SD->>R: 接收SAI路由对象，写入ASIC_DB
-    SD->>A: 通过SAI接口<br/>配置ASIC
+    OA->>OA: Process route update information<br/>and generate SAI route object
+    OA->>SD: Send SAI route object<br/>to syncd through ProducerTable<br/>or ZMQ
+
+    SD->>R: Receive SAI route object, write to ASIC_DB
+    SD->>A: Configure ASIC through SAI interface
 ```
 
-### fpmsyncd更新Redis中的路由配置
+## `fpmsyncd` Updating Route Configuration in Redis
 
-首先，我们从源头看起。`fpmsyncd`在启动的时候便会开始监听FPM和Netlink的事件，用于接收路由变更消息：
+First, let's start from the source. When `fpmsyncd` launches, it starts listening for FPM and Netlink events to receive route change messages and forward to `RouteSync` for processing:
 
 ```cpp
 // File: src/sonic-swss/fpmsyncd/fpmsyncd.cpp
@@ -780,7 +784,7 @@ int main(int argc, char **argv)
     DBConnector db("APPL_DB", 0);
     RedisPipeline pipeline(&db);
     RouteSync sync(&pipeline);
-    
+
     // Register netlink message handler
     NetLink netlink;
     netlink.registerGroup(RTNLGRP_LINK);
@@ -810,7 +814,9 @@ int main(int argc, char **argv)
 }
 ```
 
-这样，所有的路由变更消息都会以Netlink的形式发送给`RouteSync`，其中[EVPN Type 5][EVPN]必须以原始消息的形式进行处理，所以会发送给`onMsgRaw`，其他的消息都会统一的发给处理Netlink的`onMsg`回调：（关于Netlink如何接收和处理消息，请移步[4.1.2 Netlink](./4-1-2-netlink.html)）
+In `FpmLink`, the FPM events will be converted into Netlink messages. This unifies the message that being sent to `RouteSync` to Netlink. And `RouteSync::onMsg` will be called for processing them (for how Netlink receives and processes messages, please refer to [4.1.2 Netlink](./4-1-2-netlink.html)):
+
+One small thing to notice is that - EVPN Type 5 messages must be processed in raw message form, so `RouteSync::onMsgRaw` will be called.
 
 ```cpp
 // File: src/sonic-swss/fpmsyncd/fpmlink.cpp
@@ -831,7 +837,7 @@ void FpmLink::processFpmMessage(fpm_msg_hdr_t* hdr)
          * from the netlink msg.
          */
         bool isRaw = isRawProcessing(nl_hdr);
-        
+
         nl_msg *msg = nlmsg_convert(nl_hdr);
         ...
         nlmsg_set_proto(msg, NETLINK_ROUTE);
@@ -855,7 +861,7 @@ void FpmLink::processRawMsg(struct nlmsghdr *h)
 };
 ```
 
-接着，`RouteSync`收到路由变更的消息之后，会在`onMsg`和`onMsgRaw`中进行判断和分发：
+Next, when `RouteSync` receives a route change message, it makes judgments and dispatches in `onMsg` and `onMsgRaw`:
 
 ```cpp
 // File: src/sonic-swss/fpmsyncd/routesync.cpp
@@ -900,17 +906,17 @@ void RouteSync::onMsg(int nlmsg_type, struct nl_object *obj)
 }
 ```
 
-从上面的代码中，我们可以看到这里会有四种不同的路由处理入口，这些不同的路由会被最终通过各自的[ProducerStateTable](./4-2-2-redis-messaging-layer.html#producerstatetable--consumerstatetable)写入到`APPL_DB`中的不同的Table中：
+From the code above, we can see that there are four different route processing entry points. These different routes will be finally written to different tables in `APPL_DB` through their respective [ProducerStateTable](./4-2-5-producer-consumer-state-table.md):
 
-| 路由类型 | 处理函数 | Table |
+| Route Type | Entry Point | Table |
 | --- | --- | --- |
 | MPLS | `onLabelRouteMsg` | LABLE_ROUTE_TABLE |
 | Vnet VxLan Tunnel Route | `onVnetRouteMsg` | VNET_ROUTE_TUNNEL_TABLE |
-| 其他Vnet路由 | `onVnetRouteMsg` | VNET_ROUTE_TABLE |
+| Other Vnet Routes | `onVnetRouteMsg` | VNET_ROUTE_TABLE |
 | EVPN Type 5 | `onEvpnRouteMsg` | ROUTE_TABLE |
-| 普通路由 | `onRouteMsg` | ROUTE_TABLE |
+| Regular Routes | `onRouteMsg` | ROUTE_TABLE |
 
-这里以普通路由来举例子，其他的函数的实现虽然有所不同，但是主体的思路是一样的：
+Here we take regular routes as an example. The implementation of other functions is different, but the basic idea is the same:
 
 ```cpp
 // File: src/sonic-swss/fpmsyncd/routesync.cpp
@@ -918,7 +924,7 @@ void RouteSync::onRouteMsg(int nlmsg_type, struct nl_object *obj, char *vrf)
 {
     // Parse route info from nl_object here.
     ...
-    
+
     // Get nexthop lists
     string gw_list;
     string intf_list;
@@ -935,7 +941,7 @@ void RouteSync::onRouteMsg(int nlmsg_type, struct nl_object *obj, char *vrf)
     fvVector.push_back(proto);
     fvVector.push_back(gw);
     ...
-    
+
     // Push to ROUTE_TABLE via ProducerStateTable.
     m_routeTable.set(destipprefix, fvVector);
     SWSS_LOG_DEBUG("RouteTable set msg: %s %s %s %s", destipprefix, gw_list.c_str(), intf_list.c_str(), mpls_list.c_str());
@@ -943,9 +949,9 @@ void RouteSync::onRouteMsg(int nlmsg_type, struct nl_object *obj, char *vrf)
 }
 ```
 
-### orchagent处理路由配置变化
+## `orchagent` Processing Route Configuration Changes
 
-接下来，这些路由信息会来到orchagent。在orchagent启动的时候，它会创建好`VNetRouteOrch`和`RouteOrch`对象，这两个对象分别用来监听和处理Vnet相关路由和EVPN/普通路由：
+Next, these route information will come to `orchagent`. When `orchagent` starts, it creates `VNetRouteOrch` and `RouteOrch` objects, which are used to listen and process Vnet-related routes and EVPN/regular routes respectively:
 
 ```cpp
 // File: src/sonic-swss/orchagent/orchdaemon.cpp
@@ -967,17 +973,19 @@ bool OrchDaemon::init()
 }
 ```
 
-所有Orch对象的消息处理入口都是`doTask`，这里`RouteOrch`和`VNetRouteOrch`也不例外，这里我们以`RouteOrch`为例子，看看它是如何处理路由变化的。
+The entry function that process the incoming messages for all Orch objects is `doTask`. `RouteOrch` and `VNetRouteOrch` are the same. Here we take `RouteOrch` as an example to see how it handles route changes.
 
 ```admonish note
-从`RouteOrch`上，我们可以真切的感受到为什么这些类被命名为`Orch`。`RouteOrch`有2500多行，其中会有和很多其他Orch的交互，以及各种各样的细节…… 代码是相对难读，请大家读的时候一定保持耐心。
+From `RouteOrch`, we can truly feel why these classes are named `Orch`. `RouteOrch` has more than 2500 lines, involving interactions with many other Orch objects and tons of details... The code is relatively difficult to read, so please be patient when reading.
 ```
 
-`RouteOrch`在处理路由消息的时候有几点需要注意：
+Before we dive into the code, we have a few things to note for `RouteOrch`:
 
-- 从上面`init`函数，我们可以看到`RouteOrch`不仅会管理普通路由，还会管理MPLS路由，这两种路由的处理逻辑是不一样的，所以在下面的代码中，为了简化，我们只展示普通路由的处理逻辑。
-- 因为`ProducerStateTable`在传递和接受消息的时候都是批量传输的，所以，`RouteOrch`在处理消息的时候，也是批量处理的。为了支持批量处理，`RouteOrch`会借用`EntityBulker<sai_route_api_t> gRouteBulker`将需要改动的SAI路由对象缓存起来，然后在`doTask()`函数的最后，一次性将这些路由对象的改动应用到SAI中。
-- 路由的操作会需要很多其他的信息，比如每个Port的状态，每个Neighbor的状态，每个VRF的状态等等。为了获取这些信息，`RouteOrch`会与其他的Orch对象进行交互，比如`PortOrch`，`NeighOrch`，`VRFOrch`等等。
+- From the above `init` function, we can see that `RouteOrch` not only manages regular routes but also manages MPLS routes. The logic for handling these two types of routes is different. Therefore, in the following code, to simplify, we only show the logic for handling the regular routes.
+- Since `ProducerStateTable` transmits and receives messages in batches, `RouteOrch` also processes the route updates in batches. To support batch processing, `RouteOrch` uses `EntityBulker<sai_route_api_t> gRouteBulker` to cache the SAI route objects that need to be changed, and then applies these route object changes to SAI at the end of the `doTask()` function.
+- Route operations require a lot of other information, such as the status of each port, the status of each neighbor, the status of each VRF, etc. To obtain this information, `RouteOrch` interacts with other Orch objects, such as `PortOrch`, `NeighOrch`, `VRFOrch`, etc.
+
+Let's start with the `RouteOrch::doTask` function. It parses the incoming route operation messages, then calls the `addRoute` or `removeRoute` function to create or delete routes.
 
 ```cpp
 // File: src/sonic-swss/orchagent/routeorch.cpp
@@ -1021,7 +1029,7 @@ void RouteOrch::doTask(Consumer& consumer)
                 string aliases;
                 ...
 
-                // If the nexthop_group is empty, create the next hop group key based on the IPs and aliases. 
+                // If the nexthop_group is empty, create the next hop group key based on the IPs and aliases.
                 // Otherwise, get the key from the NhgOrch. The result will be stored in the "nhg" variable below.
                 NextHopGroupKey& nhg = ctx.nhg;
                 ...
@@ -1089,7 +1097,7 @@ void RouteOrch::doTask(Consumer& consumer)
 
         // Go through the bulker results.
         // Handle SAI failures, update neighbors, counters, send notifications in add/removeRoutePost functions.
-        ... 
+        ...
 
         /* Remove next hop group if the reference count decreases to zero */
         ...
@@ -1097,11 +1105,11 @@ void RouteOrch::doTask(Consumer& consumer)
 }
 ```
 
-解析完路由操作后，`RouteOrch`会调用`addRoute`或者`removeRoute`函数来创建或者删除路由。这里以添加路由`addRoute`为例子来继续分析。它的逻辑主要分为几个大部分：
+Here we take `addRoute` as an example. It mainly does a few things below:
 
-1. 从NeighOrch中获取下一跳信息，并检查下一跳是否真的可用。
-2. 如果是新路由，或者是重新添加正在等待删除的路由，那么就会创建一个新的SAI路由对象
-3. 如果是已有的路由，那么就更新已有的SAI路由对象
+1. Get next hop information from `NeighOrch` and check if the next hop is really available.
+2. If the route is a new or re-added back while waiting to be deleted, a new SAI route object will be created.
+3. If it is an existing route, the existing SAI route object is updated.
 
 ```cpp
 // File: src/sonic-swss/orchagent/routeorch.cpp
@@ -1110,7 +1118,7 @@ bool RouteOrch::addRoute(RouteBulkContext& ctx, const NextHopGroupKey &nextHops)
     // Get nexthop information from NeighOrch.
     // We also need to check PortOrch for inband port, IntfsOrch to ensure the related interface is created and etc.
     ...
-    
+
     // Start to sync the SAI route entry.
     sai_route_entry_t route_entry;
     route_entry.vr_id = vrf_id;
@@ -1119,7 +1127,7 @@ bool RouteOrch::addRoute(RouteBulkContext& ctx, const NextHopGroupKey &nextHops)
 
     sai_attribute_t route_attr;
     auto& object_statuses = ctx.object_statuses;
-    
+
     // Create a new route entry in this case.
     //
     // In case the entry is already pending removal in the bulk, it would be removed from m_syncdRoutes during the bulk call.
@@ -1140,7 +1148,7 @@ bool RouteOrch::addRoute(RouteBulkContext& ctx, const NextHopGroupKey &nextHops)
             return false;
         }
     }
-    
+
     // Update existing route entry in this case.
     else {
         // Set the packet action to forward when there was no next hop (dropped) and not pointing to blackhole.
@@ -1159,7 +1167,7 @@ bool RouteOrch::addRoute(RouteBulkContext& ctx, const NextHopGroupKey &nextHops)
 }
 ```
 
-在创建和设置好所有的路由后，`RouteOrch`会调用`gRouteBulker.flush()`来将所有的路由写入到ASIC_DB中。`flush()`函数很简单，就是将所有的请求分批次进行处理，默认情况下每一批是1000个，这个定义在`OrchDaemon`中，并通过构造函数传入：
+After creating and setting up all the routes, `RouteOrch` calls `gRouteBulker.flush()` to write all the routes to `ASIC_DB`. The `flush()` function is straightforward: it processes all requests in batches, with each batch being 1000 by default, defined in `OrchDaemon` and passed through the constructor:
 
 ```cpp
 // File: src/sonic-swss/orchagent/orchdaemon.cpp
@@ -1193,7 +1201,7 @@ public:
             std::vector<Te> rs;
             std::vector<sai_attribute_t const*> tss;
             std::vector<uint32_t> cs;
-            
+
             for (auto const& i: creating_entries) {
                 sai_object_id_t *pid = std::get<0>(i);
                 auto const& attrs = std::get<1>(i);
@@ -1256,9 +1264,9 @@ public:
 };
 ```
 
-### orchagent中的SAI对象转发
+## SAI Object Forwarding in `orchagent`
 
-细心的小伙伴肯定已经发现了奇怪的地方，这里`EntityBulker`怎么看着像在直接调用SAI API呢？难道它们不应该是在syncd中调用的吗？如果我们对传入`EntityBulker`的SAI API对象进行跟踪，我们甚至会找到sai_route_api_t就是SAI的接口，而`orchagent`中还有SAI的初始化代码，如下：
+At this point, you might have noticed something strange - The `EntityBulker` seems to be directly calling the SAI API. Shouldn't they be called in `syncd`? If we follow the SAI API objects passed to `EntityBulker`, we will even find that `sai_route_api_t` is indeed the SAI interface, and there is SAI initialization code in `orchagent`, as follows:
 
 ```cpp
 // File: src/sonic-sairedis/debian/libsaivs-dev/usr/include/sai/sairoute.h
@@ -1308,11 +1316,11 @@ void initSaiApi()
 }
 ```
 
-相信大家第一次看到这个代码会感觉到非常的困惑。不过别着急，这其实就是`orchagent`中SAI对象的转发机制。
+I believe whoever saw this code for the first time will definitely feel confused. But don't worry, this is actually the SAI object forwarding mechanism in `orchagent`.
 
-熟悉RPC的小伙伴一定不会对`proxy-stub`模式感到陌生 —— 利用统一的接口来定义通信双方调用接口，在调用方实现序列化和发送，然后再接收方实现接收，反序列化与分发。这里SONiC的做法也是类似的：利用SAI API本身作为统一的接口，并实现好序列化和发送功能给`orchagent`来调用，然后再`syncd`中实现接收，反序列化与分发功能。
+If you are familiar with RPC, the `proxy-stub` pattern might sounds very familar to you - using a unified way to define the interfaces called by both parties in communication, implementing message serialization and sending on the client side, and implementing message receiving, deserialization, and dispatching on the server side. Here, SONiC does something similar: using the SAI API itself as a unified interface, implementing message serialization and sending for `orchagent` to call, and implementing message receiving, deserialization, and dispatch functions in `syncd`.
 
-这里，发送端叫做`ClientSai`，实现在`src/sonic-sairedis/lib/ClientSai.*`中。而序列化与反序列化实现在SAI metadata中：`src/sonic-sairedis/meta/sai_serialize.h`：
+Here, the sending end is called `ClientSai`, implemented in `src/sonic-sairedis/lib/ClientSai.*`. Serialization and deserialization are implemented in SAI metadata: `src/sonic-sairedis/meta/sai_serialize.h`:
 
 ```cpp
 // File: src/sonic-sairedis/lib/ClientSai.h
@@ -1335,14 +1343,14 @@ void sai_deserialize_route_entry(_In_ const std::string& s, _In_ sai_route_entry
 ...
 ```
 
-`orchagent`在编译的时候，会去链接`libsairedis`，从而实现调用SAI API时，对SAI对象进行序列化和发送：
+When `orchagent` is compiled, it links to `libsairedis`, which implements the SAI client and handles the serialization and message sending:
 
 ```makefile
 # File: src/sonic-swss/orchagent/Makefile.am
 orchagent_LDADD = $(LDFLAGS_ASAN) -lnl-3 -lnl-route-3 -lpthread -lsairedis -lsaimeta -lsaimetadata -lswsscommon -lzmq
 ```
 
-我们这里用Bulk Create作为例子，来看看`ClientSai`是如何实现序列化和发送的：
+Here, we use Bulk Create as an example to see how `ClientSai` serializes and sends the SAI API call:
 
 ```cpp
 // File: src/sonic-sairedis/lib/ClientSai.cpp
@@ -1415,7 +1423,7 @@ sai_status_t ClientSai::bulkCreate(
 }
 ```
 
-最终，`ClientSai`会调用`m_communicationChannel->set()`，将序列化后的SAI对象发送给`syncd`。而这个Channel，在202106版本之前，就是[基于Redis的ProducerTable](https://github.com/sonic-net/sonic-sairedis/blob/202106/lib/inc/RedisChannel.h)了。可能是基于效率的考虑，从202111版本开始，这个Channel已经更改为[ZMQ](https://github.com/sonic-net/sonic-sairedis/blob/202111/lib/ZeroMQChannel.h)了。
+Finally, `ClientSai` calls `m_communicationChannel->set()` to send the serialized SAI objects to `syncd`. This channel, before the 202106 version, was the [ProducerTable based on Redis](https://github.com/sonic-net/sonic-sairedis/blob/202106/lib/inc/RedisChannel.h). Possibly for efficiency reasons, starting from the 202111 version, this channel has been changed to [ZMQ](https://github.com/sonic-net/sonic-sairedis/blob/202111/lib/ZeroMQChannel.h).
 
 ```cpp
 // File: https://github.com/sonic-net/sonic-sairedis/blob/202106/lib/inc/RedisChannel.h
@@ -1439,7 +1447,7 @@ sai_status_t ClientSai::initialize(
         _In_ const sai_service_method_table_t *service_method_table)
 {
     ...
-    
+
     m_communicationChannel = std::make_shared<ZeroMQChannel>(
             cc->m_zmqEndpoint,
             cc->m_zmqNtfEndpoint,
@@ -1451,13 +1459,13 @@ sai_status_t ClientSai::initialize(
 }
 ```
 
-关于进程通信的方法，这里就不再赘述了，大家可以参考第四章描述的[进程间的通信机制](./4-2-2-redis-messaging-layer.html)。
+For the inter-process communication, we are going to skip the details here. Please feel free to refer to the [Redis-based channels](./4-2-redis-based-channels.md) described in Chapter 4.
 
-### syncd更新ASIC
+## `syncd` Updating ASIC
 
-最后，当SAI对象生成好并发送给`syncd`后，`syncd`会接收，处理，更新ASIC_DB，最后更新ASIC。这一段的工作流，我们已经在[Syncd-SAI工作流](./5-1-syncd-sai-workflow.html)中详细介绍过了，这里就不再赘述了，大家可以移步去查看。
+Finally, when the SAI objects are generated and sent to `syncd`, `syncd` will receive, processa and updates `ASIC_DB`, then finally updates the ASIC. We have already described this workflow in detail in the [Syncd-SAI Workflow](./5-1-syncd-and-sai.md), so we will skip them here. For more details, please refer to the [Syncd-SAI Workflow chapter](./5-1-syncd-and-sai.md).
 
-# 参考资料
+# References
 
 1. [SONiC Architecture][SONiCArch]
 2. [Github repo: sonic-swss][SONiCSWSS]
@@ -1467,7 +1475,7 @@ sai_status_t ClientSai::initialize(
 6. [Github repo: sonic-sairedis][SONiCSAIRedis]
 7. [RFC 4271: A Border Gateway Protocol 4 (BGP-4)][BGP]
 8. [FRRouting][FRRouting]
-9.  [FRRouting - BGP][BGP]
+9. [FRRouting - BGP][BGP]
 10. [FRRouting - FPM][FPM]
 11. [Understanding EVPN Pure Type 5 Routes][EVPN]
 
@@ -1480,5 +1488,4 @@ sai_status_t ClientSai::initialize(
 [BGP]: https://datatracker.ietf.org/doc/html/rfc4271
 [FRRouting]: https://frrouting.org/
 [FPM]: https://docs.frrouting.org/projects/dev-guide/en/latest/fpm.html
-[FRRBGP]: https://docs.frrouting.org/en/latest/bgp.html
 [EVPN]: https://www.juniper.net/documentation/us/en/software/junos/evpn-vxlan/topics/concept/evpn-route-type5-understanding.html
