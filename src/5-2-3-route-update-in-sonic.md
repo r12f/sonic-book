@@ -1,4 +1,4 @@
-# SONiC Route Update Workflow
+# Route Update in SONiC
 
 After the work of FRR is done, the route update information is forwarded to SONiC, either via Netlink or FPM. This causes a series of operations in SONiC, and eventually updates the route table in the ASIC.
 
