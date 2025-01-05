@@ -13,7 +13,7 @@ msgstr ""
 
 #: src\SUMMARY.md:1
 msgid "Summary"
-msgstr ""
+msgstr "总结"
 
 #: src\SUMMARY.md:3 src\1-intro.md:1
 msgid "Getting Started with SONiC"
@@ -21,365 +21,151 @@ msgstr "SONiC入门指南"
 
 #: src\SUMMARY.md:4 src\1-1-install.md:1
 msgid "Installation"
-msgstr ""
+msgstr "安装"
 
 #: src\SUMMARY.md:5
 msgid "Hello World! Virtually"
-msgstr ""
+msgstr "虚拟环境中的Hello World!"
 
 #: src\SUMMARY.md:6
 msgid "Commands Cheatsheet (WIP)"
-msgstr ""
+msgstr "命令速查表 (WIP)"
 
 #: src\SUMMARY.md:7
 msgid "Core Components Introduction"
-msgstr ""
+msgstr "核心组件介绍"
 
 #: src\SUMMARY.md:8
 msgid "Redis Database"
-msgstr ""
+msgstr "Redis数据库"
 
 #: src\SUMMARY.md:9
 msgid "Services and Workflows"
-msgstr ""
+msgstr "服务和工作流"
 
 #: src\SUMMARY.md:10
 msgid "Key Containers"
-msgstr ""
+msgstr "关键容器"
 
 #: src\SUMMARY.md:11 src\2-4-sai-intro.md:1
 msgid "SAI"
-msgstr ""
+msgstr "SAI"
 
 #: src\SUMMARY.md:12 src\3-dev-guide.md:1
 msgid "Developer Guide"
-msgstr ""
+msgstr "开发者指南"
 
 #: src\SUMMARY.md:13 src\3-1-code-repos.md:1
 msgid "Code Repositories"
-msgstr ""
+msgstr "代码仓库"
 
 #: src\SUMMARY.md:14 src\3-2-build.md:1
 msgid "Build"
-msgstr ""
+msgstr "编译"
 
 #: src\SUMMARY.md:15
 msgid "Testing (WIP)"
-msgstr ""
+msgstr "测试 (WIP)"
 
 #: src\SUMMARY.md:16
 msgid "Debugging (WIP)"
-msgstr ""
+msgstr "调试 (WIP)"
 
 #: src\SUMMARY.md:17
 msgid "SAI Debugging (WIP)"
-msgstr ""
+msgstr "SAI调试 (WIP)"
 
 #: src\SUMMARY.md:18
 msgid "Service Communication"
-msgstr ""
+msgstr "服务间通信"
 
 #: src\SUMMARY.md:19 src\4-1-communicate-via-kernel.md:1
 msgid "Communicate via Kernel"
-msgstr ""
+msgstr "通过内核通信"
 
 #: src\SUMMARY.md:20 src\4-1-1-exec.md:1
 msgid "Command Line Invocation"
-msgstr ""
+msgstr "命令行调用"
 
 #: src\SUMMARY.md:21 src\4-1-2-netlink.md:1
 msgid "Netlink"
-msgstr ""
+msgstr "Netlink"
 
 #: src\SUMMARY.md:22 src\4-2-redis-based-channels.md:1
 msgid "Redis-based Channels"
-msgstr ""
+msgstr "基于Redis的通道"
 
 #: src\SUMMARY.md:23 src\4-2-1-redis-wrappers.md:1
 msgid "Redis Wrappers"
-msgstr ""
+msgstr "Redis封装"
 
 #: src\SUMMARY.md:24 src\4-2-2-subscribe-state-table.md:1
 msgid "SubscribeStateTable"
-msgstr ""
+msgstr "SubscribeStateTable"
 
 #: src\SUMMARY.md:25
 msgid "NotificationProducer/Consumer"
-msgstr ""
+msgstr "NotificationProducer/Consumer"
 
 #: src\SUMMARY.md:26
 msgid "Producer/ConsumerTable"
-msgstr ""
+msgstr "Producer/ConsumerTable"
 
 #: src\SUMMARY.md:27
 msgid "Producer/ConsumerStateTable"
-msgstr ""
+msgstr "Producer/ConsumerStateTable"
 
 #: src\SUMMARY.md:28
 msgid "ZMQ-based Channels (WIP)"
-msgstr ""
+msgstr "基于ZMQ的通道 (WIP)"
 
 #: src\SUMMARY.md:29
 msgid "Orch Layer"
-msgstr ""
+msgstr "Orch层"
 
 #: src\SUMMARY.md:30
 msgid "Event Polling and Error Handling"
-msgstr ""
+msgstr "事件轮询和错误处理"
 
 #: src\SUMMARY.md:31
 msgid "Core Components Deep Dive"
-msgstr ""
+msgstr "深入核心组件"
 
 #: src\SUMMARY.md:32 src\5-1-syncd-and-sai.md:1
 msgid "Syncd and SAI"
-msgstr ""
+msgstr "Syncd和SAI"
 
 #: src\SUMMARY.md:33 src\5-2-bgp.md:1
 msgid "BGP"
-msgstr ""
+msgstr "BGP"
 
 #: src\SUMMARY.md:34 src\5-2-1-bgp-cli.md:1
 msgid "BGP CLI and vtysh"
-msgstr ""
+msgstr "BGP CLI和vtysh"
 
 #: src\SUMMARY.md:35 src\5-2-2-route-update-in-frr.md:1
 msgid "Route Update in FRR"
-msgstr ""
+msgstr "FRR中的路由更新"
 
 #: src\SUMMARY.md:36 src\5-2-3-route-update-in-sonic.md:1
 msgid "Route Update in SONiC"
-msgstr ""
+msgstr "SONiC中的路由更新"
 
 #: src\SUMMARY.md:37
 msgid "Boot Process (WIP)"
-msgstr ""
+msgstr "启动过程 (WIP)"
 
 #: src\SUMMARY.md:38
 msgid "Cold Boot (WIP)"
-msgstr ""
+msgstr "冷启动 (WIP)"
 
 #: src\SUMMARY.md:39
 msgid "Fast Boot (WIP)"
-msgstr ""
+msgstr "快速启动 (WIP)"
 
 #: src\SUMMARY.md:40
 msgid "Warm Boot (WIP)"
-msgstr ""
-
-#: src\1-intro.md:3
-msgid "Why SONiC?"
-msgstr ""
-
-#: src\1-intro.md:5
-msgid ""
-"We know that switches have their own operating systems for configuration, "
-"monitoring and so on. However, since the first switch was introduced in "
-"1986, despite ongoing development by various vendors, there are still some "
-"issues, such as:"
-msgstr ""
-
-#: src\1-intro.md:7
-msgid ""
-"Closed ecosystem: Non-open source systems primarily support proprietary "
-"hardware and are not compatible with devices from other vendors."
-msgstr ""
-
-#: src\1-intro.md:8
-msgid ""
-"Limited use cases: It is difficult to use the same system to support complex "
-"and diverse scenarios in large-scale data centers."
-msgstr ""
-
-#: src\1-intro.md:9
-msgid ""
-"Disruptive upgrades: Upgrades can cause network interruptions, which can be "
-"fatal for cloud providers."
-msgstr ""
-
-#: src\1-intro.md:10
-msgid ""
-"Slow feature upgrades: It is challenging to support rapid product iterations "
-"due to slow device feature upgrades."
-msgstr ""
-
-#: src\1-intro.md:12
-msgid ""
-"To address these issues, Microsoft initiated the SONiC open-source project "
-"in 2016. The goal was to create a universal network operating system that "
-"solves the aforementioned problems. Additionally, Microsoft's extensive use "
-"of SONiC in Azure ensures its suitability for large-scale production "
-"environments, which is another significant advantage."
-msgstr ""
-
-#: src\1-intro.md:14
-msgid "Architecture"
-msgstr ""
-
-#: src\1-intro.md:16
-msgid ""
-"SONiC is an open-source network operating system (NOS) developed by "
-"Microsoft based on Debian. It is designed with three core principles:"
-msgstr ""
-
-#: src\1-intro.md:18
-msgid ""
-"**Hardware and software decoupling**: SONiC abstracts hardware operations "
-"through the Switch Abstraction Interface (SAI), enabling SONiC to support "
-"multiple hardware platforms. SAI defines this abstraction layer, which is "
-"implemented by various vendors."
-msgstr ""
-
-#: src\1-intro.md:19
-msgid ""
-"**Microservices with Docker containers**: The main functionalities of SONiC "
-"are divided into individual Docker containers. Unlike traditional network "
-"operating systems, upgrading the system can be done by upgrading specific "
-"containers without the need for a complete system upgrade or restart. This "
-"allows for easy upgrades, maintenance, and supports rapid development and "
-"iteration."
-msgstr ""
-
-#: src\1-intro.md:20
-msgid ""
-"**Redis as a central database for service decoupling**: The configuration "
-"and status of most services are stored in a central Redis database. This "
-"enables seamless collaboration between services (data storage and pub/sub) "
-"and provides a unified method for operating and querying various services "
-"without concerns about data loss or protocol compatibility. It also "
-"facilitates easy backup and recovery of states."
-msgstr ""
-
-#: src\1-intro.md:22
-msgid ""
-"These design choices gives SONiC a great open ecosystem ([Community](https://"
-"sonic-net.github.io/SONiC/index.html), [Workgroups](https://sonic-net.github."
-"io/SONiC/workgroups.html), [Devices](https://sonic-net.github.io/SONiC/"
-"Supported-Devices-and-Platforms.html)). Overall, the architecture of SONiC "
-"is illustrated in the following diagram:"
-msgstr ""
-
-#: src\1-intro.md:24
-msgid "![](assets/chapter-1/sonic-arch.png)"
-msgstr ""
-
-#: src\1-intro.md:26 src\2-core-components-intro.md:17
-msgid ""
-"_(Source: [SONiC Wiki - Architecture](https://github.com/sonic-net/SONiC/"
-"wiki/Architecture))_"
-msgstr ""
-
-#: src\1-intro.md:28
-msgid ""
-"Of course, this design has some drawbacks, such as relative large disk "
-"usage. However, with the availability of storage space and various methods "
-"to address this issue, it is not a significant concern."
-msgstr ""
-
-#: src\1-intro.md:30
-msgid "Future Direction"
-msgstr ""
-
-#: src\1-intro.md:32
-msgid ""
-"Although switches have been around for many years, the development of cloud "
-"has raised higher demands and challenges for networks. These include "
-"intuitive requirements like increased bandwidth and capacity, as well as "
-"cutting-edge research such as in-band computing and edge-network "
-"convergence. These factors drive innovation among major vendors and research "
-"institutions. SONiC is no exception and continues to evolve to meet the "
-"growing demands."
-msgstr ""
-
-#: src\1-intro.md:34
-msgid ""
-"To learn more about the future direction of SONiC, you can refer to its "
-"[Roadmap](https://github.com/sonic-net/SONiC/wiki/Sonic-Roadmap-Planning). "
-"If you are interested in the latest updates, you can also follow its "
-"workshops, such as the recent [OCP Global Summit 2022 - SONiC Workshop]"
-"(https://www.youtube.com/playlist?list=PLAG-eekRQBSjwK0DpyHJs76gOz1619KqW). "
-"However, I won't go into detail here."
-msgstr ""
-
-#: src\1-intro.md:36
-msgid "Acknowledgments"
-msgstr ""
-
-#: src\1-intro.md:38
-msgid ""
-"Special thanks to the following individuals for their help and "
-"contributions. Without them, this introductory guide would not have been "
-"possible!"
-msgstr ""
-
-#: src\1-intro.md:40
-msgid "[@bingwang-ms](https://github.com/bingwang-ms)"
-msgstr ""
-
-#: src\1-intro.md:42
-msgid "License"
-msgstr ""
-
-#: src\1-intro.md:44
-msgid ""
-"This book is licensed under the [Creative Commons Attribution-NonCommercial-"
-"ShareAlike 4.0 International License](https://creativecommons.org/licenses/"
-"by-nc-sa/4.0/)."
-msgstr ""
-
-#: src\1-intro.md:46 src\1-1-install.md:164
-#: src\1-2-hello-world-virtually.md:188 src\1-3-command-cheatsheet.md:195
-#: src\2-core-components-intro.md:19 src\2-1-database.md:76
-#: src\2-2-services-intro.md:74 src\2-3-key-containers.md:181
-#: src\2-4-sai-intro.md:164 src\3-1-code-repos.md:133 src\3-2-build.md:211
-#: src\4-communications.md:19 src\4-1-1-exec.md:36 src\4-1-2-netlink.md:76
-#: src\4-2-1-redis-wrappers.md:32 src\4-2-2-subscribe-state-table.md:71
-#: src\4-2-3-notification-producer-consumer.md:52
-#: src\4-2-4-producer-consumer-table.md:128
-#: src\4-2-5-producer-consumer-state-table.md:123 src\4-4-orch-layer.md:34
-#: src\4-5-event-polling-and-error-handling.md:121
-#: src\5-1-syncd-and-sai.md:822 src\5-2-bgp.md:32 src\5-2-1-bgp-cli.md:89
-#: src\5-2-2-route-update-in-frr.md:735 src\5-2-3-route-update-in-sonic.md:734
-msgid "References"
-msgstr ""
-
-#: src\1-intro.md:48
-msgid ""
-"[SONiC Wiki - Architecture](https://github.com/sonic-net/SONiC/wiki/"
-"Architecture)"
-msgstr ""
-
-#: src\1-intro.md:49
-msgid ""
-"[SONiC Wiki - Roadmap Planning](https://github.com/sonic-net/SONiC/wiki/"
-"Sonic-Roadmap-Planning)"
-msgstr ""
-
-#: src\1-intro.md:50
-msgid "[SONiC Landing Page](https://sonic-net.github.io/SONiC/index.html)"
-msgstr ""
-
-#: src\1-intro.md:51
-msgid "[SONiC Workgroups](https://sonic-net.github.io/SONiC/workgroups.html)"
-msgstr ""
-
-#: src\1-intro.md:52 src\1-1-install.md:166 src\3-2-build.md:216
-msgid ""
-"[SONiC Supported Devices and Platforms](https://sonic-net.github.io/SONiC/"
-"Supported-Devices-and-Platforms.html)"
-msgstr ""
-
-#: src\1-intro.md:53
-msgid ""
-"[SONiC User Manual](https://github.com/sonic-net/SONiC/blob/master/doc/SONiC-"
-"User-Manual.md)"
-msgstr ""
-
-#: src\1-intro.md:54
-msgid ""
-"[OCP Global Summit 2022 - SONiC Workshop](https://www.youtube.com/playlist?"
-"list=PLAG-eekRQBSjwK0DpyHJs76gOz1619KqW)"
-msgstr ""
+msgstr "热启动 (WIP)"
 
 #: src\1-1-install.md:3
 msgid ""
